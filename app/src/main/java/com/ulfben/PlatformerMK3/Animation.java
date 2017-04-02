@@ -1,0 +1,154 @@
+package com.ulfben.PlatformerMK3;
+import android.graphics.Bitmap;
+import android.graphics.drawable.AnimationDrawable;
+import android.graphics.drawable.BitmapDrawable;
+import android.support.v4.content.ContextCompat;
+
+import com.ulfben.PlatformerMK3.engine.GameEngine;
+
+// Created by Ulf Benjaminsson (ulfben) on 2017-02-20.
+
+public class Animation {
+    private static final String TAG = "Animation";
+    public final float MAX_PLAYBACK_RATE = 2.0f;
+    public final float MIN_PLAYBACK_RATE = 0f;
+    public final float DEFAULT_PLAYBACK_RATE = 1f;
+    private GameEngine mEngine = null;
+    private Bitmap[] mFrames = null;
+    private float[] mFrameHeights = null; //pixels
+    private float[] mFrameWidths = null; //pixels
+    private int[] mFrameTimesMillis = null;
+    private boolean mIsOneShot = false;
+    private int mFrameCount = -1;
+    private int mDuration = 0;
+    private int mElapsedTime = 0;
+    private int mCurrentFrame = 0;
+    private float mPlaybackRate = DEFAULT_PLAYBACK_RATE;
+
+    public Animation(final GameEngine engine, final int resourceID, final float width, final float height){
+        super();
+        mEngine = engine;
+        prepareAnimation(resourceID, width, height);
+    }
+
+    public Bitmap getCurrentBitmap(){
+        return mFrames[mCurrentFrame];
+    }
+    public float getCurrentHeightMeters(){
+        return mEngine.screenToWorld(mFrameHeights[mCurrentFrame]);
+    }
+    public float getCurrentWidthMeters(){
+        return mEngine.screenToWorld(mFrameWidths[mCurrentFrame]);
+    }
+    public void setPlaybackRate(final float rate){
+        mPlaybackRate = Utils.clamp(rate, MIN_PLAYBACK_RATE, MAX_PLAYBACK_RATE);
+    }
+
+    public void update(final float secondsPassed) {
+        final int elapsedMillis = (int) (1000.0f*secondsPassed);
+        mElapsedTime += elapsedMillis*mPlaybackRate;
+        if (mElapsedTime > mDuration) {
+            if (mIsOneShot) { return; }
+            mElapsedTime = mElapsedTime % mDuration;
+        }
+        updateCurrentFrame();
+    }
+
+    private void updateCurrentFrame(){
+        int timeToNext = 0;
+        for (int i = 0; i < mFrameCount; i++) {
+            timeToNext += mFrameTimesMillis[i];
+            if (timeToNext > mElapsedTime) {
+                synchronized (mFrames) {
+                    mCurrentFrame = i;
+                }
+                break;
+            }
+        }
+    }
+
+    public void resetAnimation(){
+        setPlaybackRate(DEFAULT_PLAYBACK_RATE);
+        mElapsedTime = 0;
+        updateCurrentFrame();
+    }
+
+    private void prepareAnimation(final int resourceID, final float width, final float height){
+        final AnimationDrawable anim = (AnimationDrawable) ContextCompat.getDrawable(mEngine.getContext(), resourceID);
+        mFrameCount = anim.getNumberOfFrames();
+        mDuration = getAnimationLengthMillis(anim);
+        mElapsedTime = 0;
+        mIsOneShot = anim.isOneShot();
+        if(!mIsOneShot) {
+            mElapsedTime = GameEngine.RNG.nextInt(mDuration); //randomize start of animation.
+        }
+        final String spriteName = "Anim_"+resourceID+"_";
+        mFrames = prepareAnimation(anim, spriteName, (int) mEngine.worldToScreen(width), (int) mEngine.worldToScreen(height));
+        mFrameHeights = getAnimationFrameHeights(mFrames);
+        mFrameWidths = getAnimationFrameWidths(mFrames);
+        mFrameTimesMillis = getAnimationFrameTimes(anim);
+    }
+
+    public static float[] getAnimationFrameHeights(final Bitmap[] frames){
+        final int frameCount = frames.length;
+        final float[] heights = new float[frameCount];
+        for (int i = 0; i < frameCount; i++) {
+            //Log.d(TAG, "Frame: " +  i + ", height: " + frames[i].getHeight() + "px");
+            heights[i] = frames[i].getHeight();
+        }
+        return heights;
+    }
+    public static float[] getAnimationFrameWidths(final Bitmap[] frames){
+        final int frameCount = frames.length;
+        final float[] widths = new float[frameCount];
+        for (int i = 0; i < frameCount; i++) {
+            widths[i] = frames[i].getWidth();
+        }
+        return widths;
+    }
+
+    public static Bitmap[] prepareAnimation(final AnimationDrawable anim, final String sprite, final int width, final int height){
+        final int frameCount = anim.getNumberOfFrames();
+        final Bitmap[] frames = new Bitmap[frameCount];
+        String key = "";
+        for (int i = 0; i< frameCount; i++) {
+            key = BitmapPool.makeKey(sprite+i, width, height);
+            if(!BitmapPool.contains(key)){
+                BitmapPool.put(key, BitmapUtils.scaleBitmap(((BitmapDrawable) anim.getFrame(i)).getBitmap(), width, height));
+            }
+            frames[i] = BitmapPool.getBitmap(key);
+        }
+        return frames;
+    }
+
+    public static int[] getAnimationFrameTimes(final AnimationDrawable anim){
+        final int count = anim.getNumberOfFrames();
+        final int[] frameTimes = new int[count];
+        for (int i = 0; i < count; i++) {
+            frameTimes[i] = anim.getDuration(i);
+        }
+        return frameTimes;
+    }
+
+    public static int getAnimationLengthMillis(final AnimationDrawable anim){
+        int length = 0;
+        final int count = anim.getNumberOfFrames();
+        for (int i = 0; i< count; i++) {
+            length += anim.getDuration(i);
+        }
+        return length;
+    }
+
+    public void destroy(){
+        if(mFrames != null){
+            for (final Bitmap b : mFrames){
+                b.recycle();
+            }
+        }
+        mFrames = null;
+        mFrameHeights = null;
+        mFrameWidths = null;
+        mFrameTimesMillis = null;
+        mEngine = null;
+    }
+}
