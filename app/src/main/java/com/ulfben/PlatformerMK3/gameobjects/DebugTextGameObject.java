@@ -25,7 +25,7 @@ public class DebugTextGameObject extends GameObject {
 
     @Override
     public void render(final Canvas canvas, final Paint paint){
-        final int textSize = (int) (mEngine.getPixelsPerMeter()*mHeight);
+        final int textSize = (int) (mEngine.getPixelsPerMeterY()*mHeight);
         int y = textSize;
         paint.setTextSize(textSize);
         paint.setTextAlign(Paint.Align.LEFT);

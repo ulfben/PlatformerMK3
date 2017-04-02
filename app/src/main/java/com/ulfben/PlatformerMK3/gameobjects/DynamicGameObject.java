@@ -1,9 +1,9 @@
 package com.ulfben.PlatformerMK3.gameobjects;
 import android.graphics.PointF;
 
-import com.ulfben.PlatformerMK3.Random;
-import com.ulfben.PlatformerMK3.Utils;
 import com.ulfben.PlatformerMK3.engine.GameEngine;
+import com.ulfben.PlatformerMK3.utilities.Random;
+import com.ulfben.PlatformerMK3.utilities.Utils;
 // Created by Ulf Benjaminsson (ulfben) on 2017-02-24.
 
 public class DynamicGameObject extends GameObject {
@@ -16,7 +16,6 @@ public class DynamicGameObject extends GameObject {
     protected float mGravity = GRAVITATIONAL_ACCELERATION; //non-static member, some objects will not want gravity
     protected float mFriction = 1.0f; //1 == no friction, 0 == no motion.
     protected boolean mIsOnGround = false;
-
 
     DynamicGameObject(final GameEngine engine, final String sprite) {
         super(engine, sprite);

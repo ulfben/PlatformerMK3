@@ -17,7 +17,7 @@ public class Accelerometer extends InputManager {
     private static final int LENGTH = 3; //azimuth, pitch and roll
     private static final float MAX_ANGLE = 30f;
     private static final float SHAKE_THRESHOLD = 4.25f; // m/S^2
-    private static final long SHAKE_COOLDOWN = 300;//ms
+    private static final long SHAKE_COOLDOWN = 200;//ms
     private long mLastShake = 0;
     private final Activity mActivity;
     private final Display mDisplay; //to track orientation

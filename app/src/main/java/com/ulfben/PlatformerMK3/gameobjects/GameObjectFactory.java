@@ -1,10 +1,6 @@
-package com.ulfben.PlatformerMK3.engine;
-import com.ulfben.PlatformerMK3.LevelData;
-import com.ulfben.PlatformerMK3.gameobjects.Collectible;
-import com.ulfben.PlatformerMK3.gameobjects.GameObject;
-import com.ulfben.PlatformerMK3.gameobjects.Player;
-import com.ulfben.PlatformerMK3.gameobjects.Spears;
-import com.ulfben.PlatformerMK3.gameobjects.Walker;
+package com.ulfben.PlatformerMK3.gameobjects;
+import com.ulfben.PlatformerMK3.engine.GameEngine;
+import com.ulfben.PlatformerMK3.levels.LevelData;
 // Created by Ulf Benjaminsson (ulfben) on 2017-03-29.
 
 public class GameObjectFactory {

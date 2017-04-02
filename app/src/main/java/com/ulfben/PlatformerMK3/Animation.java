@@ -5,6 +5,11 @@ import android.graphics.drawable.BitmapDrawable;
 import android.support.v4.content.ContextCompat;
 
 import com.ulfben.PlatformerMK3.engine.GameEngine;
+import com.ulfben.PlatformerMK3.utilities.Axis;
+import com.ulfben.PlatformerMK3.utilities.BitmapPool;
+import com.ulfben.PlatformerMK3.utilities.BitmapUtils;
+import com.ulfben.PlatformerMK3.utilities.Random;
+import com.ulfben.PlatformerMK3.utilities.Utils;
 
 // Created by Ulf Benjaminsson (ulfben) on 2017-02-20.
 
@@ -35,10 +40,10 @@ public class Animation {
         return mFrames[mCurrentFrame];
     }
     public float getCurrentHeightMeters(){
-        return mEngine.screenToWorld(mFrameHeights[mCurrentFrame]);
+        return mEngine.screenToWorld(mFrameHeights[mCurrentFrame], Axis.Y);
     }
     public float getCurrentWidthMeters(){
-        return mEngine.screenToWorld(mFrameWidths[mCurrentFrame]);
+        return mEngine.screenToWorld(mFrameWidths[mCurrentFrame], Axis.X);
     }
     public void setPlaybackRate(final float rate){
         mPlaybackRate = Utils.clamp(rate, MIN_PLAYBACK_RATE, MAX_PLAYBACK_RATE);
@@ -82,7 +87,7 @@ public class Animation {
             mElapsedTime = Random.nextInt(mDuration); //randomize start of animation.
         }
         final String spriteName = "Anim_"+resourceID+"_";
-        mFrames = prepareAnimation(anim, spriteName, (int) mEngine.worldToScreen(width), (int) mEngine.worldToScreen(height));
+        mFrames = prepareAnimation(anim, spriteName, (int) mEngine.worldToScreen(width, Axis.X), (int) mEngine.worldToScreen(height, Axis.Y));
         mFrameHeights = getAnimationFrameHeights(mFrames);
         mFrameWidths = getAnimationFrameWidths(mFrames);
         mFrameTimesMillis = getAnimationFrameTimes(anim);

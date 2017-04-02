@@ -4,8 +4,8 @@ import android.graphics.PointF;
 import android.graphics.Rect;
 import android.graphics.RectF;
 
-import com.ulfben.PlatformerMK3.Utils;
 import com.ulfben.PlatformerMK3.gameobjects.GameObject;
+import com.ulfben.PlatformerMK3.utilities.Utils;
 // Created by Ulf Benjaminsson (ulfben) on 2017-02-13.
 
 public class Viewport {

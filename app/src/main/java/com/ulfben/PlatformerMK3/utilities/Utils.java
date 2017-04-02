@@ -1,4 +1,4 @@
-package com.ulfben.PlatformerMK3;
+package com.ulfben.PlatformerMK3.utilities;
 import android.graphics.PointF;
 // Created by Ulf Benjaminsson (ulfben) on 2017-02-24.
 

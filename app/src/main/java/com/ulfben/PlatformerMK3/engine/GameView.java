@@ -8,8 +8,8 @@ import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
-import com.ulfben.PlatformerMK3.SysUtils;
 import com.ulfben.PlatformerMK3.gameobjects.GameObject;
+import com.ulfben.PlatformerMK3.utilities.SysUtils;
 
 import java.util.ArrayList;
 

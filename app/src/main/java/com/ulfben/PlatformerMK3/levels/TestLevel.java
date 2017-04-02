@@ -1,4 +1,4 @@
-package com.ulfben.PlatformerMK3;
+package com.ulfben.PlatformerMK3.levels;
 import android.util.Log;
 import android.util.SparseArray;
 // Created by Ulf Benjaminsson (ulfben) on 2017-02-13.

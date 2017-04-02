@@ -4,7 +4,7 @@ import android.view.MotionEvent;
 import android.view.View;
 
 import com.ulfben.PlatformerMK3.R;
-import com.ulfben.PlatformerMK3.SysUtils;
+import com.ulfben.PlatformerMK3.utilities.SysUtils;
 // Created by Ulf Benjaminsson (ulfben) on 2017-03-11.
 
 public class VirtualJoystick extends InputManager {

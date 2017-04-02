@@ -1,4 +1,4 @@
-package com.ulfben.PlatformerMK3;
+package com.ulfben.PlatformerMK3.utilities;
 import android.content.res.Resources;
 import android.os.Build;
 import android.util.Log;

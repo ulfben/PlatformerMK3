@@ -18,6 +18,7 @@ import com.ulfben.PlatformerMK3.input.CompositeControl;
 import com.ulfben.PlatformerMK3.input.Gamepad;
 import com.ulfben.PlatformerMK3.input.GamepadListener;
 import com.ulfben.PlatformerMK3.input.VirtualJoystick;
+import com.ulfben.PlatformerMK3.utilities.SysUtils;
 // Created by Ulf Benjaminsson (ulfben) on 2017-02-01.
 public class MainActivity extends AppCompatActivity implements InputManager.InputDeviceListener {
     private GameEngine mGameEngine = null;

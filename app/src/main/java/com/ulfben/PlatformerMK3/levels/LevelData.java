@@ -1,4 +1,4 @@
-package com.ulfben.PlatformerMK3;
+package com.ulfben.PlatformerMK3.levels;
 import java.util.HashSet;
 // Created by Ulf Benjaminsson (ulfben) on 2017-02-13.
 

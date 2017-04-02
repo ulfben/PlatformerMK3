@@ -89,7 +89,7 @@ public class Player extends DynamicGameObject {
         mEngine.worldToScreen(mBounds, GameObject.screenCord);
         float offset = 0;
         if(mFacing == RIGHT){
-            offset = mWidth*mEngine.getPixelsPerMeter();
+            offset = mWidth*mEngine.getPixelsPerMeterX();
         }
         mTransform.postTranslate(GameObject.screenCord.x+offset, GameObject.screenCord.y);
         canvas.drawBitmap(mAnim.getCurrentBitmap(), mTransform, paint);

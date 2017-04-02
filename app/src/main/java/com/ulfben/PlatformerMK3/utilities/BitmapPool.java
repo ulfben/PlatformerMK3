@@ -1,4 +1,4 @@
-package com.ulfben.PlatformerMK3;
+package com.ulfben.PlatformerMK3.utilities;
 import android.graphics.Bitmap;
 
 import java.util.HashMap;

@@ -7,9 +7,10 @@ import android.graphics.Point;
 import android.graphics.PointF;
 import android.graphics.RectF;
 
-import com.ulfben.PlatformerMK3.BitmapPool;
-import com.ulfben.PlatformerMK3.BitmapUtils;
 import com.ulfben.PlatformerMK3.engine.GameEngine;
+import com.ulfben.PlatformerMK3.utilities.Axis;
+import com.ulfben.PlatformerMK3.utilities.BitmapPool;
+import com.ulfben.PlatformerMK3.utilities.BitmapUtils;
 //Created by Ulf Benjaminsson (ulfben) on 2017-02-13.
 
 public class GameObject {
@@ -79,7 +80,7 @@ public class GameObject {
         final String key = BitmapPool.makeKey(mSprite, mWidth, mHeight);
         if(!BitmapPool.contains(key)){
             try {
-                final Bitmap bmp = BitmapUtils.loadScaledBitmap(mEngine.getResourceID(mSprite), (int)mEngine.worldToScreen(mWidth), (int)mEngine.worldToScreen(mHeight));
+                final Bitmap bmp = BitmapUtils.loadScaledBitmap(mEngine.getResourceID(mSprite), (int)mEngine.worldToScreen(mWidth, Axis.X), (int)mEngine.worldToScreen(mHeight, Axis.Y));
                 BitmapPool.put(key, bmp);
             }catch(final Exception e){
                 e.printStackTrace();

@@ -7,15 +7,15 @@ import android.graphics.PointF;
 import android.graphics.RectF;
 import android.util.Log;
 
-import com.ulfben.PlatformerMK3.BitmapPool;
-import com.ulfben.PlatformerMK3.BitmapUtils;
 import com.ulfben.PlatformerMK3.GameEvent;
-import com.ulfben.PlatformerMK3.Jukebox;
-import com.ulfben.PlatformerMK3.LevelManager;
 import com.ulfben.PlatformerMK3.gameobjects.GameObject;
 import com.ulfben.PlatformerMK3.gameobjects.Player;
 import com.ulfben.PlatformerMK3.input.InputManager;
 import com.ulfben.PlatformerMK3.input.NullInput;
+import com.ulfben.PlatformerMK3.levels.LevelManager;
+import com.ulfben.PlatformerMK3.utilities.Axis;
+import com.ulfben.PlatformerMK3.utilities.BitmapPool;
+import com.ulfben.PlatformerMK3.utilities.BitmapUtils;
 
 import java.util.ArrayList;
 // Created by Ulf Benjaminsson (ulfben) on 2017-03-07.
@@ -67,7 +67,10 @@ public class GameEngine {
     public String getPackageName(){ return mActivity.getPackageName(); }
     public Resources getResources(){ return mActivity.getResources(); }
     public Context getContext(){ return mActivity; }
-    public int getPixelsPerMeter(){
+    public int getPixelsPerMeterY(){
+        return mCamera.getPixelsPerMeterY();
+    }
+    public int getPixelsPerMeterX(){
         return mCamera.getPixelsPerMeterX();
     }
     public float getWorldWidth(){
@@ -77,12 +80,17 @@ public class GameEngine {
         return mLevelManager.getLevelHeight();
     }
 
-    public float screenToWorld(final float pixelDistance){
-        return pixelDistance/mCamera.getPixelsPerMeterX();
+    public float screenToWorld(final float pixelDistance, final Axis axis){
+        if(axis == Axis.X) {
+            return pixelDistance / mCamera.getPixelsPerMeterX();
+        }
+        return pixelDistance / mCamera.getPixelsPerMeterY();
     }
-
-    public float worldToScreen(final float worldDistance){
-        return worldDistance*mCamera.getPixelsPerMeterX();
+    public float worldToScreen(final float worldDistance, final Axis axis){
+        if(axis == Axis.X) {
+            return worldDistance * mCamera.getPixelsPerMeterX();
+        }
+        return worldDistance * mCamera.getPixelsPerMeterY();
     }
     public void worldToScreen(final PointF worldLocation, final Point screenCord){
         mCamera.worldToScreen(worldLocation, screenCord);
@@ -121,7 +129,6 @@ public class GameEngine {
 
         mRenderThread = new RenderThread(this);
         mRenderThread.start();
-        toggleRenderThread(MULTITHREAD);
     }
 
     public void stopGame() {
@@ -190,14 +197,15 @@ public class GameEngine {
         if(!MULTITHREAD) {
             render();
         }
-        checkForMaybeToggleThreading(dt);
+        //checkForMaybeToggleThreading(dt);
     }
-    public void toggleRenderThread(final boolean on){
-        if(on){
-            Log.d(TAG, "Render thread ON. Remember to force-close application when done!");
+    public void toggleRenderThread(){
+        MULTITHREAD = !MULTITHREAD;
+        if(MULTITHREAD){
+            Log.d(TAG, "Render thread ON.");
             mRenderThread.resumeThread();
         }else{
-            Log.d(TAG, "Render thread OFF. Remember to force-close application when done!");
+            Log.d(TAG, "Render thread OFF.");
             mRenderThread.stopThread();
         }
         mThreadingToggleTimer = 0f;
@@ -206,8 +214,7 @@ public class GameEngine {
         if(mControl.mJump){ //hold jump for THREADING_TOGGLE_TIMEOUT to toggle threading on/off
             mThreadingToggleTimer+=dt;
             if(mThreadingToggleTimer > THREADING_TOGGLE_TIMEOUT){
-                MULTITHREAD = !MULTITHREAD;
-                toggleRenderThread(MULTITHREAD);
+                toggleRenderThread();
             }
         }else{
             mThreadingToggleTimer = 0f;

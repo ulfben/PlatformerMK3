@@ -1,4 +1,4 @@
-package com.ulfben.PlatformerMK3;
+package com.ulfben.PlatformerMK3.engine;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.AssetFileDescriptor;
@@ -9,6 +9,8 @@ import android.media.SoundPool;
 import android.os.Build;
 import android.preference.PreferenceManager;
 import android.util.Log;
+
+import com.ulfben.PlatformerMK3.GameEvent;
 
 import java.io.IOException;
 import java.util.HashMap;

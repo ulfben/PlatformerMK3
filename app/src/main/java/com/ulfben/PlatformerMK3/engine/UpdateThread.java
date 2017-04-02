@@ -1,5 +1,5 @@
 package com.ulfben.PlatformerMK3.engine;
-import com.ulfben.PlatformerMK3.FrameTimer;
+import com.ulfben.PlatformerMK3.utilities.FrameTimer;
 // Created by Ulf Benjaminsson (ulfben) on 2017-03-07.
 
 public class UpdateThread extends Thread {

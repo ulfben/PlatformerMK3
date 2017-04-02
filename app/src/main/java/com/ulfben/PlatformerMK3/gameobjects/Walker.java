@@ -1,7 +1,7 @@
 package com.ulfben.PlatformerMK3.gameobjects;
 
-import com.ulfben.PlatformerMK3.Random;
 import com.ulfben.PlatformerMK3.engine.GameEngine;
+import com.ulfben.PlatformerMK3.utilities.Random;
 // Created by Ulf Benjaminsson (ulfben) on 2017-03-05.
 
 public class Walker extends DynamicGameObject {
