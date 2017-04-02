@@ -11,6 +11,9 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Toast;
 
+import com.ulfben.PlatformerMK3.fragments.BaseFragment;
+import com.ulfben.PlatformerMK3.fragments.GameFragment;
+import com.ulfben.PlatformerMK3.fragments.MainMenuFragment;
 import com.ulfben.PlatformerMK3.input.GamepadListener;
 // Created by Ulf Benjaminsson (ulfben) on 2017-02-01.
 

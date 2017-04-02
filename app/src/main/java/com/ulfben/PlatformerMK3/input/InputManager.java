@@ -20,7 +20,7 @@ public abstract class InputManager {
             mHorizontalFactor = MAX;
         }
     }
-    public void update(float dt) {}
+    public void update(final float dt) {}
 
     public void onStart() {}
 

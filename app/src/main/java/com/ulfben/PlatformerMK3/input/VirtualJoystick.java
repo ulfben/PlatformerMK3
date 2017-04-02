@@ -13,20 +13,21 @@ public class VirtualJoystick extends InputManager {
     protected float mStartingPositionX = 0;
     protected float mStartingPositionY = 0;
 
-    public VirtualJoystick(View view) {
+    public VirtualJoystick(final View view) {
         super();
         view.findViewById(R.id.joystick_region)
                 .setOnTouchListener(new JoystickTouchListener());
         view.findViewById(R.id.button_region)
                 .setOnTouchListener(new ActionButtonTouchListener());
+        //TODO: find a better way to configure the size of the virtual joystick.
         mMaxDistance = SysUtils.dpToPx(48*2); //48dp = minimum hit target.
         Log.d(TAG, "MaxDistance (pixels): " + mMaxDistance);
     }
 
     private class ActionButtonTouchListener implements View.OnTouchListener{
         @Override
-        public boolean onTouch(View v, MotionEvent event){
-            int action = event.getActionMasked();
+        public boolean onTouch(final View v, final MotionEvent event){
+            final int action = event.getActionMasked();
             if(action == MotionEvent.ACTION_DOWN){
                 mJump = true;
             }else if(action == MotionEvent.ACTION_UP){
@@ -38,8 +39,8 @@ public class VirtualJoystick extends InputManager {
 
     private class JoystickTouchListener implements View.OnTouchListener{
         @Override
-        public boolean onTouch(View v, MotionEvent event){
-            int action = event.getActionMasked();
+        public boolean onTouch(final View v, final MotionEvent event){
+            final int action = event.getActionMasked();
             if(action == MotionEvent.ACTION_DOWN){
                 mStartingPositionX = event.getX(0);
                 mStartingPositionY = event.getY(0);
@@ -54,5 +55,6 @@ public class VirtualJoystick extends InputManager {
             }
             return true;
         }
+
     }
 }

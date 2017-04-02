@@ -1,4 +1,4 @@
-package com.ulfben.PlatformerMK3;
+package com.ulfben.PlatformerMK3.fragments;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
@@ -7,6 +7,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
+import com.ulfben.PlatformerMK3.MainActivity;
+import com.ulfben.PlatformerMK3.R;
 import com.ulfben.PlatformerMK3.engine.GameEngine;
 import com.ulfben.PlatformerMK3.engine.GameView;
 import com.ulfben.PlatformerMK3.input.Accelerometer;
@@ -14,6 +16,7 @@ import com.ulfben.PlatformerMK3.input.CompositeControl;
 import com.ulfben.PlatformerMK3.input.Gamepad;
 import com.ulfben.PlatformerMK3.input.VirtualJoystick;
 import com.ulfben.PlatformerMK3.utilities.SysUtils;
+//Created by Ulf Benjaminsson (ulfben) on 2017-04-02.
 
 public class GameFragment extends BaseFragment implements View.OnClickListener {
     private GameEngine mGameEngine;

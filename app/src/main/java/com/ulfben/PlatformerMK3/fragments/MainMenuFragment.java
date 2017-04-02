@@ -1,10 +1,12 @@
-package com.ulfben.PlatformerMK3;
+package com.ulfben.PlatformerMK3.fragments;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.ulfben.PlatformerMK3.MainActivity;
+import com.ulfben.PlatformerMK3.R;
 
 public class MainMenuFragment extends BaseFragment implements View.OnClickListener{
 
@@ -25,6 +27,6 @@ public class MainMenuFragment extends BaseFragment implements View.OnClickListen
 
     @Override
     public void onClick(final View v) {
-        ((MainActivity)getActivity()).startGame();
+        ((MainActivity) getActivity()).startGame();
     }
 }

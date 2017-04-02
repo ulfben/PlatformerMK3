@@ -7,7 +7,7 @@ import com.ulfben.PlatformerMK3.R;
 
 public class VirtualKeypad extends InputManager implements View.OnTouchListener {
 
-    public VirtualKeypad(View view){
+    public VirtualKeypad(final View view){
         view.findViewById(R.id.keypad_up).setOnTouchListener(this);
         view.findViewById(R.id.keypad_down).setOnTouchListener(this);
         view.findViewById(R.id.keypad_left).setOnTouchListener(this);
@@ -16,8 +16,8 @@ public class VirtualKeypad extends InputManager implements View.OnTouchListener 
     }
     @Override
     public boolean onTouch(final View v, final MotionEvent event) {
-        int action = event.getActionMasked();
-        int id = v.getId();
+        final int action = event.getActionMasked();
+        final int id = v.getId();
         if(action == MotionEvent.ACTION_DOWN){
             if(id == R.id.keypad_up){
                 mVerticalFactor -= 1;

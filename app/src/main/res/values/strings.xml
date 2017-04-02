@@ -3,10 +3,10 @@
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
-    <string name="pause">Pause Game</string>
-    <string name="resume">Resume Game</string>
-    <string name="start">Start Game</string>
-    <string name="stop">Stop Game</string>
-    <string name="pause_dialog_title">Pause Dialogue</string>
-    <string name="pause_dialog_message">Pause Message</string>
+    <string name="pause">Pause</string>
+    <string name="resume">Resume playing</string>
+    <string name="start">Start Game!</string>
+    <string name="stop">Exit</string>
+    <string name="pause_dialog_title">Paused</string>
+    <string name="pause_dialog_message">Press the back key to resume playing when you are ready. :)</string>
 </resources>

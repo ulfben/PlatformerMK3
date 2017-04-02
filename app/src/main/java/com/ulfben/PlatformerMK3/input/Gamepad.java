@@ -41,8 +41,8 @@ public class Gamepad extends InputManager implements GamepadListener {
     }
 
     private float getInputFactor(final MotionEvent event, final int axis, final int fallbackAxis){
-        InputDevice device = event.getDevice();
-        int source = event.getSource();
+        final InputDevice device = event.getDevice();
+        final int source = event.getSource();
         float result = event.getAxisValue(axis);
         InputDevice.MotionRange range = device.getMotionRange(axis, source);
         if(Math.abs(result) <= range.getFlat()){
@@ -58,8 +58,8 @@ public class Gamepad extends InputManager implements GamepadListener {
 
     @Override
     public boolean dispatchKeyEvent(final KeyEvent event) {
-        int action = event.getAction();
-        int keyCode = event.getKeyCode();
+        final int action = event.getAction();
+        final int keyCode = event.getKeyCode();
         boolean wasConsumed = false;
         if(action == MotionEvent.ACTION_DOWN){// User started pressing a button
             if(keyCode == KeyEvent.KEYCODE_DPAD_UP){

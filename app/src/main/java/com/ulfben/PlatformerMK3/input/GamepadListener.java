@@ -4,6 +4,6 @@ import android.view.MotionEvent;
 // Created by Ulf Benjaminsson (ulfben) on 2017-03-11.
 
 public interface GamepadListener {
-    boolean dispatchGenericMotionEvent(MotionEvent event);
-    boolean dispatchKeyEvent(KeyEvent event);
+    boolean dispatchGenericMotionEvent(final MotionEvent event);
+    boolean dispatchKeyEvent(final KeyEvent event);
 }
