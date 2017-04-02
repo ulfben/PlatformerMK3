@@ -18,7 +18,7 @@ public class Player extends DynamicGameObject {
     private static final float PLAYER_ACCELERATION_X = 1.0f; //add % of targetspeed per frame 0.75
     private static final float PLAYER_ACCELERATION_Y = 1.0f; //add % of targetspeed per frame 0.25
     private static final float JUMP_FORCE = -(GRAVITATIONAL_ACCELERATION/2f);
-    private static final float MIN_ANIMATION_RATE = 0.2f; //stop animating when moving slower than this
+    private static final float MIN_ANIMATION_RATE = 0.4f; //the slowest speed we'll play the animation at
     private static final float MIN_TURN_DELAY = 0.11f; //don't allow flipping the sprite left/right more often than this (gyro filter)
     private static final float MIN_INPUT_TO_TURN = 0.05f; //5% input, or we don't bother flipping the sprite
     private static final int LEFT = 1;
@@ -104,6 +104,7 @@ public class Player extends DynamicGameObject {
         if(mEngine.mControl.mJump && mIsOnGround){
             mVelocity.y = JUMP_FORCE;
             mIsOnGround = false;
+            mEngine.onGameEvent(GameEvent.PlayerJump);
         }
         mAnim.update(dt);
         super.update(dt);
@@ -118,12 +119,9 @@ public class Player extends DynamicGameObject {
     }
 
     private void updateAnimationRate(){
-        float rate = 0.0f;
-        if(mIsOnGround){
-            rate = Math.abs(mTargetSpeed.x) / PLAYER_RUN_SPEED;
-            if(rate > 0f && rate < MIN_ANIMATION_RATE){
-                rate = MIN_ANIMATION_RATE;
-            }
+        float rate = Math.abs(mTargetSpeed.x) / (PLAYER_RUN_SPEED*0.5f); //0-2
+        if(rate > 0f && rate < MIN_ANIMATION_RATE){
+            rate = MIN_ANIMATION_RATE;
         }
         mAnim.setPlaybackRate(rate);
     }

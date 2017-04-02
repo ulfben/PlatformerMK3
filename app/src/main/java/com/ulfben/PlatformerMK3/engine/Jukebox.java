@@ -54,7 +54,7 @@ public class Jukebox {
     private void loadSounds(){
         createSoundPool();
         mSoundsMap = new HashMap<GameEvent, Integer>();
-        //loadEventSound(GameEvent.Jump, "sfx/start.ogg");
+        //loadEventSound(GameEvent.PlayerJump, "sfx/start.ogg");
     }
     private void loadMusic(){
         try{

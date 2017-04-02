@@ -2,7 +2,7 @@ package com.ulfben.PlatformerMK3;
 
 public enum GameEvent {
     LevelStart,
-    Jump,
+    PlayerJump,
     PlayerSpikeCollision,
     SpikesUpDown,
     PlayerCoinPickup,
