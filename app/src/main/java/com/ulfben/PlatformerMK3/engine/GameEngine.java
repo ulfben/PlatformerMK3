@@ -297,11 +297,11 @@ public class GameEngine {
     final static String DBG_PLAYER_INFO =  "Player: [%.2f, %.2f]";
     final static String DBG_EMPTY_STRING = "";
     public String[] getDebugStrings(){
-        DBG_STRINGS[0] = (MULTITHREAD) ? String.format(DBG_FPS, mRenderThread.getAverageFPS()) : DBG_EMPTY_STRING;
-        DBG_STRINGS[1] = String.format(DBG_UPS, mUpdateThread.getAverageFPS());
-        DBG_STRINGS[2] = String.format(DBG_OBJ_RENDER_COUNT, mVisibleObjectCount, mGameObjects.size());
-        DBG_STRINGS[3] = mCamera.toString();
-        DBG_STRINGS[4] = String.format(DBG_PLAYER_INFO, mPlayer.x(), mPlayer.y());
+        DBG_STRINGS[0] = mCamera.toString();
+        DBG_STRINGS[1] = String.format(DBG_OBJ_RENDER_COUNT, mVisibleObjectCount, mGameObjects.size());
+        DBG_STRINGS[2] = String.format(DBG_PLAYER_INFO, mPlayer.x(), mPlayer.y());
+        DBG_STRINGS[3] = (MULTITHREAD) ? String.format(DBG_FPS, mRenderThread.getAverageFPS()) : DBG_EMPTY_STRING;
+        DBG_STRINGS[4] = String.format(DBG_UPS, mUpdateThread.getAverageFPS());
         return DBG_STRINGS;
     }
 }
