@@ -8,7 +8,7 @@ import com.ulfben.PlatformerMK3.MainActivity;
 
 public class Gamepad extends InputManager implements GamepadListener {
     MainActivity mActivity = null;
-    public Gamepad(MainActivity activity) {
+    public Gamepad(final MainActivity activity) {
         super();
         mActivity = activity;
     }

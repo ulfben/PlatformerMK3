@@ -50,12 +50,12 @@ public class GameView extends SurfaceView {
         //for now, hardcode emulator's resolution to avoid hard crashes.
         int screenWidth = SysUtils.isProbablyEmulator() ? AVD_TRUE_SCREEN_WIDTH : getResources().getDisplayMetrics().widthPixels;
         int screenHeight = getResources().getDisplayMetrics().heightPixels;
-        Log.i(TAG, "createViewport: " + screenWidth +" : " +screenHeight);
         if(scaleFactor != 1.0f){
             screenWidth = (int) (screenWidth * scaleFactor);
             screenHeight = (int) (screenHeight * scaleFactor);
             mSurfaceHolder.setFixedSize(screenWidth, screenHeight);
         }
+        Log.i(TAG, "createViewport: " + screenWidth +" : " +screenHeight + " Scale factor: " + scaleFactor);
         return new Viewport(worldWidth, worldHeight, screenWidth, screenHeight, metersToShowX, metersToShowY);
     }
 
@@ -73,6 +73,7 @@ public class GameView extends SurfaceView {
         for (int i = 0; i < numObjects; i++) {
             mVisibleGameObjects.get(i).render(mCanvas, mPaint);
         }
+        Log.d(TAG, "rendering");
         mSurfaceHolder.unlockCanvasAndPost(mCanvas);
     }
 

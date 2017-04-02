@@ -11,17 +11,11 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Toast;
 
-import com.ulfben.PlatformerMK3.engine.GameEngine;
-import com.ulfben.PlatformerMK3.engine.GameView;
-import com.ulfben.PlatformerMK3.input.Accelerometer;
-import com.ulfben.PlatformerMK3.input.CompositeControl;
-import com.ulfben.PlatformerMK3.input.Gamepad;
 import com.ulfben.PlatformerMK3.input.GamepadListener;
-import com.ulfben.PlatformerMK3.input.VirtualJoystick;
-import com.ulfben.PlatformerMK3.utilities.SysUtils;
 // Created by Ulf Benjaminsson (ulfben) on 2017-02-01.
+
 public class MainActivity extends AppCompatActivity implements InputManager.InputDeviceListener {
-    private GameEngine mGameEngine = null;
+    private static final String TAG_FRAGMENT = "content";
     private GamepadListener mGamepadListener = null;
 
     @Override
@@ -31,19 +25,24 @@ public class MainActivity extends AppCompatActivity implements InputManager.Inpu
         setVolumeControlStream(AudioManager.STREAM_MUSIC);
         hideSystemUI();
         setContentView(R.layout.activity_main);
-        final GameView gameView = (GameView) findViewById(R.id.gameView);
-        mGameEngine = new GameEngine(this, gameView);
-        final CompositeControl control = new CompositeControl(
-                //new VirtualKeypad(findViewById(R.id.keypad))
-                new VirtualJoystick(findViewById(R.id.virtual_joystick)),
-                new Gamepad(this)
-        );
-        if(!SysUtils.isProbablyEmulator()){
-            //my emulator defaults to a slight slant, so the accelerometer controls drives me nuts.
-            control.addInput(new Accelerometer(this));
+        if (savedInstanceState == null) {
+            getSupportFragmentManager().beginTransaction()
+                    .add(R.id.container, new MainMenuFragment(), TAG_FRAGMENT)
+                    .commit();
         }
-        mGameEngine.setInputManager(control);
-        mGameEngine.loadLevel("TestLevel");
+    }
+
+    public void startGame() {
+        // Navigate the the game fragment, which makes the start automatically
+        navigateToFragment(new GameFragment());
+    }
+
+    private void navigateToFragment(final BaseFragment dst) {
+        getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.container, dst, TAG_FRAGMENT)
+                .addToBackStack(null)
+                .commit();
     }
 
     public void setGamepadListener(final GamepadListener listener) {
@@ -58,6 +57,19 @@ public class MainActivity extends AppCompatActivity implements InputManager.Inpu
             }
         }
         return super.dispatchGenericMotionEvent(ev);
+    }
+
+    @Override
+    public void onBackPressed() {
+        final BaseFragment fragment = (BaseFragment) getSupportFragmentManager().findFragmentByTag(TAG_FRAGMENT);
+        if (fragment == null || !fragment.onBackPressed()) {
+            super.onBackPressed();
+        }
+    }
+
+    public void navigateBack() {
+        // Do a push on the navigation history
+        super.onBackPressed();
     }
 
     @Override
@@ -84,45 +96,11 @@ public class MainActivity extends AppCompatActivity implements InputManager.Inpu
     }
 
     @Override
-    protected void onPause() {
-        super.onPause();
-        if (mGameEngine.isRunning()){
-            pauseGameAndShowPauseDialog();
-        }
-    }
-
-    private void pauseGameAndShowPauseDialog() {
-        if (mGameEngine.isPaused()) {
-            return;
-        }
-        mGameEngine.pauseGame();
-    }
-
-    @Override
     protected void onResume() {
         super.onResume();
         if(isGameControllerConnected()){
             Toast.makeText(this, "Gamepad detected!", Toast.LENGTH_LONG).show();
         }
-        mGameEngine.resumeGame();
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        mGameEngine.startGame();
-        mGameEngine.pauseGame();
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        mGameEngine.stopGame();
     }
 
     @Override
