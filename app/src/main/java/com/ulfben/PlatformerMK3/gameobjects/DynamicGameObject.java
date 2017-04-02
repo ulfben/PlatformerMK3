@@ -1,6 +1,7 @@
 package com.ulfben.PlatformerMK3.gameobjects;
 import android.graphics.PointF;
 
+import com.ulfben.PlatformerMK3.Random;
 import com.ulfben.PlatformerMK3.Utils;
 import com.ulfben.PlatformerMK3.engine.GameEngine;
 // Created by Ulf Benjaminsson (ulfben) on 2017-02-24.
@@ -52,7 +53,7 @@ public class DynamicGameObject extends GameObject {
         mWorldLocation.x += Utils.clamp(mVelocity.x*dt, -MAX_DELTA, MAX_DELTA);
         mWorldLocation.y += Utils.clamp(mVelocity.y*dt, -MAX_DELTA, MAX_DELTA);
         if(mWorldLocation.y > mEngine.getWorldHeight()){
-            final float newX = GameEngine.RNG.nextFloat()*mEngine.getWorldWidth();
+            final float newX = Random.between(2f, mEngine.getWorldWidth()-2f);
             setPosition(newX, 0);
         }
         updateBounds();

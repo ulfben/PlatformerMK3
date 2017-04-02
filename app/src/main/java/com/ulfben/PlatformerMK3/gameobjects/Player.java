@@ -4,6 +4,7 @@ import android.graphics.Paint;
 import android.util.Log;
 
 import com.ulfben.PlatformerMK3.Animation;
+import com.ulfben.PlatformerMK3.GameEvent;
 import com.ulfben.PlatformerMK3.R;
 import com.ulfben.PlatformerMK3.engine.GameEngine;
 // Created by Ulf Benjaminsson (ulfben) on 2017-02-13.
@@ -66,7 +67,7 @@ public class Player extends DynamicGameObject {
                 isOnGround = true;
                 mJumpTime = 0.0f; //back on ground, reset jumpTime
                 if(Spears.class.isInstance(that)){
-                    //bounce!
+                    mEngine.onGameEvent(GameEvent.PlayerSpikeCollision);
                 }
             }//else if(overlap.y > 0){ //head
         }

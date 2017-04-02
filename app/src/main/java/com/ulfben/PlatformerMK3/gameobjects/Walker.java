@@ -1,5 +1,6 @@
 package com.ulfben.PlatformerMK3.gameobjects;
 
+import com.ulfben.PlatformerMK3.Random;
 import com.ulfben.PlatformerMK3.engine.GameEngine;
 // Created by Ulf Benjaminsson (ulfben) on 2017-03-05.
 
@@ -22,7 +23,7 @@ public class Walker extends DynamicGameObject {
     }
 
     private void init(){
-        mTargetSpeed.x = (mEngine.coinFlip()) ? TARGET_SPEED : -TARGET_SPEED;
+        mTargetSpeed.x = (Random.coinFlip()) ? TARGET_SPEED : -TARGET_SPEED;
         mTargetSpeed.y = 0.0f;
         mGravitationalAccel = 0.0f; //no gravity for this object
         updateBounds();

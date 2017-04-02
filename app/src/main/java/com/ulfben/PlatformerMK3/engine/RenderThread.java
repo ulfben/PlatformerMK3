@@ -7,8 +7,8 @@ public class RenderThread extends Thread {
     private final GameEngine mGameEngine;
     private volatile boolean mIsRunning = true;
     private volatile boolean mIsPaused = false;
-    private Object mLock = new Object();
-    private FrameTimer mTimer = new FrameTimer();
+    private static final Object mLock = new Object();
+    private final FrameTimer mTimer = new FrameTimer();
     private static final long FPS_CAP = 60;
     private static final long TARGET_FRAMETIME = (FrameTimer.SECOND_IN_NANOSECONDS / FPS_CAP);
 
@@ -50,7 +50,8 @@ public class RenderThread extends Thread {
             final long delayMS = (long) (delayNS * FrameTimer.NANOSECONDS_TO_MILLISECONDS);
             delayNS = delayNS % FrameTimer.MILLISECOND_IN_NANOSECONDS;
             Thread.sleep(delayMS, (int) delayNS);
-        } catch (InterruptedException e) {
+        } catch (final InterruptedException e) {
+            //ignored
         }
     }
 
@@ -60,7 +61,7 @@ public class RenderThread extends Thread {
                 synchronized(mLock){
                     mLock.wait();
                 }
-            } catch (InterruptedException e) {
+            } catch (final InterruptedException e) {
                 //ignored
             }
         }
@@ -86,11 +87,11 @@ public class RenderThread extends Thread {
         }
     }
 
-    public boolean isGameRunning() {
+    public boolean isRunning() {
         return mIsRunning;
     }
 
-    public boolean isGamePaused() {
+    public boolean isPaused() {
         return mIsPaused;
     }
 }

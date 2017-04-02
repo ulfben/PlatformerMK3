@@ -13,7 +13,7 @@ public class Animation {
     public final float MAX_PLAYBACK_RATE = 2.0f;
     public final float MIN_PLAYBACK_RATE = 0f;
     public final float DEFAULT_PLAYBACK_RATE = 1f;
-    private GameEngine mEngine = null;
+    private final GameEngine mEngine;
     private Bitmap[] mFrames = null;
     private float[] mFrameHeights = null; //pixels
     private float[] mFrameWidths = null; //pixels
@@ -22,7 +22,7 @@ public class Animation {
     private int mFrameCount = -1;
     private int mDuration = 0;
     private int mElapsedTime = 0;
-    private int mCurrentFrame = 0;
+    private volatile int mCurrentFrame = 0; //read by both the update and render-thread
     private float mPlaybackRate = DEFAULT_PLAYBACK_RATE;
 
     public Animation(final GameEngine engine, final int resourceID, final float width, final float height){
@@ -54,14 +54,13 @@ public class Animation {
         updateCurrentFrame();
     }
 
+    //TODO: only update currentFrame when needed, instead of every frame
     private void updateCurrentFrame(){
         int timeToNext = 0;
         for (int i = 0; i < mFrameCount; i++) {
             timeToNext += mFrameTimesMillis[i];
             if (timeToNext > mElapsedTime) {
-                synchronized (mFrames) {
-                    mCurrentFrame = i;
-                }
+                mCurrentFrame = i;
                 break;
             }
         }
@@ -80,7 +79,7 @@ public class Animation {
         mElapsedTime = 0;
         mIsOneShot = anim.isOneShot();
         if(!mIsOneShot) {
-            mElapsedTime = GameEngine.RNG.nextInt(mDuration); //randomize start of animation.
+            mElapsedTime = Random.nextInt(mDuration); //randomize start of animation.
         }
         final String spriteName = "Anim_"+resourceID+"_";
         mFrames = prepareAnimation(anim, spriteName, (int) mEngine.worldToScreen(width), (int) mEngine.worldToScreen(height));
@@ -149,6 +148,5 @@ public class Animation {
         mFrameHeights = null;
         mFrameWidths = null;
         mFrameTimesMillis = null;
-        mEngine = null;
     }
 }

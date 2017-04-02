@@ -9,11 +9,8 @@ import android.graphics.RectF;
 
 import com.ulfben.PlatformerMK3.BitmapPool;
 import com.ulfben.PlatformerMK3.BitmapUtils;
-import com.ulfben.PlatformerMK3.LevelData;
 import com.ulfben.PlatformerMK3.engine.GameEngine;
-/**
- * Created by Ulf Benjaminsson (ulfben) on 2017-02-13.
- */
+//Created by Ulf Benjaminsson (ulfben) on 2017-02-13.
 
 public class GameObject {
     private static final String TAG = "GameObject";
@@ -21,36 +18,38 @@ public class GameObject {
     public static final float DEFAULT_HEIGHT = 1f; //meters
     public static final float DEFAULT_WIDTH = 1f;
 
-    protected static Point screenCord = new Point(); //Q&D Point pool
-    protected static PointF overlap = new PointF(0,0); //Q&D PointF pool, for collision reactions
-    protected static Matrix mTransform = new Matrix(); //Q&D Matrix pool
-    protected GameEngine mEngine;
+    protected static final Point screenCord = new Point(); //Q&D Point pool
+    protected static final PointF overlap = new PointF(0,0); //Q&D PointF pool, for collision reactions
+    protected static final Matrix mTransform = new Matrix(); //Q&D Matrix pool
+    protected final GameEngine mEngine;
 
-    public PointF mWorldLocation = new PointF(DEFAULT_LOCATION, DEFAULT_LOCATION);
+    public final PointF mWorldLocation = new PointF(DEFAULT_LOCATION, DEFAULT_LOCATION);
     public float mWidth = DEFAULT_WIDTH;
     public float mHeight = DEFAULT_HEIGHT;
-    public RectF mBounds = new RectF(DEFAULT_LOCATION, DEFAULT_LOCATION, DEFAULT_WIDTH, DEFAULT_HEIGHT);
+    public final RectF mBounds = new RectF(DEFAULT_LOCATION, DEFAULT_LOCATION, DEFAULT_WIDTH, DEFAULT_HEIGHT);
     private String mBitmapKey = "";
-    public String mSprite = LevelData.NULLSPRITE;
+    public String mSprite = "";
     public boolean mCanCollide = true;
 
     public GameObject(final GameEngine engine, final String sprite){
         super();
-        init(engine, sprite, DEFAULT_LOCATION, DEFAULT_LOCATION, DEFAULT_WIDTH, DEFAULT_HEIGHT);
+        mEngine = engine;
+        init(sprite, DEFAULT_LOCATION, DEFAULT_LOCATION, DEFAULT_WIDTH, DEFAULT_HEIGHT);
     }
 
     public GameObject(final GameEngine engine, final String sprite, final float x, final float y){
         super();
-        init(engine, sprite, x, y, DEFAULT_WIDTH, DEFAULT_HEIGHT);
+        mEngine = engine;
+        init(sprite, x, y, DEFAULT_WIDTH, DEFAULT_HEIGHT);
     }
 
     public GameObject(final GameEngine engine, final String sprite, final float x, final float y, final float width, final float height){
         super();
-        init(engine, sprite, x, y, width, height);
+        mEngine = engine;
+        init(sprite, x, y, width, height);
     }
 
-    private void init(final GameEngine engine, final String sprite, final float x, final float y, final float width, final float height){
-        mEngine = engine;
+    private void init(final String sprite, final float x, final float y, final float width, final float height){
         mSprite = sprite;
         mHeight = height;
         mWidth = width;
@@ -68,17 +67,12 @@ public class GameObject {
 
     public void update(final float dt){}
 
-    public void destroy(){
-        mBounds = null;
-        mWorldLocation = null;
-    }
+    public void destroy(){}
+
+    public void onCollision(final GameObject that){}
 
     public boolean isColliding(final GameObject that){
         return RectF.intersects(this.mBounds, that.mBounds);
-    }
-
-    public void onCollision(final GameObject that){
-        //static game objects do nothing.
     }
 
     public void postConstruct(){

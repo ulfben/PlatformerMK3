@@ -31,7 +31,7 @@ public class DebugTextGameObject extends GameObject {
         paint.setTextAlign(Paint.Align.LEFT);
         paint.setColor(Color.WHITE);
         mDebugStrings = mEngine.getDebugStrings();
-        for(String s : mDebugStrings){
+        for(final String s : mDebugStrings){
             if(!"".equals(s)) {
                 canvas.drawText(s, 10, y, paint);
                 y += textSize;
@@ -42,7 +42,8 @@ public class DebugTextGameObject extends GameObject {
     @Override
     public void update(final float dt){
         //ensure we're not clipped by the viewport.
-        mWorldLocation = mEngine.mCamera.position();
+        mWorldLocation.x = mEngine.mCamera.position().x;
+        mWorldLocation.y = mEngine.mCamera.position().y;
         updateBounds();
     }
 }

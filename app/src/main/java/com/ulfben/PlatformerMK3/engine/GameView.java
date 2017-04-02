@@ -24,7 +24,6 @@ public class GameView extends SurfaceView {
     private Canvas mCanvas = null;
     private SurfaceHolder mSurfaceHolder = null;
     private Paint mPaint = null;
-    private Viewport mCamera = null;
 
     public GameView(final Context context) {
         super(context);
@@ -43,6 +42,7 @@ public class GameView extends SurfaceView {
         mSurfaceHolder = getHolder();
     }
 
+    //TODO: probably move Viewport-creation out of the GameView
     public Viewport createViewport(final float worldWidth, final float worldHeight, final float metersToShowX, final float metersToShowY, final float scaleFactor){
         //WARNING: using unmodified widthPixels == AVD hard crash, on my development machine.
         //suspect it can be solved if I could get accurate resolution info. it seems the soft navigation keys of my AVD
@@ -56,8 +56,7 @@ public class GameView extends SurfaceView {
             screenHeight = (int) (screenHeight * scaleFactor);
             mSurfaceHolder.setFixedSize(screenWidth, screenHeight);
         }
-        mCamera = new Viewport(worldWidth, worldHeight, screenWidth, screenHeight, metersToShowX, metersToShowY);
-        return mCamera;
+        return new Viewport(worldWidth, worldHeight, screenWidth, screenHeight, metersToShowX, metersToShowY);
     }
 
     public void setVisibleObjects(ArrayList<GameObject> gameObjects) {

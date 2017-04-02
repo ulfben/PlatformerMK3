@@ -26,7 +26,7 @@ public class Viewport {
     private int mPixelsPerMeterY;
     private float mHalfDistX;
     private float mHalfDistY;
-    private PointF mLookAt = new PointF(0f,0f); //current world coordinate in center view
+    private final PointF mLookAt = new PointF(0f,0f); //current world coordinate in center view
     private GameObject mTarget = null;
     private final static float BUFFER = 2f; //render this many meters outside of the viewport on each axis, to avoid visual gaps
     private String DBG_VIEWPORT = "";
@@ -52,16 +52,16 @@ public class Viewport {
     }
 
     private void setMetersToShow(final float metersToShowX, final float metersToShowY){
-        if (metersToShowX <= 0 && metersToShowY <= 0) throw new IllegalArgumentException("One of the dimensions must be provided!");
+        if (metersToShowX <= 0f && metersToShowY <= 0f) throw new IllegalArgumentException("One of the dimensions must be provided!");
         //formula: new height = (original height / original width) x new width
         mMetersToShowX = metersToShowX;
         mMetersToShowY = metersToShowY;
-        if(metersToShowX > 0 && metersToShowY > 0){
-            //both defined, so do nothing - use the provided values
-        }else if(metersToShowY > 0) { //if Y is configured, calculate X
-            mMetersToShowX = ((float) mScreenWidth / mScreenHeight) * metersToShowY;
-        }else { //calculate Y
-            mMetersToShowY = ((float) mScreenHeight / mScreenWidth) * metersToShowX;
+        if(metersToShowX == 0f || metersToShowY == 0f){
+            if(metersToShowY > 0f) { //if Y is configured, calculate X
+                mMetersToShowX = ((float) mScreenWidth / mScreenHeight) * metersToShowY;
+            }else { //if X is configured, calculate Y
+                mMetersToShowY = ((float) mScreenHeight / mScreenWidth) * metersToShowX;
+            }
         }
         mHalfDistX = (mMetersToShowX+BUFFER) / 2f;
         mHalfDistY = (mMetersToShowY+BUFFER) / 2f;

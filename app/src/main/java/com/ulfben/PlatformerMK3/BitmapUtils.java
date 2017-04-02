@@ -10,8 +10,8 @@ import android.util.Log;
 public class BitmapUtils {
     private static final String TAG = "BitmapUtils";
     private static final boolean FILTER = false;
-    private static BitmapFactory.Options mOptions = new BitmapFactory.Options();
-    private static Point mDimensions = new Point(0,0);
+    private static final BitmapFactory.Options mOptions = new BitmapFactory.Options(); //Q&D pool
+    private static final Point mDimensions = new Point(0,0); //Q&D pool
     private static Resources RES = null;
 
     private BitmapUtils(){super();}

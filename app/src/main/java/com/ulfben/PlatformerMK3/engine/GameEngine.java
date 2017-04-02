@@ -18,7 +18,6 @@ import com.ulfben.PlatformerMK3.input.InputManager;
 import com.ulfben.PlatformerMK3.input.NullInput;
 
 import java.util.ArrayList;
-import java.util.Random;
 // Created by Ulf Benjaminsson (ulfben) on 2017-03-07.
 
 public class GameEngine {
@@ -30,6 +29,7 @@ public class GameEngine {
     private static final float THREADING_TOGGLE_TIMEOUT = 2f;
     private float mThreadingToggleTimer = 0f;
 
+    private static final Object updateLock = new Object();
     private ArrayList<GameObject> mGameObjects = new ArrayList<GameObject>();
     private ArrayList<GameObject> mVisibleObjects = new ArrayList<>();
     private ArrayList<GameObject> mObjectsToAdd = new ArrayList<GameObject>();
@@ -45,7 +45,6 @@ public class GameEngine {
     public InputManager mControl = null;
     private final GameView mGameView;
     private final Jukebox mJukebox;
-    public final static Random RNG = new Random();
 
     public GameEngine(final Activity a, final GameView gameView) {
         super();
@@ -58,9 +57,7 @@ public class GameEngine {
         BitmapUtils.init(getResources());
     }
 
-    public boolean coinFlip(){
-        return RNG.nextFloat() > 0.5;
-    }
+
     public int getResourceID(final String filename){
         return getResourceID(filename, "drawable");
     }
@@ -183,7 +180,7 @@ public class GameEngine {
     //called from UpdateThread
     public void onUpdate(final float dt) {
         mControl.update(dt);
-        mCamera.update(dt); //only update camera once per frame
+        mCamera.update(dt);
         final int numObjects = mGameObjects.size();
         for (int i = 0; i < numObjects; i++) {
             mGameObjects.get(i).update(dt);
@@ -199,11 +196,9 @@ public class GameEngine {
         if(on){
             Log.d(TAG, "Render thread ON. Remember to force-close application when done!");
             mRenderThread.resumeThread();
-            //mRenderThread.start();
         }else{
             Log.d(TAG, "Render thread OFF. Remember to force-close application when done!");
-            mRenderThread.pauseThread();
-            //mRenderThread.stopThread();
+            mRenderThread.stopThread();
         }
         mThreadingToggleTimer = 0f;
     }
@@ -221,7 +216,7 @@ public class GameEngine {
 
     private void addAndRemoveObjects(){
         GameObject temp;
-        synchronized (mGameObjects) {
+        synchronized (updateLock) {//we only lock when changing the length of our entity list.
             while (!mObjectsToRemove.isEmpty()) {
                 temp = mObjectsToRemove.remove(0);
                 mGameObjects.remove(temp);
@@ -234,10 +229,16 @@ public class GameEngine {
     }
 
     //called from RenderThread
+    //note that the mVisibleObjects are not *copied* from the game state, it is a list of direct refs
+    //meaning some of them might be touched (= move) by update() while being rendered.
+    //The vast majority of objects are not movable so this is generally not perceptible,
+    //except for one crucial aspect; the viewport!
+    //Ergo: I need to pass the viewport settings (by copy) into the render thread each frame.
+    //TODO: pass (a copy of) the current viewport "matrix" into render-call.
     public void render() {
         GameObject temp;
         mVisibleObjects.clear();
-        synchronized (mGameObjects) {
+        synchronized (updateLock) {
             final int numObjects = mGameObjects.size();
             for (int i = 0; i < numObjects; i++) {
                 temp = mGameObjects.get(i);

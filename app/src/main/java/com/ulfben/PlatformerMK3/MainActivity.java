@@ -72,7 +72,7 @@ public class MainActivity extends AppCompatActivity implements InputManager.Inpu
     public boolean isGameControllerConnected() {
         final int[] deviceIds = InputDevice.getDeviceIds();
         for (final int deviceId : deviceIds) {
-            InputDevice dev = InputDevice.getDevice(deviceId);
+            final InputDevice dev = InputDevice.getDevice(deviceId);
             final int sources = dev.getSources();
             if (((sources & InputDevice.SOURCE_GAMEPAD) == InputDevice.SOURCE_GAMEPAD) ||
                     ((sources & InputDevice.SOURCE_JOYSTICK) == InputDevice.SOURCE_JOYSTICK)) {
