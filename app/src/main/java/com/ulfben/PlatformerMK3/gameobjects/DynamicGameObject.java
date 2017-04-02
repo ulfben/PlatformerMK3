@@ -17,6 +17,10 @@ public class DynamicGameObject extends GameObject {
     protected float mGravitationalAccel = GRAVITATIONAL_ACCELERATION; //non-static member, some objects will not want gravity
     protected float mFriction = 1.0f; //1 == no friction, 0 == no motion.
 
+    protected boolean mIsOnGround = false;
+    protected float gravity = 40f;
+    protected float jumpHeight = -20f;
+
     DynamicGameObject(final GameEngine engine, final String sprite) {
         super(engine, sprite);
     }
@@ -34,8 +38,9 @@ public class DynamicGameObject extends GameObject {
         if(overlap.y != 0f){
             mTargetSpeed.y = 0f;
             mVelocity.y = 0f;
-            //if(overlap.y < 0f){ //feet
-            //}else if(overlap.y > 0){ //head
+            if(overlap.y < 0f){ //feet
+                mIsOnGround = true;
+            }//else if(overlap.y > 0){ //head
         }
         updateBounds();
     }
@@ -46,17 +51,20 @@ public class DynamicGameObject extends GameObject {
         if(Math.abs(mVelocity.x) > Math.abs(mTargetSpeed.x)){
             mVelocity.x = mTargetSpeed.x; //instantaneous deceleration.
         }
-        mVelocity.y += (mAcceleration.y * mTargetSpeed.y)+mGravitationalAccel;
-        if(mVelocity.y > TERMINAL_VELOCITY){
-            mVelocity.y = TERMINAL_VELOCITY;
+        if(!mIsOnGround){
+            mWorldLocation.y += Utils.clamp(mVelocity.y*dt, -MAX_DELTA, MAX_DELTA);
+            mVelocity.y += gravity * dt;
+            if (mVelocity.y > TERMINAL_VELOCITY) {
+                mVelocity.y = TERMINAL_VELOCITY;
+            }
         }
         mWorldLocation.x += Utils.clamp(mVelocity.x*dt, -MAX_DELTA, MAX_DELTA);
-        mWorldLocation.y += Utils.clamp(mVelocity.y*dt, -MAX_DELTA, MAX_DELTA);
+
         if(mWorldLocation.y > mEngine.getWorldHeight()){
-            final float newX = Random.between(2f, mEngine.getWorldWidth()-2f);
-            setPosition(newX, 0);
+            setPosition(Random.between(2f, mEngine.getWorldWidth()-2f), 0f);
         }
         updateBounds();
+        mIsOnGround = false; //reset ground flag every frame
     }
 
     @Override

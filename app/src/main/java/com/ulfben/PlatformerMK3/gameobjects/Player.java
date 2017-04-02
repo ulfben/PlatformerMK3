@@ -64,11 +64,13 @@ public class Player extends DynamicGameObject {
             mVelocity.y = 0f;
             mJumping = false;
             if(overlap.y < 0f){ //feet
+                mIsOnGround = true;
                 isOnGround = true;
                 mJumpTime = 0.0f; //back on ground, reset jumpTime
                 if(Spears.class.isInstance(that)){
                     mEngine.onGameEvent(GameEvent.PlayerSpikeCollision);
                 }
+                Log.d(TAG, "back on ground!");
             }//else if(overlap.y > 0){ //head
         }
         mWorldLocation.offset(GameObject.overlap.x, GameObject.overlap.y);
@@ -106,12 +108,13 @@ public class Player extends DynamicGameObject {
         mTargetSpeed.x = direction * (PLAYER_RUN_SPEED);
         updateFacingDirection(direction, dt);
         updateAnimationRate();
-        if(isJumping()){
-            mTargetSpeed.y = PLAYER_JUMP_IMPULSE;
+        if(mEngine.mControl.mJump && mIsOnGround){
+            mVelocity.y = jumpHeight;
+            mIsOnGround = false;
+            Log.d(TAG, "jump! " + jumpHeight);
+           // mTargetSpeed.y = PLAYER_JUMP_IMPULSE;
             mJumpTime += dt;
             mJumping = true;
-        }else{
-            mTargetSpeed.y = 0; //gravity gets added in super-class
         }
         mAnim.update(dt);
         super.update(dt);
@@ -149,7 +152,7 @@ public class Player extends DynamicGameObject {
     private boolean canJump(){
         //note, doesn't care about ground. Can jump in mid-air for JUMP_DURATION
         //simply because single-frame impulses were tricky to get right. :P
-        return mJumpTime < PLAYER_JUMP_DURATION;
+        return mIsOnGround && mJumpTime < PLAYER_JUMP_DURATION;
     }
 
     private boolean isOnGround(){
