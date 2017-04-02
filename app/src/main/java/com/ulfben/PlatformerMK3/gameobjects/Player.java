@@ -11,23 +11,21 @@ import com.ulfben.PlatformerMK3.engine.GameEngine;
 
 public class Player extends DynamicGameObject {
     private static final String TAG = "Player";
-    private static final float PLAYER_HEIGHT = 0f; //meters
-    private static final float PLAYER_WIDTH = 0.90f;
+    private static final float PLAYER_HEIGHT = 0f; //calculated from sprite
+    private static final float PLAYER_WIDTH = DEFAULT_WIDTH*0.9f; //slighly less than normal tiles.
     private static final float PLAYER_RUN_SPEED = 6.0f; //meters per second
-    private static final float PLAYER_FRICTION = 0.95f;
-    private static final float PLAYER_ACCELERATION_X = 1f; //add % of targetspeed per frame 0.75
+    private static final float PLAYER_FRICTION = 1.0f;
+    private static final float PLAYER_ACCELERATION_X = 1.0f; //add % of targetspeed per frame 0.75
     private static final float PLAYER_ACCELERATION_Y = 1.0f; //add % of targetspeed per frame 0.25
-    private static final float PLAYER_JUMP_DURATION = 0.120f; //in x seconds 0.180f
-    private static final float PLAYER_JUMP_IMPULSE = -(GRAVITATIONAL_ACCELERATION*4f);
+    private static final float JUMP_FORCE = -(GRAVITATIONAL_ACCELERATION/2f);
     private static final float MIN_ANIMATION_RATE = 0.2f; //stop animating when moving slower than this
     private static final float MIN_TURN_DELAY = 0.11f; //don't allow flipping the sprite left/right more often than this (gyro filter)
-    private static final float MIN_INPUT_TO_TURN = 0.05f; //20% input, or we don't bother flipping the sprite
+    private static final float MIN_INPUT_TO_TURN = 0.05f; //5% input, or we don't bother flipping the sprite
     private static final int LEFT = 1;
     private static final int RIGHT = -1;
     private volatile int mFacing = LEFT;
 
-    private float mTurnCooldown = 0.0f;
-    private float mJumpTime = 0.0f;
+    private float mDirectionChangeCooldown = 0.0f;
     private Animation mAnim = null;
 
     public Player(final GameEngine engine, final String sprite) {
@@ -59,18 +57,13 @@ public class Player extends DynamicGameObject {
             Log.d(TAG, "getOverlap false negative. Always check AABB first!");
         }
         if(overlap.y != 0f){
-            mJumpTime = PLAYER_JUMP_DURATION;
             mTargetSpeed.y = 0f;
             mVelocity.y = 0f;
-            mJumping = false;
             if(overlap.y < 0f){ //feet
                 mIsOnGround = true;
-                isOnGround = true;
-                mJumpTime = 0.0f; //back on ground, reset jumpTime
                 if(Spears.class.isInstance(that)){
                     mEngine.onGameEvent(GameEvent.PlayerSpikeCollision);
                 }
-                Log.d(TAG, "back on ground!");
             }//else if(overlap.y > 0){ //head
         }
         mWorldLocation.offset(GameObject.overlap.x, GameObject.overlap.y);
@@ -109,54 +102,30 @@ public class Player extends DynamicGameObject {
         updateFacingDirection(direction, dt);
         updateAnimationRate();
         if(mEngine.mControl.mJump && mIsOnGround){
-            mVelocity.y = jumpHeight;
+            mVelocity.y = JUMP_FORCE;
             mIsOnGround = false;
-            Log.d(TAG, "jump! " + jumpHeight);
-           // mTargetSpeed.y = PLAYER_JUMP_IMPULSE;
-            mJumpTime += dt;
-            mJumping = true;
         }
         mAnim.update(dt);
         super.update(dt);
     }
 
     private void updateFacingDirection(final float controlDirection, final float dt){
-        mTurnCooldown-=dt;
-        if(mTurnCooldown < 0 &&  Math.abs(controlDirection) > MIN_INPUT_TO_TURN){
+        mDirectionChangeCooldown -= dt;
+        if(mDirectionChangeCooldown < 0 &&  Math.abs(controlDirection) > MIN_INPUT_TO_TURN){
             mFacing = (controlDirection < 0) ? LEFT : (controlDirection > 0) ? RIGHT : mFacing;
-            mTurnCooldown = MIN_TURN_DELAY;
+            mDirectionChangeCooldown = MIN_TURN_DELAY;
         }
     }
 
     private void updateAnimationRate(){
         float rate = 0.0f;
-        if(isOnGround()) {
+        if(mIsOnGround){
             rate = Math.abs(mTargetSpeed.x) / PLAYER_RUN_SPEED;
             if(rate > 0f && rate < MIN_ANIMATION_RATE){
                 rate = MIN_ANIMATION_RATE;
             }
         }
         mAnim.setPlaybackRate(rate);
-    }
-
-    private boolean mJumping = false;
-    private boolean isOnGround = false;
-    private boolean didJustJump(){
-        return (!mJumping) && mEngine.mControl.mJump && isOnGround && canJump();
-    }
-
-    private boolean isJumping(){
-        return mEngine.mControl.mJump && canJump();
-    }
-
-    private boolean canJump(){
-        //note, doesn't care about ground. Can jump in mid-air for JUMP_DURATION
-        //simply because single-frame impulses were tricky to get right. :P
-        return mIsOnGround && mJumpTime < PLAYER_JUMP_DURATION;
-    }
-
-    private boolean isOnGround(){
-        return mJumpTime == 0.0f;
     }
 
     @Override

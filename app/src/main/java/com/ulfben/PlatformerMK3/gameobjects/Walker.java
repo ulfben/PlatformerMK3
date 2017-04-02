@@ -25,7 +25,7 @@ public class Walker extends DynamicGameObject {
     private void init(){
         mTargetSpeed.x = (Random.coinFlip()) ? TARGET_SPEED : -TARGET_SPEED;
         mTargetSpeed.y = 0.0f;
-        mGravitationalAccel = 0.0f; //no gravity for this object
+        mGravity = 0.0f; //no gravity for this object
         updateBounds();
     }
 
