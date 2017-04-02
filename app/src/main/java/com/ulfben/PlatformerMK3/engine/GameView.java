@@ -73,7 +73,6 @@ public class GameView extends SurfaceView {
         for (int i = 0; i < numObjects; i++) {
             mVisibleGameObjects.get(i).render(mCanvas, mPaint);
         }
-        Log.d(TAG, "rendering");
         mSurfaceHolder.unlockCanvasAndPost(mCanvas);
     }
 

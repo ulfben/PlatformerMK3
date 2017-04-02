@@ -79,6 +79,8 @@ public class GameEngine {
     public float getWorldHeight(){
         return mLevelManager.getLevelHeight();
     }
+    public int getResolutionY(){ return mCamera.getScreenHeight(); }
+    public int getResolutionX(){ return mCamera.getScreenWidth(); }
 
     public float screenToWorld(final float pixelDistance, final Axis axis){
         if(axis == Axis.X) {

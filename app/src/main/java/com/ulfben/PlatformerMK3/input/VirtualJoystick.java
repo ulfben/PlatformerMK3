@@ -43,21 +43,21 @@ public class VirtualJoystick extends InputManager {
             final VirtualJoystickView joystickView = (VirtualJoystickView) v;
             final int action = event.getActionMasked();
             final float x = event.getX(0);
-            final float y = event.getX(0);
+            final float y = event.getY(0);
             if(action == MotionEvent.ACTION_DOWN){
                 mStartingPositionX = x;
                 mStartingPositionY = y;
                 joystickView.touchStart(mStartingPositionX, mStartingPositionY);
-            }else if(action == MotionEvent.ACTION_UP){
-                mHorizontalFactor = 0.0f;
-                mVerticalFactor = 0.0f;
-                joystickView.touchUp();
             }else if(action == MotionEvent.ACTION_MOVE){
                 //get the proportion to the maxDistance
                 mHorizontalFactor = (x - mStartingPositionX)/mMaxDistance;
                 mVerticalFactor = (y - mStartingPositionY)/mMaxDistance;
-                joystickView.touchMove(mStartingPositionX, mStartingPositionY);
+                joystickView.touchMove(x, y);
                 clampInputs();
+            }else if(action == MotionEvent.ACTION_UP){
+                mHorizontalFactor = 0.0f;
+                mVerticalFactor = 0.0f;
+                joystickView.touchUp();
             }
             return true;
         }

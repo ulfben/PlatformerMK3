@@ -26,15 +26,16 @@ public class DebugTextGameObject extends GameObject {
     @Override
     public void render(final Canvas canvas, final Paint paint){
         final int textSize = (int) (mEngine.getPixelsPerMeterY()*mHeight);
-        int y = textSize;
+        final int margin = 10;
+        int y = mEngine.getResolutionY()-margin;
         paint.setTextSize(textSize);
         paint.setTextAlign(Paint.Align.LEFT);
         paint.setColor(Color.WHITE);
         mDebugStrings = mEngine.getDebugStrings();
         for(final String s : mDebugStrings){
             if(!"".equals(s)) {
-                canvas.drawText(s, 10, y, paint);
-                y += textSize;
+                canvas.drawText(s, margin, y, paint);
+                y -= textSize;
             }
         }
     }
