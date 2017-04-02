@@ -59,7 +59,7 @@ public class GameView extends SurfaceView {
         return new Viewport(worldWidth, worldHeight, screenWidth, screenHeight, metersToShowX, metersToShowY);
     }
 
-    public void setVisibleObjects(ArrayList<GameObject> gameObjects) {
+    public void setVisibleObjects(final ArrayList<GameObject> gameObjects) {
         mVisibleGameObjects = gameObjects;
     }
 
