@@ -14,14 +14,17 @@ import com.ulfben.PlatformerMK3.MainActivity;
 public class Accelerometer extends InputManager {
     private static final String TAG = "Accelerometer";
     private static final float DEGREES_PER_RADIAN = (float) (180d / Math.PI); //~  57.2957795f;
-    private static final int LENGTH = 3; //azimuth (z), pitch (z), roll (y)
+    private static final int LENGTH = 3; //azimuth, pitch and roll
     private static final float MAX_ANGLE = 30f;
-    private Activity mActivity;
-    private Display mDisplay; //to track orientation
-    private float[] mRotationMatrix = new float[4*4];
-    private float[] mOrientation = new float[LENGTH];
-    private float[] mLastMagFields = new float[LENGTH];
-    private float[] mLastAccels = new float[LENGTH];
+    private static final float SHAKE_THRESHOLD = 4.25f; // m/S^2
+    private static final long SHAKE_COOLDOWN = 300;//ms
+    private long mLastShake = 0;
+    private final Activity mActivity;
+    private final Display mDisplay; //to track orientation
+    private final float[] mRotationMatrix = new float[4*4];
+    private final float[] mOrientation = new float[LENGTH];
+    private final float[] mLastMagFields = new float[LENGTH];
+    private final float[] mLastAccels = new float[LENGTH];
 
     private SensorEventListener mMagneticListener = new SensorEventListener() {
         @Override
@@ -95,11 +98,8 @@ public class Accelerometer extends InputManager {
         clampInputs();
     }
 
-    private static final float SHAKE_THRESHOLD = 4.25f; // m/S^2
-    private static final long COOLDOWN = 300;//ms
-    private long mLastShake = 0;
     private boolean isJumping(){
-        if((System.currentTimeMillis()-mLastShake) < COOLDOWN){
+        if((System.currentTimeMillis()-mLastShake) < SHAKE_COOLDOWN){
             return mJump;
         }
         final float x = mLastAccels[0];
