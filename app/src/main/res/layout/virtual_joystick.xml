@@ -4,10 +4,12 @@
               android:layout_width="match_parent"
               android:layout_height="match_parent"
               android:id="@+id/virtual_joystick">
-<View android:id="@+id/joystick_region"
+
+<com.ulfben.PlatformerMK3.input.VirtualJoystickView android:id="@+id/joystick_region"
       android:layout_height="match_parent"
       android:layout_width="match_parent"
       android:layout_weight="1" />
+
 <View android:id="@+id/button_region"
       android:layout_height="match_parent"
       android:layout_width="match_parent"

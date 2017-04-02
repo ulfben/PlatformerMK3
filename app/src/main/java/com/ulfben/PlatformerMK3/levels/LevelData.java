@@ -12,7 +12,7 @@ public abstract class LevelData {
 
     public static final String NULLSPRITE = "nullsprite";
     public static String PLAYER = "player";
-    public static String COIN   = "coinyellow";
+    public static String COIN   = "coinyellow_shade";
     public static String WALKER = "walker";
     public static String SPEARS = "spears";
 

@@ -4,35 +4,16 @@
              android:layout_height="match_parent"
              tools:context="com.ulfben.PlatformerMK3.fragments.GameFragment">
 
-    <FrameLayout
+    <com.ulfben.PlatformerMK3.engine.GameView
+        android:id="@+id/gameView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent" />
 
-        <com.ulfben.PlatformerMK3.engine.GameView
-            android:id="@+id/gameView"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent" />
-    </FrameLayout>
+    <include layout="@layout/virtual_joystick" />
+    <!-- <include layout="@layout/keypad" /> -->
 
-    <include layout="@layout/virtual_joystick"
-             android:layout_height="match_parent"
-             android:layout_width="match_parent" />
-
-    <!--<view class="com.ulfben.PlatformerMK3.engine.GameView"
-          android:id="@+id/gameView"
-          android:layout_width="fill_parent"
-          android:layout_height="fill_parent"/>
-
-     <include layout="@layout/keypad" />
-    <include layout="@layout/virtual_joystick" /> -->
-
-    <Button android:id="@+id/btn_start_stop"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/start"/>
     <Button android:id="@+id/btn_play_pause"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/pause"/>
-
 </FrameLayout>
