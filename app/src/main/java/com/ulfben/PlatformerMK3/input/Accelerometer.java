@@ -117,22 +117,15 @@ public class Accelerometer extends InputManager {
     private float getHorizontalAxis() {
         final int rotation = mDisplay.getRotation();
         if (SensorManager.getRotationMatrix(mRotationMatrix, null, mLastAccels, mLastMagFields)) {
-            if (rotation == Surface.ROTATION_0) { // remap when in portrait mode
+            if (rotation == Surface.ROTATION_0 || rotation == Surface.ROTATION_180) { //remap if in either of the portrait modes
                 SensorManager.remapCoordinateSystem(mRotationMatrix, SensorManager.AXIS_Y, SensorManager.AXIS_MINUS_X, mRotationMatrix);
-                SensorManager.getOrientation(mRotationMatrix, mOrientation);
-                return mOrientation[1] * DEGREES_PER_RADIAN;
-            } else if(rotation == Surface.ROTATION_90){  //landscape, no remap needed
-                SensorManager.getOrientation(mRotationMatrix, mOrientation);
-                return -mOrientation[1] * DEGREES_PER_RADIAN;
-            } else if(rotation == Surface.ROTATION_180) { //portrait upside down
-                SensorManager.remapCoordinateSystem(mRotationMatrix, SensorManager.AXIS_Y, SensorManager.AXIS_MINUS_X, mRotationMatrix);
-                SensorManager.getOrientation(mRotationMatrix, mOrientation);
-                return -mOrientation[1] * DEGREES_PER_RADIAN;
-            } else {// if(rotation == Surface.ROTATION_270){ //landscape upside down?
-                SensorManager.getOrientation(mRotationMatrix, mOrientation);
-                return mOrientation[1] * DEGREES_PER_RADIAN;
             }
+            SensorManager.getOrientation(mRotationMatrix, mOrientation);
+            //invert direction if in landscape or upside-down-portrait mode.
+            final float dir = (rotation == Surface.ROTATION_90 || rotation == Surface.ROTATION_180) ? -1f : 1f;
+            return dir * mOrientation[1] * DEGREES_PER_RADIAN;
         } else { // Case for devices that DO NOT have magnetic sensors
+            //TODO: this is largely untested, and does not deal with all orientations
             if (rotation == Surface.ROTATION_0) {
                 return -mLastAccels[0] * 5;
             } else {
