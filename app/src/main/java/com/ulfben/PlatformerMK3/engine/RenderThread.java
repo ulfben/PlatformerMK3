@@ -38,9 +38,12 @@ public class RenderThread extends Thread {
             if (mIsPaused) {
                 waitUntilResumed();
             }
+            /*
+            //this app uses SurfaceView to render, which will post to the UI thread and sleep until next frame.
+            //ergo: no need for manual housekeeping like this.
             if (mTimer.getElapsedNanos() < TARGET_FRAMETIME) {
                 sleep();
-            }
+            }*/
         }
     }
 
