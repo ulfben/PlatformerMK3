@@ -11,6 +11,7 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 
 import com.ulfben.PlatformerMK3.GameEvent;
+import com.ulfben.PlatformerMK3.utilities.Random;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -19,8 +20,8 @@ import java.util.HashMap;
 
 public class Jukebox {
     private static final String TAG = "Jukebox";
-    private static final float DEFAULT_MUSIC_VOLUME = 0.1f; //TODO: move to xml
-    private static final float DEFAULT_SFX_VOLUME = 0.8f; //and make prefs
+    private static final float DEFAULT_MUSIC_VOLUME = 0.4f; //TODO: move to xml
+    private static final float DEFAULT_SFX_VOLUME = 0.4f; //and make prefs
     private static final int MAX_STREAMS = 5;
 
     private Context mContext = null;
@@ -38,8 +39,8 @@ public class Jukebox {
         super();
         mContext = context;
         final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-        mSoundEnabled = false;//prefs.getBoolean(SOUNDS_PREF_KEY, true);
-        mMusicEnabled = false;//prefs.getBoolean(MUSIC_PREF_KEY, true);
+        mSoundEnabled = prefs.getBoolean(SOUNDS_PREF_KEY, true);
+        mMusicEnabled = prefs.getBoolean(MUSIC_PREF_KEY, true);
         loadIfNeeded();
     }
 
@@ -54,12 +55,22 @@ public class Jukebox {
     private void loadSounds(){
         createSoundPool();
         mSoundsMap = new HashMap<GameEvent, Integer>();
-        //loadEventSound(GameEvent.PlayerJump, "sfx/start.ogg");
+        loadEventSound(GameEvent.PlayerJump, "sfx/jump.wav");
+        loadEventSound(GameEvent.PlayerCoinPickup, "sfx/pickup_coin.wav");
+       // loadEventSound(GameEvent.PlayerJump, "sfx/button_select.wav");
+
     }
     private void loadMusic(){
+        final String[] bgm = {
+                "bgm/ChibiNinja.mp3",
+                "bgm/AllofUs.mp3",
+                "bgm/Prologue.mp3"
+        };
+        final String track = bgm[Random.nextInt(bgm.length)];
+        Log.d(TAG, "Loading " + track);
         try{
             mBgPlayer = new MediaPlayer();
-            final AssetFileDescriptor afd = mContext.getAssets().openFd("sfx/sometrack.mp3");
+            final AssetFileDescriptor afd = mContext.getAssets().openFd(track);
             mBgPlayer.setDataSource(
                     afd.getFileDescriptor(),
                     afd.getStartOffset(),

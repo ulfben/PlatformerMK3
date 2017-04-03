@@ -136,6 +136,7 @@ public class GameEngine {
         if(MULTITHREAD) {
             mRenderThread.start();
         }
+        mJukebox.resumeBgMusic();
     }
 
     public void stopGame() {
