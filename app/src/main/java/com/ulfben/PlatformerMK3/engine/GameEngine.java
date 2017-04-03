@@ -25,7 +25,7 @@ public class GameEngine {
     private static final float SCALE_FACTOR = 0.5f; //< 1.0f for fullscreen scaling. 0.5 = use half resolution.
     private static final float METERS_TO_SHOW_X = 0f; //set the value you want fixed
     private static final float METERS_TO_SHOW_Y = 9f;  //the other is calculated at runtime!
-    public  static boolean MULTITHREAD = true;
+    public  static boolean MULTITHREAD = false;
     private static final float THREADING_TOGGLE_TIMEOUT = 2f;
     private float mThreadingToggleTimer = 0f;
 
@@ -129,15 +129,20 @@ public class GameEngine {
         mUpdateThread = new UpdateThread(this);
         mUpdateThread.start();
 
+        //a thread object is relatively lightweight until asked to start, so I'm just going to always
+        //create the thread, even if I don't use it. This is to keep me sane while developing and
+        //flipping MULTITHREAD back and forth :P
         mRenderThread = new RenderThread(this);
-        mRenderThread.start();
+        if(MULTITHREAD) {
+            mRenderThread.start();
+        }
     }
 
     public void stopGame() {
         if (mUpdateThread != null) {
             mUpdateThread.stopThread();
         }
-        if (mRenderThread != null) {
+        if (mRenderThread != null && MULTITHREAD) {
             mRenderThread.stopThread();
         }
         if (mControl != null) {
@@ -149,7 +154,7 @@ public class GameEngine {
         if (mUpdateThread != null) {
             mUpdateThread.pauseThread();
         }
-        if (mRenderThread != null) {
+        if (mRenderThread != null && MULTITHREAD) {
             mRenderThread.pauseThread();
         }
         if (mControl != null) {
@@ -161,11 +166,11 @@ public class GameEngine {
     }
 
     public void resumeGame() {
+        if (mRenderThread != null && MULTITHREAD) {
+            mRenderThread.resumeThread();
+        }
         if (mUpdateThread != null) {
             mUpdateThread.resumeThread();
-        }
-        if (mRenderThread != null) {
-            mRenderThread.resumeThread();
         }
         if (mControl != null) {
             mControl.onResume();

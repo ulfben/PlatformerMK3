@@ -71,7 +71,6 @@ public class MainActivity extends AppCompatActivity implements InputManager.Inpu
     }
 
     public void navigateBack() {
-        // Do a push on the navigation history
         super.onBackPressed();
     }
 

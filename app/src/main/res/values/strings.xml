@@ -1,8 +1,5 @@
 <resources>
-    <string name="app_name">PlatformerMK3</string>
-
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="app_name">Platformer Mark 3</string>
     <string name="pause">Pause</string>
     <string name="resume">Resume playing</string>
     <string name="start">Start Game!</string>

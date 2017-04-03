@@ -1,9 +1,10 @@
 package com.ulfben.PlatformerMK3.engine;
+
 import com.ulfben.PlatformerMK3.utilities.FrameTimer;
 // Created by Ulf Benjaminsson (ulfben) on 2017-03-07.
 
 public class UpdateThread extends Thread {
-
+    private static final String TAG = "UpdateThread";
     private final GameEngine mGameEngine;
     private volatile boolean mIsRunning = true;
     private volatile boolean mIsPaused = false;
@@ -11,16 +12,10 @@ public class UpdateThread extends Thread {
     private final FrameTimer mTimer = new FrameTimer();
     private static final long FPS_CAP = 90;
     private static final long TARGET_FRAMETIME = (FrameTimer.SECOND_IN_NANOSECONDS / FPS_CAP);
-    private boolean mDoRatelimit = true;
 
-    public UpdateThread(GameEngine gameEngine) {
+    public UpdateThread(final GameEngine gameEngine) {
         super();
         mGameEngine = gameEngine;
-        if(!GameEngine.MULTITHREAD){
-            //when single threaded the updatethread will also render
-            //rendering to surfaceview will automatically sleep
-            mDoRatelimit = false;
-        }
     }
 
     @Override
@@ -42,8 +37,10 @@ public class UpdateThread extends Thread {
             if(mIsPaused){
                 waitUntilResumed();
             }
-            mDoRatelimit = GameEngine.MULTITHREAD;
-            if(mDoRatelimit && mTimer.getElapsedNanos() < TARGET_FRAMETIME) {
+            if(GameEngine.MULTITHREAD && mTimer.getElapsedNanos() < TARGET_FRAMETIME) {
+                //we only sleep when multithreaded (rendering happening on other thread)
+                //when single threading (= this thread draws), the render-step will sleep us.
+                //see the RenderThread for more info.
                 sleep();
             }
             mGameEngine.onUpdate(mTimer.tick());
@@ -71,7 +68,7 @@ public class UpdateThread extends Thread {
                 //ignored
             }
         }
-        mTimer.reset();
+        mTimer.onResume();
     }
 
     public void pauseThread() {
@@ -79,7 +76,6 @@ public class UpdateThread extends Thread {
     }
 
     public void resumeThread() {
-        mTimer.reset();
         if (mIsPaused) {
             mIsPaused = false;
             synchronized (mLock) {

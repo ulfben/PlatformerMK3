@@ -1,6 +1,7 @@
 package com.ulfben.PlatformerMK3.fragments;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -82,6 +83,14 @@ public class GameFragment extends BaseFragment implements View.OnClickListener {
     }
     private void pauseGameAndShowPauseDialog() {
         mGameEngine.pauseGame();
+        final Handler handler = new Handler();
+        final int delay = 250; //ms
+        final Runnable delayedResume = new Runnable() { //give the dialog time to go away, before we onResume
+            @Override
+            public void run() {
+                mGameEngine.resumeGame();
+            }
+        };
         new AlertDialog.Builder(getActivity())
                 .setTitle(R.string.pause_dialog_title)
                 .setMessage(R.string.pause_dialog_message)
@@ -89,7 +98,7 @@ public class GameFragment extends BaseFragment implements View.OnClickListener {
                     @Override
                     public void onClick(final DialogInterface dialog, final int which) {
                         dialog.dismiss();
-                        mGameEngine.resumeGame();
+                        handler.postDelayed(delayedResume, delay);
                     }
                 })
                 .setNegativeButton(R.string.stop, new DialogInterface.OnClickListener() {
@@ -97,13 +106,13 @@ public class GameFragment extends BaseFragment implements View.OnClickListener {
                     public void onClick(final DialogInterface dialog, final int which) {
                         dialog.dismiss();
                         mGameEngine.stopGame();
-                        ((MainActivity)getActivity()).navigateBack();
+                        ((MainActivity) getActivity()).navigateBack();
                     }
                 })
                 .setOnCancelListener(new DialogInterface.OnCancelListener() {
                     @Override
                     public void onCancel(final DialogInterface dialog) {
-                        mGameEngine.resumeGame();
+                        handler.postDelayed(delayedResume, delay);
                     }
                 })
                 .create()

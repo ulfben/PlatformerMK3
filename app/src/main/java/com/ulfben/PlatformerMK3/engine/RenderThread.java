@@ -4,6 +4,7 @@ import com.ulfben.PlatformerMK3.utilities.FrameTimer;
 // Created by Ulf Benjaminsson (ulfben) on 2017-03-07.
 
 public class RenderThread extends Thread {
+    private static final String TAG = "RenderThread";
     private final GameEngine mGameEngine;
     private volatile boolean mIsRunning = true;
     private volatile boolean mIsPaused = false;
@@ -68,14 +69,13 @@ public class RenderThread extends Thread {
                 //ignored
             }
         }
-        mTimer.reset();
+        mTimer.onResume();
     }
     public void pauseThread() {
         mIsPaused = true;
     }
 
     public void resumeThread() {
-        mTimer.reset();
         if (mIsPaused) {
             mIsPaused = false;
             synchronized (mLock) {
@@ -93,7 +93,6 @@ public class RenderThread extends Thread {
     public boolean isRunning() {
         return mIsRunning;
     }
-
     public boolean isPaused() {
         return mIsPaused;
     }

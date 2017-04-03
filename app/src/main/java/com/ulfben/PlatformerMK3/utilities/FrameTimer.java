@@ -20,10 +20,16 @@ public class FrameTimer {
     }
 
     public void reset(){
-        mStartFrameTime = 0;
+        mStartFrameTime = System.nanoTime();
         mElapsedTime = 0;
         mFrameCount = 0;
         mNanosCount = 0;
+    }
+
+    //we call this whenever the gameplay has been paused
+    //to avoid spikes in the deltatime
+    public void onResume(){
+        mStartFrameTime = System.nanoTime();
     }
 
     public float tick(){
