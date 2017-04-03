@@ -1,7 +1,6 @@
 package com.ulfben.PlatformerMK3.gameobjects;
 import android.graphics.Canvas;
 import android.graphics.Paint;
-import android.util.Log;
 
 import com.ulfben.PlatformerMK3.Animation;
 import com.ulfben.PlatformerMK3.GameEvent;
@@ -52,25 +51,6 @@ public class Player extends DynamicGameObject {
     }
 
     @Override
-    public void onCollision(final GameObject that){
-        if(!GameObject.getOverlap(this, that, GameObject.overlap)){
-            Log.d(TAG, "getOverlap false negative. Always check AABB first!");
-        }
-        if(overlap.y != 0f){
-            mTargetSpeed.y = 0f;
-            mVelocity.y = 0f;
-            if(overlap.y < 0f){ //feet
-                mIsOnGround = true;
-                if(Spears.class.isInstance(that)){
-                    mEngine.onGameEvent(GameEvent.PlayerSpikeCollision);
-                }
-            }//else if(overlap.y > 0){ //head
-        }
-        mWorldLocation.offset(GameObject.overlap.x, GameObject.overlap.y);
-        updateBounds();
-    }
-
-    @Override
     protected synchronized void updateBounds(){
         if(mAnim != null) {
             mHeight = mAnim.getCurrentHeightMeters(); //scaled
@@ -93,6 +73,14 @@ public class Player extends DynamicGameObject {
         }
         mTransform.postTranslate(GameObject.screenCord.x+offset, GameObject.screenCord.y);
         canvas.drawBitmap(mAnim.getCurrentBitmap(), mTransform, paint);
+    }
+
+    @Override
+    public void onCollision(final GameObject that){
+        super.onCollision(that);
+        if(Spears.class.isInstance(that)){
+            mEngine.onGameEvent(GameEvent.PlayerSpikeCollision);
+        }
     }
 
     @Override
@@ -120,7 +108,9 @@ public class Player extends DynamicGameObject {
 
     private void updateAnimationRate(){
         float rate = Math.abs(mTargetSpeed.x) / (PLAYER_RUN_SPEED*0.5f); //0-2
-        if(rate > 0f && rate < MIN_ANIMATION_RATE){
+        if(rate < 0.1f){
+            rate = 0f;
+        }else if(rate < MIN_ANIMATION_RATE){
             rate = MIN_ANIMATION_RATE;
         }
         mAnim.setPlaybackRate(rate);

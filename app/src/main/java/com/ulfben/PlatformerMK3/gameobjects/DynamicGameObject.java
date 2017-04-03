@@ -36,7 +36,7 @@ public class DynamicGameObject extends GameObject {
             mVelocity.y = 0f;
             if(overlap.y < 0f){ //feet
                 mIsOnGround = true;
-            }//else if(overlap.y > 0){ //head
+            }//else if(overlap.y > 0) { //head
         }
         updateBounds();
     }
@@ -48,13 +48,14 @@ public class DynamicGameObject extends GameObject {
             mVelocity.x = mTargetSpeed.x; //instantaneous deceleration.
         }
         if(!mIsOnGround){
-            mWorldLocation.y += Utils.clamp(mVelocity.y*dt, -MAX_DELTA, MAX_DELTA);
             mVelocity.y += mGravity * dt;
+            mWorldLocation.y += Utils.clamp(mVelocity.y*dt, -MAX_DELTA, MAX_DELTA);
         }
         mWorldLocation.x += Utils.clamp(mVelocity.x*dt, -MAX_DELTA, MAX_DELTA);
 
         if(mWorldLocation.y > mEngine.getWorldHeight()){
-            setPosition(Random.between(2f, mEngine.getWorldWidth()-2f), 0f);
+            final float margin = 2f;
+            setPosition(Random.between(margin, mEngine.getWorldWidth()-margin), 0f);
         }
         updateBounds();
         mIsOnGround = false; //reset ground flag every frame
