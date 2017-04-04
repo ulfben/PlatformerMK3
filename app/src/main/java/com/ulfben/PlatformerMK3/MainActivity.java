@@ -11,6 +11,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Toast;
 
+import com.ulfben.PlatformerMK3.engine.Jukebox;
 import com.ulfben.PlatformerMK3.fragments.BaseFragment;
 import com.ulfben.PlatformerMK3.fragments.GameFragment;
 import com.ulfben.PlatformerMK3.fragments.MainMenuFragment;
@@ -20,7 +21,7 @@ import com.ulfben.PlatformerMK3.input.GamepadListener;
 public class MainActivity extends AppCompatActivity implements InputManager.InputDeviceListener {
     private static final String TAG_FRAGMENT = "content";
     private GamepadListener mGamepadListener = null;
-
+    private GameFragment mGameFragment = null;
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -37,7 +38,8 @@ public class MainActivity extends AppCompatActivity implements InputManager.Inpu
 
     public void startGame() {
         // Navigate the the game fragment, which makes the start automatically
-        navigateToFragment(new GameFragment());
+        mGameFragment = new GameFragment();
+        navigateToFragment(mGameFragment);
     }
 
     private void navigateToFragment(final BaseFragment dst) {
@@ -48,6 +50,14 @@ public class MainActivity extends AppCompatActivity implements InputManager.Inpu
                 .commit();
     }
 
+    public Jukebox getJukebox(){
+        //TODO: figure out how to access a fragment so I don't need to keep it around in the members
+        //final GameFragment fragment = (GameFragment) getSupportFragmentManager().findFragmentByTag(TAG_FRAGMENT);
+        if (mGameFragment != null) {
+            return mGameFragment.getJukebox();
+        }
+        return null;
+    }
     public void setGamepadListener(final GamepadListener listener) {
         mGamepadListener = listener;
     }

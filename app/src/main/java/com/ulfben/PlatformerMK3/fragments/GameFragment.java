@@ -12,6 +12,7 @@ import com.ulfben.PlatformerMK3.MainActivity;
 import com.ulfben.PlatformerMK3.R;
 import com.ulfben.PlatformerMK3.engine.GameEngine;
 import com.ulfben.PlatformerMK3.engine.GameView;
+import com.ulfben.PlatformerMK3.engine.Jukebox;
 import com.ulfben.PlatformerMK3.input.Accelerometer;
 import com.ulfben.PlatformerMK3.input.CompositeControl;
 import com.ulfben.PlatformerMK3.input.Gamepad;
@@ -120,6 +121,9 @@ public class GameFragment extends BaseFragment implements View.OnClickListener {
 
     }
 
+    public Jukebox getJukebox(){
+        return mGameEngine.getJukebox();
+    }
     private void playOrPause() {
         final Button button = (Button) getView().findViewById(R.id.btn_play_pause);
         if (mGameEngine.isPaused()) {

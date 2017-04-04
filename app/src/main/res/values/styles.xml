@@ -11,6 +11,13 @@
         <item name="android:windowFullscreen">true</item>
         <item name="android:windowContentOverlay">@null</item>
         <item name="android:immersive">true</item>
+
+        <style name="iconButton" >
+            <item name="android:background">@drawable/icon_button_bg</item>
+            <item name="android:layout_width">@dimen/btn_round_size</item>
+            <item name="android:layout_height">@dimen/btn_round_size</item>
+            <item name="android:padding">@dimen/round_button_padding</item>
+        </style>
     </style>
 
 </resources>

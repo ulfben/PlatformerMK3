@@ -117,6 +117,13 @@ public class Jukebox {
                 .commit();
     }
 
+    public boolean isSoundEnabled(){
+        return mSoundEnabled;
+    }
+    public boolean ismMusicEnabled(){
+        return mMusicEnabled;
+    }
+
     public void destroy(){
         if(mSoundEnabled){
             unloadSounds();

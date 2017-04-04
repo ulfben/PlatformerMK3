@@ -117,6 +117,10 @@ public class GameEngine {
         mGameView.setVisibleObjects(mVisibleObjects);
     }
 
+    public Jukebox getJukebox(){
+        return mJukebox;
+    }
+
     public void setInputManager(final InputManager controller) {
         mControl = controller;
     }
