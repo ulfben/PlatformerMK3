@@ -120,9 +120,7 @@ public class Jukebox {
     public boolean isSoundEnabled(){
         return mSoundEnabled;
     }
-    public boolean ismMusicEnabled(){
-        return mMusicEnabled;
-    }
+    public boolean ismMusicEnabled(){ return mMusicEnabled; }
 
     public void destroy(){
         if(mSoundEnabled){

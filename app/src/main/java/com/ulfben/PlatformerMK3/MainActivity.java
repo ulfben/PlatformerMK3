@@ -39,7 +39,7 @@ public class MainActivity extends AppCompatActivity implements InputManager.Inpu
     }
 
     public void startGame() {
-        navigateToFragment(new GameFragment(), TAG_GAME_FRAGMENT);
+        navigateToFragment(new GameFragment(), TAG_FRAGMENT);
     }
 
     private void navigateToFragment(final BaseFragment dst) {
@@ -55,7 +55,7 @@ public class MainActivity extends AppCompatActivity implements InputManager.Inpu
     }
 
     public Jukebox getJukebox(){
-        final GameFragment fragment = (GameFragment) getSupportFragmentManager().findFragmentByTag(TAG_GAME_FRAGMENT);
+        final GameFragment fragment = (GameFragment) getSupportFragmentManager().findFragmentByTag(TAG_FRAGMENT);
         if (fragment != null) {
             return fragment.getJukebox();
         }

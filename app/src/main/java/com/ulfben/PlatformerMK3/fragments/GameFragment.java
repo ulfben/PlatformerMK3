@@ -1,5 +1,6 @@
 package com.ulfben.PlatformerMK3.fragments;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,6 +20,7 @@ import com.ulfben.PlatformerMK3.utilities.SysUtils;
 //Created by Ulf Benjaminsson (ulfben) on 2017-04-02.
 
 public class GameFragment extends BaseFragment implements View.OnClickListener, PauseDialog.PauseDialogListener {
+    private static final String TAG = "GameFragment";
     private GameEngine mGameEngine;
 
     public GameFragment() {
@@ -73,15 +75,20 @@ public class GameFragment extends BaseFragment implements View.OnClickListener, 
         mGameEngine.stopGame();
     }
 
+    @Override
     public boolean onBackPressed() {
+        Log.d(TAG, "onBackPressed");
         if (mGameEngine.isRunning()) {
+            Log.d(TAG, "isRunning, so calling pause");
             pauseGameAndShowPauseDialog();
             return true;
         }
+        Log.d(TAG, "was not running");
         return false;
     }
     private void pauseGameAndShowPauseDialog() {
         mGameEngine.pauseGame();
+        Log.d(TAG, "pause game");
         final PauseDialog dialog = new PauseDialog(getMainActivity());
         dialog.setListener(this);
         showDialog(dialog);
@@ -93,15 +100,14 @@ public class GameFragment extends BaseFragment implements View.OnClickListener, 
     private void playOrPause() {
         final View view = getView();
         if(view == null){
-            //Log(TAG, "");
+            Log.e(TAG, "View not available!");
             return;
         }
         final Button button = (Button) view.findViewById(R.id.btn_play_pause);
         if (mGameEngine.isPaused()) {
             mGameEngine.resumeGame();
             button.setText(R.string.pause);
-        }
-        else {
+        } else {
             mGameEngine.pauseGame();
             button.setText(R.string.resume);
         }
