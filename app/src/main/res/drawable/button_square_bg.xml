@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <shape xmlns:android="http://schemas.android.com/apk/res/android"
     android:shape="rectangle">
-    <solid
-        android:color="@color/btn_backgound" />
+    <solid android:color="@color/btn_background" />
     <padding android:bottom="@dimen/square_button_padding"
         android:left="@dimen/square_button_padding"
         android:right="@dimen/square_button_padding"

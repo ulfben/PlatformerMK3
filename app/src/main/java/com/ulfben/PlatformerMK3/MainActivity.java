@@ -20,8 +20,9 @@ import com.ulfben.PlatformerMK3.input.GamepadListener;
 
 public class MainActivity extends AppCompatActivity implements InputManager.InputDeviceListener {
     private static final String TAG_FRAGMENT = "content";
+    private static final String TAG_GAME_FRAGMENT = "game";
     private GamepadListener mGamepadListener = null;
-    private GameFragment mGameFragment = null;
+
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -30,31 +31,33 @@ public class MainActivity extends AppCompatActivity implements InputManager.Inpu
         hideSystemUI();
         setContentView(R.layout.activity_main);
         if (savedInstanceState == null) {
-            getSupportFragmentManager().beginTransaction()
+            getSupportFragmentManager()
+                    .beginTransaction()
                     .add(R.id.container, new MainMenuFragment(), TAG_FRAGMENT)
                     .commit();
         }
     }
 
     public void startGame() {
-        // Navigate the the game fragment, which makes the start automatically
-        mGameFragment = new GameFragment();
-        navigateToFragment(mGameFragment);
+        navigateToFragment(new GameFragment(), TAG_GAME_FRAGMENT);
     }
 
     private void navigateToFragment(final BaseFragment dst) {
+        navigateToFragment(dst, TAG_FRAGMENT);
+    }
+
+    private void navigateToFragment(final BaseFragment dst, final String tag) {
         getSupportFragmentManager()
                 .beginTransaction()
-                .replace(R.id.container, dst, TAG_FRAGMENT)
+                .replace(R.id.container, dst, tag)
                 .addToBackStack(null)
                 .commit();
     }
 
     public Jukebox getJukebox(){
-        //TODO: figure out how to access a fragment so I don't need to keep it around in the members
-        //final GameFragment fragment = (GameFragment) getSupportFragmentManager().findFragmentByTag(TAG_FRAGMENT);
-        if (mGameFragment != null) {
-            return mGameFragment.getJukebox();
+        final GameFragment fragment = (GameFragment) getSupportFragmentManager().findFragmentByTag(TAG_GAME_FRAGMENT);
+        if (fragment != null) {
+            return fragment.getJukebox();
         }
         return null;
     }
@@ -96,10 +99,10 @@ public class MainActivity extends AppCompatActivity implements InputManager.Inpu
 
     public boolean isGameControllerConnected() {
         final int[] deviceIds = InputDevice.getDeviceIds();
-        for (final int deviceId : deviceIds) {
+        for(final int deviceId : deviceIds) {
             final InputDevice dev = InputDevice.getDevice(deviceId);
             final int sources = dev.getSources();
-            if (((sources & InputDevice.SOURCE_GAMEPAD) == InputDevice.SOURCE_GAMEPAD) ||
+            if(((sources & InputDevice.SOURCE_GAMEPAD) == InputDevice.SOURCE_GAMEPAD) ||
                     ((sources & InputDevice.SOURCE_JOYSTICK) == InputDevice.SOURCE_JOYSTICK)) {
                 return true;
             }
