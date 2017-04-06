@@ -1,8 +1,5 @@
 package com.ulfben.PlatformerMK3.fragments;
-import android.content.DialogInterface;
 import android.os.Bundle;
-import android.os.Handler;
-import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,6 +10,7 @@ import com.ulfben.PlatformerMK3.R;
 import com.ulfben.PlatformerMK3.engine.GameEngine;
 import com.ulfben.PlatformerMK3.engine.GameView;
 import com.ulfben.PlatformerMK3.engine.Jukebox;
+import com.ulfben.PlatformerMK3.gui.PauseDialog;
 import com.ulfben.PlatformerMK3.input.Accelerometer;
 import com.ulfben.PlatformerMK3.input.CompositeControl;
 import com.ulfben.PlatformerMK3.input.Gamepad;
@@ -20,7 +18,7 @@ import com.ulfben.PlatformerMK3.input.VirtualJoystick;
 import com.ulfben.PlatformerMK3.utilities.SysUtils;
 //Created by Ulf Benjaminsson (ulfben) on 2017-04-02.
 
-public class GameFragment extends BaseFragment implements View.OnClickListener {
+public class GameFragment extends BaseFragment implements View.OnClickListener, PauseDialog.PauseDialogListener {
     private GameEngine mGameEngine;
 
     public GameFragment() {
@@ -84,48 +82,21 @@ public class GameFragment extends BaseFragment implements View.OnClickListener {
     }
     private void pauseGameAndShowPauseDialog() {
         mGameEngine.pauseGame();
-        final Handler handler = new Handler();
-        final int delay = 250; //ms
-        final Runnable delayedResume = new Runnable() { //give the dialog time to go away, before we onResume
-            @Override
-            public void run() {
-                mGameEngine.resumeGame();
-            }
-        };
-        new AlertDialog.Builder(getActivity())
-                .setTitle(R.string.pause_dialog_title)
-                .setMessage(R.string.pause_dialog_message)
-                .setPositiveButton(R.string.resume, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(final DialogInterface dialog, final int which) {
-                        dialog.dismiss();
-                        handler.postDelayed(delayedResume, delay);
-                    }
-                })
-                .setNegativeButton(R.string.stop, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(final DialogInterface dialog, final int which) {
-                        dialog.dismiss();
-                        mGameEngine.stopGame();
-                        ((MainActivity) getActivity()).navigateBack();
-                    }
-                })
-                .setOnCancelListener(new DialogInterface.OnCancelListener() {
-                    @Override
-                    public void onCancel(final DialogInterface dialog) {
-                        handler.postDelayed(delayedResume, delay);
-                    }
-                })
-                .create()
-                .show();
-
+        final PauseDialog dialog = new PauseDialog(getMainActivity());
+        dialog.setListener(this);
+        showDialog(dialog);
     }
 
     public Jukebox getJukebox(){
         return mGameEngine.getJukebox();
     }
     private void playOrPause() {
-        final Button button = (Button) getView().findViewById(R.id.btn_play_pause);
+        final View view = getView();
+        if(view == null){
+            //Log(TAG, "");
+            return;
+        }
+        final Button button = (Button) view.findViewById(R.id.btn_play_pause);
         if (mGameEngine.isPaused()) {
             mGameEngine.resumeGame();
             button.setText(R.string.pause);
@@ -134,5 +105,15 @@ public class GameFragment extends BaseFragment implements View.OnClickListener {
             mGameEngine.pauseGame();
             button.setText(R.string.resume);
         }
+    }
+
+    public void resumeGame() {
+        mGameEngine.resumeGame();
+    }
+
+    @Override
+    public void exitGame() {
+        mGameEngine.stopGame();
+        getMainActivity().navigateBack();
     }
 }

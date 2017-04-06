@@ -13,9 +13,9 @@ import android.widget.ImageView;
 import com.ulfben.PlatformerMK3.MainActivity;
 import com.ulfben.PlatformerMK3.R;
 import com.ulfben.PlatformerMK3.engine.Jukebox;
-import com.ulfben.PlatformerMK3.gui.QuitDialog;
+import com.ulfben.PlatformerMK3.gui.ExitDialog;
 
-public class MainMenuFragment extends BaseFragment implements View.OnClickListener{
+public class MainMenuFragment extends BaseFragment implements View.OnClickListener, ExitDialog.ExitDialogListener{
     private static final String TAG = "MainMenuFragment";
     private static final String PREF_SHOULD_DISPLAY_GAMEPAD_HELP = "com.ulfben.platformermk3.gamepad.help.boolean";
 
@@ -43,19 +43,28 @@ public class MainMenuFragment extends BaseFragment implements View.OnClickListen
             Log.d(TAG, "audio not available"); //TODO: set icons correctly first.
             return;
         }
+        final View view = getView();
+        if(view == null) {
+            Log.e(TAG, "View not available!");
+            return;
+        }
         final boolean music = jukebox.ismMusicEnabled();
-        final ImageView btnMusic = (ImageView) findViewById(R.id.btn_music);
-        if (music) {
-            btnMusic.setImageResource(R.drawable.music_on_no_bg);
-        } else {
-            btnMusic.setImageResource(R.drawable.music_off_no_bg);
+        final ImageView btnMusic = (ImageView) view.findViewById(R.id.btn_music);
+        if(btnMusic != null) {
+            if (music) {
+                btnMusic.setImageResource(R.drawable.music_on_no_bg);
+            } else {
+                btnMusic.setImageResource(R.drawable.music_off_no_bg);
+            }
         }
         final boolean sound = jukebox.isSoundEnabled();
-        final ImageView btnSounds = (ImageView) findViewById(R.id.btn_sound);
-        if (sound) {
-            btnSounds.setImageResource(R.drawable.sounds_on_no_bg);
-        } else {
-            btnSounds.setImageResource(R.drawable.sounds_off_no_bg);
+        final ImageView btnSounds = (ImageView) view.findViewById(R.id.btn_sound);
+        if(btnSounds != null) {
+            if (sound) {
+                btnSounds.setImageResource(R.drawable.sounds_on_no_bg);
+            } else {
+                btnSounds.setImageResource(R.drawable.sounds_off_no_bg);
+            }
         }
     }
 
@@ -120,9 +129,9 @@ public class MainMenuFragment extends BaseFragment implements View.OnClickListen
     public boolean onBackPressed() {
         final boolean consumed = super.onBackPressed();
         if (!consumed){
-            final QuitDialog quitDialog = new QuitDialog(getMainActivity());
-            quitDialog.setListener(this);
-            showDialog(quitDialog);
+            final ExitDialog exitDialog = new ExitDialog(getMainActivity());
+            exitDialog.setListener(this);
+            showDialog(exitDialog);
             return true;
         }
         return consumed;
