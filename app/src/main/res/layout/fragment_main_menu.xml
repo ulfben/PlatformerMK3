@@ -7,34 +7,43 @@
     <ImageView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:scaleType="centerCrop"
-        android:src="@drawable/background"/>
+        android:background="@android:color/background_light"
+        android:scaleType="fitCenter"
+        android:src="@drawable/background"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"/>
 
     <TextView
-        android:textColor="@color/text_color"
         android:id="@+id/main_title"
         style="@android:style/TextAppearance.DeviceDefault.Large"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
         android:layout_marginTop="@dimen/activity_vertical_margin"
         android:text="@string/game_title"
-        android:layout_centerHorizontal="true"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:textColor="@android:color/black"/>
 
     <TextView
-        android:textColor="@color/text_color"
-        android:layout_below="@+id/main_title"
         style="@android:style/TextAppearance.DeviceDefault.Medium"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/main_title"
+        android:layout_centerHorizontal="true"
         android:layout_marginTop="@dimen/activity_vertical_margin"
         android:text="@string/game_subtitle"
-        android:layout_centerHorizontal="true"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:textColor="@android:color/black"/>
 
     <Button
         android:id="@+id/btn_start"
-        android:layout_centerInParent="true"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:background="@drawable/button_square_bg"
-        android:text="@string/start" />
+        android:text="@string/start"
+        android:layout_marginBottom="12dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginRight="28dp"
+        android:layout_marginEnd="28dp"/>
 </RelativeLayout>

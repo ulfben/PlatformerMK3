@@ -77,27 +77,25 @@ public class GameFragment extends BaseFragment implements View.OnClickListener, 
 
     @Override
     public boolean onBackPressed() {
-        Log.d(TAG, "onBackPressed");
         if (mGameEngine.isRunning()) {
-            Log.d(TAG, "isRunning, so calling pause");
             pauseGameAndShowPauseDialog();
             return true;
         }
-        Log.d(TAG, "was not running");
         return false;
     }
     private void pauseGameAndShowPauseDialog() {
         mGameEngine.pauseGame();
-        Log.d(TAG, "pause game");
         final PauseDialog dialog = new PauseDialog(getMainActivity());
         dialog.setListener(this);
         showDialog(dialog);
+        updatePauseButton();
     }
 
     public Jukebox getJukebox(){
         return mGameEngine.getJukebox();
     }
-    private void playOrPause() {
+
+    private void updatePauseButton(){
         final View view = getView();
         if(view == null){
             Log.e(TAG, "View not available!");
@@ -105,16 +103,15 @@ public class GameFragment extends BaseFragment implements View.OnClickListener, 
         }
         final Button button = (Button) view.findViewById(R.id.btn_play_pause);
         if (mGameEngine.isPaused()) {
-            mGameEngine.resumeGame();
             button.setText(R.string.pause);
         } else {
-            mGameEngine.pauseGame();
             button.setText(R.string.resume);
         }
     }
 
     public void resumeGame() {
         mGameEngine.resumeGame();
+        updatePauseButton();
     }
 
     @Override

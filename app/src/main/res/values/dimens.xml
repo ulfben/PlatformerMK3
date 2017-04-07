@@ -3,7 +3,7 @@
     <dimen name="activity_horizontal_margin">16dp</dimen>
     <dimen name="activity_vertical_margin">16dp</dimen>
     <dimen name="keypad_size">48dp</dimen>
-    <dimen name="square_button_padding">18dp</dimen>
+    <dimen name="square_button_padding">24dp</dimen>
     <dimen name="square_button_border">6dp</dimen>
     <dimen name="round_button_padding">6dp</dimen>
     <dimen name="btn_round_size">60dp</dimen>

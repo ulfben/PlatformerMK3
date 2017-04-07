@@ -55,7 +55,7 @@ public class Dialog implements View.OnTouchListener {
         activityRoot.removeView(mRootLayout);
     }
 
-    protected View findViewById(int id) {
+    protected View findViewById(final int id) {
         return mRootView.findViewById(id);
     }
 
