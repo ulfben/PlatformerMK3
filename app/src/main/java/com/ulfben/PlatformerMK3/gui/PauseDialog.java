@@ -25,27 +25,28 @@ public class PauseDialog extends Dialog implements View.OnClickListener {
 
     private void updateButtonStates() {
         final Jukebox jukebox = mParent.getJukebox();
-        if(jukebox == null){
-            Log.d(TAG, "audio not available"); //TODO: set icons correctly first.
-            return;
+        boolean musicEnabled = false;jukebox.ismMusicEnabled();
+        boolean sfxEnabled = false; jukebox.isSoundEnabled();
+        if(jukebox != null){
+            musicEnabled = jukebox.ismMusicEnabled();
+            sfxEnabled = jukebox.isSoundEnabled();
+        }else{
+            Log.d(TAG, "audio not available");
         }
-        final boolean music = jukebox.ismMusicEnabled();
         final ImageView btnMusic = (ImageView) findViewById(R.id.btn_music);
-        if (music) {
+        if (musicEnabled) {
             btnMusic.setImageResource(R.drawable.music_on_no_bg);
         } else {
             btnMusic.setImageResource(R.drawable.music_off_no_bg);
         }
-        final boolean sound = jukebox.isSoundEnabled();
         final ImageView btnSounds = (ImageView) findViewById(R.id.btn_sound);
-        if (sound) {
+        if (sfxEnabled) {
             btnSounds.setImageResource(R.drawable.sounds_on_no_bg);
         } else {
             btnSounds.setImageResource(R.drawable.sounds_off_no_bg);
         }
         final ImageView motionControls = (ImageView) findViewById(R.id.btn_accelerometer);
-        final boolean hasMotionControll = mParent.hasMotionControl();
-        if(hasMotionControll){
+        if(mParent.hasMotionControl()){
             motionControls.setImageResource(R.drawable.ic_screen_rotation_black_24dp);
         }else{
             motionControls.setImageResource(R.drawable.ic_screen_lock_rotation_black_24dp);

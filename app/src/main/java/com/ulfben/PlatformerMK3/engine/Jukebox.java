@@ -110,7 +110,7 @@ public class Jukebox {
             unloadMusic();
         }
         PreferenceManager.getDefaultSharedPreferences(mContext)
-                .edit().putBoolean(MUSIC_PREF_KEY, mSoundEnabled)
+                .edit().putBoolean(MUSIC_PREF_KEY, mMusicEnabled)
                 .apply();
     }
 
