@@ -19,10 +19,11 @@ public class PauseDialog extends Dialog implements View.OnClickListener {
         findViewById(R.id.btn_sound).setOnClickListener(this);
         findViewById(R.id.btn_exit).setOnClickListener(this);
         findViewById(R.id.btn_resume).setOnClickListener(this);
-        updateSoundAndMusicButtons();
+        findViewById(R.id.btn_accelerometer).setOnClickListener(this);
+        updateButtonStates();
     }
 
-    private void updateSoundAndMusicButtons() {
+    private void updateButtonStates() {
         final Jukebox jukebox = mParent.getJukebox();
         if(jukebox == null){
             Log.d(TAG, "audio not available"); //TODO: set icons correctly first.
@@ -42,6 +43,13 @@ public class PauseDialog extends Dialog implements View.OnClickListener {
         } else {
             btnSounds.setImageResource(R.drawable.sounds_off_no_bg);
         }
+        final ImageView motionControls = (ImageView) findViewById(R.id.btn_accelerometer);
+        final boolean hasMotionControll = mParent.hasMotionControl();
+        if(hasMotionControll){
+            motionControls.setImageResource(R.drawable.ic_screen_rotation_black_24dp);
+        }else{
+            motionControls.setImageResource(R.drawable.ic_screen_lock_rotation_black_24dp);
+        }
     }
 
     public void setListener(final PauseDialogListener listener) {
@@ -51,21 +59,23 @@ public class PauseDialog extends Dialog implements View.OnClickListener {
     @Override
     public void onClick(final View v) {
         final Jukebox jukebox = mParent.getJukebox();
-        if (v.getId() == R.id.btn_sound && jukebox != null) {
+        final int id = v.getId();
+        if (id == R.id.btn_sound && jukebox != null) {
             jukebox.toggleSoundStatus();
-            updateSoundAndMusicButtons();
         }
-        else if (v.getId() == R.id.btn_music && jukebox != null) {
+        else if (id == R.id.btn_music && jukebox != null) {
             jukebox.toggleMusicStatus();
-            updateSoundAndMusicButtons();
         }
-        else if (v.getId() == R.id.btn_exit) {
+        else if (id == R.id.btn_exit) {
             super.dismiss();
             mListener.exitGame();
         }
-        else if (v.getId() == R.id.btn_resume) {
+        else if (id == R.id.btn_resume) {
             dismiss();
+        }else if(id == R.id.btn_accelerometer){
+            mParent.toggleMotionControl();
         }
+        updateButtonStates();
     }
 
     @Override

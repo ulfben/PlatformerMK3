@@ -4,31 +4,36 @@ import java.util.ArrayList;
 import java.util.Arrays;
 // Created by Ulf Benjaminsson (ulfben) on 2017-03-11.
 
-public class CompositeControl extends InputManager {
-    private ArrayList<InputManager> mInputs = new ArrayList<>();
+public class CompositeGameInput extends GameInput {
+    protected final ArrayList<GameInput> mInputs = new ArrayList<>();
     private int mCount = 0;
 
-    public CompositeControl(final InputManager... inputs) {
+    public CompositeGameInput(final GameInput... inputs) {
         super();
         mInputs.addAll(Arrays.asList(inputs));
-        mCount = mInputs.size();
+        refresh();
     }
 
-    public void setInput(final InputManager im){
+    public void setInput(final GameInput im){
         onPause();
         onStop();
         mInputs.clear();
         addInput(im);
+        refresh();
     }
 
-    public void addInput(final InputManager im){
+    public void addInput(final GameInput im){
         mInputs.add(im);
+        refresh();
+    }
+
+    protected void refresh(){
         mCount = mInputs.size();
     }
 
     @Override
     public void update(final float dt) {
-        InputManager temp;
+        GameInput temp;
         mJump = false;
         mHorizontalFactor = 0f;
         mVerticalFactor = 0f;
@@ -44,28 +49,28 @@ public class CompositeControl extends InputManager {
 
     @Override
     public void onStart() {
-        for(final InputManager im : mInputs){
+        for(final GameInput im : mInputs){
             im.onStart();
         }
     }
 
     @Override
     public void onStop() {
-        for(final InputManager im : mInputs){
+        for(final GameInput im : mInputs){
             im.onStop();
         }
     }
 
     @Override
     public void onPause() {
-        for(final InputManager im : mInputs){
+        for(final GameInput im : mInputs){
             im.onPause();
         }
     }
 
     @Override
     public void onResume() {
-        for(final InputManager im : mInputs){
+        for(final GameInput im : mInputs){
             im.onResume();
         }
     }

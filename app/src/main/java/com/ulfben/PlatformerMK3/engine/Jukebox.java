@@ -21,7 +21,7 @@ import java.util.HashMap;
 public class Jukebox {
     private static final String TAG = "Jukebox";
     private static final float DEFAULT_MUSIC_VOLUME = 0.4f; //TODO: move to xml
-    private static final float DEFAULT_SFX_VOLUME = 0.4f; //and make prefs
+    private static final float DEFAULT_SFX_VOLUME = 0.4f; //and make settings
     private static final int MAX_STREAMS = 5;
 
     private Context mContext = null;
@@ -55,16 +55,13 @@ public class Jukebox {
     private void loadSounds(){
         createSoundPool();
         mSoundsMap = new HashMap<GameEvent, Integer>();
-        loadEventSound(GameEvent.PlayerJump, "sfx/jump.wav");
+        loadEventSound(GameEvent.PlayerJump, "sfx/jump.wav"); //TODO: move to settings!
         loadEventSound(GameEvent.PlayerCoinPickup, "sfx/pickup_coin.wav");
-       // loadEventSound(GameEvent.PlayerJump, "sfx/button_select.wav");
-
     }
     private void loadMusic(){
-        final String[] bgm = {
+        final String[] bgm = { //TODO: move to settings
                 "bgm/ChibiNinja.mp3",
-                "bgm/AllofUs.mp3",
-                "bgm/Prologue.mp3"
+                "bgm/AllofUs.mp3"
         };
         final String track = bgm[Random.nextInt(bgm.length)];
         Log.d(TAG, "Loading " + track);
@@ -103,7 +100,7 @@ public class Jukebox {
         }
         PreferenceManager.getDefaultSharedPreferences(mContext)
                 .edit().putBoolean(SOUNDS_PREF_KEY, mSoundEnabled)
-                .commit();
+                .apply();
     }
     public void toggleMusicStatus(){
         mMusicEnabled = !mMusicEnabled;
@@ -114,7 +111,7 @@ public class Jukebox {
         }
         PreferenceManager.getDefaultSharedPreferences(mContext)
                 .edit().putBoolean(MUSIC_PREF_KEY, mSoundEnabled)
-                .commit();
+                .apply();
     }
 
     public boolean isSoundEnabled(){

@@ -10,8 +10,7 @@ import android.util.Log;
 import com.ulfben.PlatformerMK3.GameEvent;
 import com.ulfben.PlatformerMK3.gameobjects.GameObject;
 import com.ulfben.PlatformerMK3.gameobjects.Player;
-import com.ulfben.PlatformerMK3.input.InputManager;
-import com.ulfben.PlatformerMK3.input.NullInput;
+import com.ulfben.PlatformerMK3.input.GameInput;
 import com.ulfben.PlatformerMK3.levels.LevelManager;
 import com.ulfben.PlatformerMK3.utilities.Axis;
 import com.ulfben.PlatformerMK3.utilities.BitmapPool;
@@ -42,7 +41,7 @@ public class GameEngine {
     private UpdateThread mUpdateThread = null;
     private RenderThread mRenderThread = null;
     public Activity mActivity = null;
-    public InputManager mControl = null;
+    public GameInput mControl = null;
     private final GameView mGameView;
     private final Jukebox mJukebox;
 
@@ -52,7 +51,7 @@ public class GameEngine {
         mGameView = gameView;
         mCamera = mGameView.createViewport(0f, 0f, METERS_TO_SHOW_X, METERS_TO_SHOW_Y, SCALE_FACTOR);
         mJukebox = new Jukebox(a);
-        mControl = new NullInput();
+        mControl = new GameInput(); //placeholder inputs
         BitmapPool.init();
         BitmapUtils.init(getResources());
     }
@@ -121,7 +120,7 @@ public class GameEngine {
         return mJukebox;
     }
 
-    public void setInputManager(final InputManager controller) {
+    public void setGameInput(final GameInput controller) {
         mControl = controller;
     }
 
@@ -222,6 +221,7 @@ public class GameEngine {
         }
         mThreadingToggleTimer = 0f;
     }
+
     private void checkForMaybeToggleThreading(final float dt){
         if(mControl.mJump){ //hold jump for THREADING_TOGGLE_TIMEOUT to toggle threading on/off
             mThreadingToggleTimer+=dt;

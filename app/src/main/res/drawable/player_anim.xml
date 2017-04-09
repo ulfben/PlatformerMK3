@@ -3,5 +3,6 @@
                 android:oneshot="false">
     <item android:drawable="@drawable/blue_left1" android:duration="125" />
     <item android:drawable="@drawable/blue_left2" android:duration="125" />
+    <item android:drawable="@drawable/blue_left1" android:duration="125" />
     <item android:drawable="@drawable/blue_left3" android:duration="125" />
 </animation-list>

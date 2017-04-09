@@ -1,7 +1,7 @@
 package com.ulfben.PlatformerMK3.input;
 // Created by Ulf Benjaminsson (ulfben) on 2017-02-14.
 
-public abstract class InputManager {
+public class GameInput {
     public static final float MIN = -1.0f;
     public static final float MAX = 1.0f;
     public float mVerticalFactor = 0.0f;

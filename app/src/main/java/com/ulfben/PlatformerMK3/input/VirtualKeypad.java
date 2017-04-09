@@ -5,7 +5,7 @@ import android.view.View;
 import com.ulfben.PlatformerMK3.R;
 //Created by Ulf Benjaminsson (ulfben) on 2017-02-15.
 
-public class VirtualKeypad extends InputManager implements View.OnTouchListener {
+public class VirtualKeypad extends GameInput implements View.OnTouchListener {
 
     public VirtualKeypad(final View view){
         view.findViewById(R.id.keypad_up).setOnTouchListener(this);

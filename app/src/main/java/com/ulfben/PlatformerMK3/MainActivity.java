@@ -1,10 +1,12 @@
 package com.ulfben.PlatformerMK3;
 
+import android.content.pm.ActivityInfo;
 import android.hardware.input.InputManager;
 import android.media.AudioManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.InputDevice;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
@@ -19,31 +21,28 @@ import com.ulfben.PlatformerMK3.input.GamepadListener;
 // Created by Ulf Benjaminsson (ulfben) on 2017-02-01.
 
 public class MainActivity extends AppCompatActivity implements InputManager.InputDeviceListener {
-    private static final String TAG_FRAGMENT = "content";
-    private static final String TAG_GAME_FRAGMENT = "game";
+    private static final String TAG = "MainActivity";
+    private static final String FRAGMENT_TAG = "platformermk3";
     private GamepadListener mGamepadListener = null;
+
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-       // setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
         setVolumeControlStream(AudioManager.STREAM_MUSIC);
         hideSystemUI();
         setContentView(R.layout.activity_main);
         if (savedInstanceState == null) {
             getSupportFragmentManager()
                     .beginTransaction()
-                    .add(R.id.container, new MainMenuFragment(), TAG_FRAGMENT)
+                    .add(R.id.container, new MainMenuFragment(), TAG)
                     .commit();
         }
     }
 
     public void startGame() {
-        navigateToFragment(new GameFragment(), TAG_FRAGMENT);
-    }
-
-    private void navigateToFragment(final BaseFragment dst) {
-        navigateToFragment(dst, TAG_FRAGMENT);
+        navigateToFragment(new GameFragment(), TAG);
     }
 
     private void navigateToFragment(final BaseFragment dst, final String tag) {
@@ -54,13 +53,37 @@ public class MainActivity extends AppCompatActivity implements InputManager.Inpu
                 .commit();
     }
 
+    //this is so ugly that I might want to move the sound system out of the game engine and keep it in the Activity...
     public Jukebox getJukebox(){
-        final GameFragment fragment = (GameFragment) getSupportFragmentManager().findFragmentByTag(TAG_FRAGMENT);
-        if (fragment != null) {
+        try {
+            final GameFragment fragment = (GameFragment) getSupportFragmentManager().findFragmentByTag(TAG);
             return fragment.getJukebox();
+        }catch(final ClassCastException e){
+            Log.e(TAG, "getJukebox: accessing non-game fragment from game state.");
         }
         return null;
     }
+
+    public boolean toggleMotionControl(){
+        try {
+            final GameFragment fragment = (GameFragment) getSupportFragmentManager().findFragmentByTag(TAG);
+            return fragment.toggleMotionControl();
+        }catch(final ClassCastException e){
+            Log.e(TAG, "toggleMotionControl: accessing non-game fragment from game state.");
+        }
+        return false;
+    }
+
+    public boolean hasMotionControl(){
+        try {
+            final GameFragment fragment = (GameFragment) getSupportFragmentManager().findFragmentByTag(TAG);
+            return fragment.hasMotionControl();
+        }catch(final ClassCastException e){
+            Log.e(TAG, "hasMotionControl: accessing non-game fragment from game state.");
+        }
+        return false;
+    }
+
     public void setGamepadListener(final GamepadListener listener) {
         mGamepadListener = listener;
     }
@@ -77,7 +100,7 @@ public class MainActivity extends AppCompatActivity implements InputManager.Inpu
 
     @Override
     public void onBackPressed() {
-        final BaseFragment fragment = (BaseFragment) getSupportFragmentManager().findFragmentByTag(TAG_FRAGMENT);
+        final BaseFragment fragment = (BaseFragment) getSupportFragmentManager().findFragmentByTag(TAG);
         if (fragment == null || !fragment.onBackPressed()) {
             super.onBackPressed();
         }

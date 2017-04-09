@@ -13,16 +13,15 @@ import com.ulfben.PlatformerMK3.engine.GameView;
 import com.ulfben.PlatformerMK3.engine.Jukebox;
 import com.ulfben.PlatformerMK3.gui.PauseDialog;
 import com.ulfben.PlatformerMK3.input.Accelerometer;
-import com.ulfben.PlatformerMK3.input.CompositeControl;
+import com.ulfben.PlatformerMK3.input.ConfigurableGameInput;
 import com.ulfben.PlatformerMK3.input.Gamepad;
 import com.ulfben.PlatformerMK3.input.VirtualJoystick;
-import com.ulfben.PlatformerMK3.utilities.SysUtils;
 //Created by Ulf Benjaminsson (ulfben) on 2017-04-02.
 
 public class GameFragment extends BaseFragment implements View.OnClickListener, PauseDialog.PauseDialogListener {
     private static final String TAG = "GameFragment";
     private GameEngine mGameEngine;
-
+    private ConfigurableGameInput mControls;
     public GameFragment() {
         super();
     }
@@ -40,16 +39,13 @@ public class GameFragment extends BaseFragment implements View.OnClickListener, 
         final MainActivity activity = (MainActivity) getActivity();
         mGameEngine = new GameEngine(activity, gameView);
         view.findViewById(R.id.btn_play_pause).setOnClickListener(this);
-        final CompositeControl control = new CompositeControl(
-                //new VirtualKeypad(findViewById(R.id.keypad))
+        mControls = new ConfigurableGameInput(activity,
+                //new VirtualKeypad(findViewById(R.id.keypad)),
                 new VirtualJoystick(view.findViewById(R.id.virtual_joystick)),
-                new Gamepad(activity)
+                new Gamepad(activity),
+                new Accelerometer(activity)
         );
-        if(!SysUtils.isProbablyEmulator()){
-            //my emulator defaults to a slight slant, so the accelerometer controls drives me nuts.
-            control.addInput(new Accelerometer(activity));
-        }
-        mGameEngine.setInputManager(control);
+        mGameEngine.setGameInput(mControls);
         mGameEngine.loadLevel("TestLevel");
         mGameEngine.startGame();
     }
@@ -77,11 +73,14 @@ public class GameFragment extends BaseFragment implements View.OnClickListener, 
 
     @Override
     public boolean onBackPressed() {
-        if (mGameEngine.isRunning()) {
-            pauseGameAndShowPauseDialog();
-            return true;
+        boolean consumed = super.onBackPressed();
+        if(!consumed) {
+            if (mGameEngine.isRunning()) {
+                pauseGameAndShowPauseDialog();
+                consumed = true;
+            }
         }
-        return false;
+        return consumed;
     }
     private void pauseGameAndShowPauseDialog() {
         mGameEngine.pauseGame();
@@ -95,6 +94,14 @@ public class GameFragment extends BaseFragment implements View.OnClickListener, 
         return mGameEngine.getJukebox();
     }
 
+    public boolean toggleMotionControl(){
+        return mControls.toggleMotionControl();
+    }
+
+    public boolean hasMotionControl(){
+        return mControls.hasMotionControl();
+    }
+
     private void updatePauseButton(){
         final View view = getView();
         if(view == null){
@@ -103,9 +110,9 @@ public class GameFragment extends BaseFragment implements View.OnClickListener, 
         }
         final Button button = (Button) view.findViewById(R.id.btn_play_pause);
         if (mGameEngine.isPaused()) {
-            button.setText(R.string.pause);
-        } else {
             button.setText(R.string.resume);
+        } else {
+            button.setText(R.string.pause);
         }
     }
 

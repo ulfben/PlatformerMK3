@@ -6,7 +6,7 @@ import android.view.MotionEvent;
 import com.ulfben.PlatformerMK3.MainActivity;
 // Created by Ulf Benjaminsson (ulfben) on 2017-03-11.
 
-public class Gamepad extends InputManager implements GamepadListener {
+public class Gamepad extends GameInput implements GamepadListener {
     MainActivity mActivity = null;
     public Gamepad(final MainActivity activity) {
         super();

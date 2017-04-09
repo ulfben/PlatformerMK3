@@ -1,9 +1,7 @@
 package com.ulfben.PlatformerMK3.fragments;
 
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.v7.app.AlertDialog;
-import android.util.Log;
 import android.view.InputDevice;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,7 +13,7 @@ import com.ulfben.PlatformerMK3.gui.ExitDialog;
 
 public class MainMenuFragment extends BaseFragment implements View.OnClickListener, ExitDialog.ExitDialogListener{
     private static final String TAG = "MainMenuFragment";
-    private static final String PREF_SHOULD_DISPLAY_GAMEPAD_HELP = "com.ulfben.platformermk3.gamepad.help.boolean";
+    private boolean mDoShowHelp = true;
 
     public MainMenuFragment() {
         super();
@@ -30,6 +28,7 @@ public class MainMenuFragment extends BaseFragment implements View.OnClickListen
     public void onViewCreated(final View view, final Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         view.findViewById(R.id.btn_start).setOnClickListener(this);
+        view.findViewById(R.id.btn_exit).setOnClickListener(this);
     }
 
     @Override
@@ -37,18 +36,18 @@ public class MainMenuFragment extends BaseFragment implements View.OnClickListen
         final int id = v.getId();
         if (id == R.id.btn_start){
             ((MainActivity) getActivity()).startGame();
+        }else if(id == R.id.btn_exit){
+            exit();
         }
+
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        if (isGameControllerConnected() && shouldDisplayGamepadHelp()) {
+        if (isGameControllerConnected() && mDoShowHelp) {
             displayGamepadHelp();
-            PreferenceManager.getDefaultSharedPreferences(getActivity()) // Do not show the dialog again
-                    .edit()
-                    .putBoolean(PREF_SHOULD_DISPLAY_GAMEPAD_HELP, false)
-                    .commit();
+            mDoShowHelp = false; //only show the alert ones
         }
     }
 
@@ -58,11 +57,6 @@ public class MainMenuFragment extends BaseFragment implements View.OnClickListen
                 .setMessage(R.string.gamepad_help_message)
                 .create()
                 .show();
-    }
-
-    private boolean shouldDisplayGamepadHelp() {
-        return PreferenceManager.getDefaultSharedPreferences(getActivity())
-                .getBoolean(PREF_SHOULD_DISPLAY_GAMEPAD_HELP, true);
     }
 
     public boolean isGameControllerConnected() {
@@ -80,13 +74,12 @@ public class MainMenuFragment extends BaseFragment implements View.OnClickListen
 
     @Override
     public boolean onBackPressed() {
-        final boolean consumed = super.onBackPressed();
+        boolean consumed = super.onBackPressed();
         if(!consumed){
-            Log.d(TAG, "exit game?");
             final ExitDialog exitDialog = new ExitDialog(getMainActivity());
             exitDialog.setListener(this);
             showDialog(exitDialog);
-            return true;
+            consumed = true;
         }
         return consumed;
     }

@@ -1,5 +1,4 @@
 package com.ulfben.PlatformerMK3.input;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -7,9 +6,10 @@ import com.ulfben.PlatformerMK3.R;
 import com.ulfben.PlatformerMK3.utilities.SysUtils;
 // Created by Ulf Benjaminsson (ulfben) on 2017-03-11.
 
-public class VirtualJoystick extends InputManager {
+public class VirtualJoystick extends GameInput {
     private static final String TAG = "VirtualJoystick";
-    protected float mMaxDistance = 0;
+    private static final int SIZE_DP = 48; //TODO: make settings.
+    protected float mRadius = 0;
     protected float mStartingPositionX = 0;
     protected float mStartingPositionY = 0;
 
@@ -19,9 +19,7 @@ public class VirtualJoystick extends InputManager {
                 .setOnTouchListener(new JoystickTouchListener());
         view.findViewById(R.id.button_region)
                 .setOnTouchListener(new ActionButtonTouchListener());
-        //TODO: find a better way to configure the size of the virtual joystick.
-        mMaxDistance = SysUtils.dpToPx(48*2); //48dp = minimum hit target.
-        Log.d(TAG, "MaxDistance (pixels): " + mMaxDistance);
+        mRadius = SysUtils.dpToPx(SIZE_DP);
     }
 
     private class ActionButtonTouchListener implements View.OnTouchListener{
@@ -49,11 +47,10 @@ public class VirtualJoystick extends InputManager {
                 mStartingPositionY = y;
                 joystickView.touchStart(mStartingPositionX, mStartingPositionY);
             }else if(action == MotionEvent.ACTION_MOVE){
-                //get the proportion to the maxDistance
-                mHorizontalFactor = (x - mStartingPositionX)/mMaxDistance;
-                mVerticalFactor = (y - mStartingPositionY)/mMaxDistance;
-                joystickView.touchMove(x, y);
+                mHorizontalFactor = (x - mStartingPositionX)/ mRadius;
+                mVerticalFactor = (y - mStartingPositionY)/ mRadius;
                 clampInputs();
+                joystickView.touchMove(x, y, mHorizontalFactor, mVerticalFactor);
             }else if(action == MotionEvent.ACTION_UP){
                 mHorizontalFactor = 0.0f;
                 mVerticalFactor = 0.0f;
@@ -61,6 +58,5 @@ public class VirtualJoystick extends InputManager {
             }
             return true;
         }
-
     }
 }

@@ -11,7 +11,7 @@ import android.view.Surface;
 
 import com.ulfben.PlatformerMK3.MainActivity;
 
-public class Accelerometer extends InputManager {
+public class Accelerometer extends GameInput {
     private static final String TAG = "Accelerometer";
     private static final float DEGREES_PER_RADIAN = (float) (180d / Math.PI); //~  57.2957795f;
     private static final int LENGTH = 3; //azimuth, pitch and roll
