@@ -25,8 +25,8 @@ public class PauseDialog extends Dialog implements View.OnClickListener {
 
     private void updateButtonStates() {
         final Jukebox jukebox = mParent.getJukebox();
-        boolean musicEnabled = false;jukebox.ismMusicEnabled();
-        boolean sfxEnabled = false; jukebox.isSoundEnabled();
+        boolean musicEnabled = false;
+        boolean sfxEnabled = false;
         if(jukebox != null){
             musicEnabled = jukebox.ismMusicEnabled();
             sfxEnabled = jukebox.isSoundEnabled();
