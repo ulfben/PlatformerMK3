@@ -22,19 +22,22 @@
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="@dimen/activity_vertical_margin"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
-        <ImageView
-            style="@style/iconButton"
-            android:layout_marginRight="@dimen/btn_round_size"
-            android:id="@+id/btn_resume"
-            android:src="@drawable/ic_play_circle_outline_black_24dp"
-            />
+        android:layout_height="wrap_content"
+        android:focusable="true">
 
         <ImageView
+            android:id="@+id/btn_resume"
             style="@style/iconButton"
+            android:layout_marginRight="@dimen/btn_round_size"
+            android:src="@drawable/ic_play_circle_outline_black_24dp"
+            android:focusable="true"/>
+
+        <ImageView
             android:id="@+id/btn_exit"
+            style="@style/iconButton"
+            android:nextFocusForward="@id/btn_resume"
             android:src="@drawable/ic_exit_to_app_black_24dp"
-            />
+            android:focusable="true"/>
     </LinearLayout>
     <LinearLayout
         android:layout_centerHorizontal="true"

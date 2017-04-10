@@ -107,10 +107,11 @@ public class MainActivity extends AppCompatActivity implements InputManager.Inpu
 
     @Override
     public boolean dispatchGenericMotionEvent(final MotionEvent ev) {
+        boolean result = super.dispatchGenericMotionEvent(ev);
         if(mGamepadListener != null && mGamepadListener.dispatchGenericMotionEvent(ev)){
-            return true;
+            result = true;
         }
-        return super.dispatchGenericMotionEvent(ev);
+        return result;
     }
 
     @Override
@@ -127,12 +128,13 @@ public class MainActivity extends AppCompatActivity implements InputManager.Inpu
 
     @Override
     public boolean dispatchKeyEvent(final KeyEvent ev) {
+        boolean result = super.dispatchKeyEvent(ev);
         if(mGamepadListener != null){
             if(mGamepadListener.dispatchKeyEvent(ev)){
-                return true;
+                result = true;
             }
         }
-        return super.dispatchKeyEvent(ev);
+        return result;
     }
 
     private boolean isGameControllerConnected() {

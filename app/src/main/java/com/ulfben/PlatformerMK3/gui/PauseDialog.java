@@ -20,6 +20,7 @@ public class PauseDialog extends Dialog implements View.OnClickListener {
         findViewById(R.id.btn_exit).setOnClickListener(this);
         findViewById(R.id.btn_resume).setOnClickListener(this);
         findViewById(R.id.btn_accelerometer).setOnClickListener(this);
+
         updateButtonStates();
     }
 

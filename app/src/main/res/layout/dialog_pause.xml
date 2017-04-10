@@ -12,6 +12,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/activity_vertical_margin"
         android:layout_centerHorizontal="true"
+        android:focusable="false"
         style="@android:style/TextAppearance.Large"
         android:text="@string/pause_dialog_title"/>
 
@@ -22,6 +23,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/pause_dialog_title"
         android:layout_centerHorizontal="true"
+        android:focusable="false"
         android:text="@string/pause_dialog_message"
         />
 
@@ -31,24 +33,27 @@
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
             android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true">
-        <ImageView
-            style="@style/iconButton"
-            android:id="@+id/btn_resume"
-            android:layout_height="@dimen/btn_round_size"
-            android:layout_width="@dimen/btn_round_size"
-            android:src="@drawable/ic_play_circle_outline_black_24dp"
+            android:layout_alignParentStart="true"
+            >
 
-            app:layout_constraintRight_toLeftOf="@+id/btn_exit"
-            android:layout_marginRight="8dp"
-            android:layout_marginLeft="8dp"
-            app:layout_constraintLeft_toLeftOf="parent"/>
+            <ImageView
+                android:id="@+id/btn_resume"
+                style="@style/iconButton"
+                android:layout_width="@dimen/btn_round_size"
+                android:layout_height="@dimen/btn_round_size"
+                android:layout_marginLeft="8dp"
+                android:layout_marginRight="8dp"
+                android:focusable="true"
+                android:src="@drawable/ic_play_circle_outline_black_24dp"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toLeftOf="@+id/btn_exit"/>
 
         <ImageView
             android:id="@+id/btn_exit"
             style="@style/iconButton"
             android:layout_height="@dimen/btn_round_size"
             android:layout_width="@dimen/btn_round_size"
+            android:focusable="true"
             android:layout_alignParentBottom="true"
             android:src="@drawable/ic_exit_to_app_black_24dp"
             app:layout_constraintRight_toLeftOf="@+id/btn_accelerometer"
@@ -56,6 +61,7 @@
 
         <ImageView
             style="@style/iconButton"
+            android:focusable="true"
             android:id="@+id/btn_accelerometer"
             android:layout_width="@dimen/btn_round_size"
             android:layout_height="@dimen/btn_round_size"
@@ -66,6 +72,7 @@
 
         <ImageView
             style="@style/iconButton"
+            android:focusable="true"
             android:id="@+id/btn_sound"
             android:layout_width="@dimen/btn_round_size"
             android:layout_height="@dimen/btn_round_size"
@@ -77,6 +84,7 @@
         <ImageView
             android:id="@+id/btn_music"
             style="@style/iconButton"
+            android:focusable="true"
             android:layout_width="@dimen/btn_round_size"
             android:layout_height="@dimen/btn_round_size"
             android:layout_alignParentBottom="true"
@@ -91,6 +99,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_above="@id/button_row"
+        android:focusable="false"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true">
 
