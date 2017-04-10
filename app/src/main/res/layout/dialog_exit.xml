@@ -12,6 +12,7 @@
         android:layout_centerHorizontal="true"
         android:layout_marginTop="@dimen/activity_vertical_margin"
         android:text="@string/exit_confirm"
+        android:focusable="false"
         android:textColor="@color/text_color"
         android:textStyle="bold"/>
 
@@ -22,20 +23,24 @@
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="@dimen/activity_vertical_margin"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:focusable="true">
+        android:layout_height="wrap_content">
 
         <ImageView
             android:id="@+id/btn_resume"
             style="@style/iconButton"
             android:layout_marginRight="@dimen/btn_round_size"
             android:src="@drawable/ic_play_circle_outline_black_24dp"
+            android:nextFocusLeft="@+id/btn_exit"
+            android:nextFocusForward="@+id/btn_exit"
+            android:nextFocusRight="@+id/btn_exit"
             android:focusable="true"/>
 
         <ImageView
             android:id="@+id/btn_exit"
             style="@style/iconButton"
             android:nextFocusForward="@id/btn_resume"
+            android:nextFocusLeft="@+id/btn_resume"
+            android:nextFocusRight="@+id/btn_resume"
             android:src="@drawable/ic_exit_to_app_black_24dp"
             android:focusable="true"/>
     </LinearLayout>
@@ -43,6 +48,7 @@
         android:layout_centerHorizontal="true"
         android:layout_above="@id/buttons"
         android:layout_width="wrap_content"
+        android:focusable="false"
         android:layout_height="wrap_content">
         <TextView
             android:id="@+id/lbl_resume"
@@ -53,6 +59,7 @@
             android:textAlignment="center"
             android:gravity="center"
             android:textStyle="bold"
+            android:focusable="false"
             />
         <TextView
             android:id="@+id/lbl_exit"
@@ -63,6 +70,7 @@
             android:textAlignment="center"
             android:gravity="center"
             android:textStyle="bold"
+            android:focusable="false"
             />
     </LinearLayout>
 

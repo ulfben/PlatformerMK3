@@ -1,4 +1,5 @@
 package com.ulfben.PlatformerMK3.gui;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -9,7 +10,8 @@ import com.ulfben.PlatformerMK3.R;
 //Created by Ulf Benjaminsson (ulfben) on 2017-04-04.
 //this base dialog displays a gray overlay for other
 //dialogues to draw over
-public class Dialog implements View.OnTouchListener {
+public class Dialog implements View.OnTouchListener, View.OnFocusChangeListener {
+    private static final String TAG = "Dialog";
     protected final MainActivity mParent;
     private ViewGroup mRootLayout; //background common to all dialogues
     private View mRootView; //the dialog itself
@@ -67,5 +69,10 @@ public class Dialog implements View.OnTouchListener {
 
     public boolean isShowing() {
         return mIsShowing;
+    }
+
+    @Override
+    public void onFocusChange(final View view, final boolean b) {
+        Log.d(TAG, "onFocusChange: " + view.toString() +" isFocused: " + b);
     }
 }

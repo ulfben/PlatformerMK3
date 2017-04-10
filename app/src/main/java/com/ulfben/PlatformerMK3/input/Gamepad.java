@@ -18,14 +18,33 @@ public class Gamepad extends GameInput implements GamepadListener {
     @Override
     public void onStart() {
         super.onStart();
-        if(mActivity != null) {
-            mActivity.setGamepadListener(this);
-        }
+        registerListener();
     }
 
     @Override
     public void onStop() {
         super.onStop();
+        unregisterListener();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        unregisterListener();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        registerListener();
+    }
+
+    private void registerListener(){
+        if(mActivity != null) {
+            mActivity.setGamepadListener(this);
+        }
+    }
+    private void unregisterListener(){
         if(mActivity != null) {
             mActivity.setGamepadListener(null);
         }
@@ -75,6 +94,9 @@ public class Gamepad extends GameInput implements GamepadListener {
         final int action = event.getAction();
         final int keyCode = event.getKeyCode();
         boolean wasConsumed = false;
+        //MotionEvent.ACTION_BUTTON_RELEASE
+        //event.getActionButton()
+
         if(action == MotionEvent.ACTION_DOWN){// User started pressing a button
             if(keyCode == KeyEvent.KEYCODE_DPAD_UP){
                 mVerticalFactor -= 1;

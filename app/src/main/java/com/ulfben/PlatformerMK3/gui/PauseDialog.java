@@ -21,6 +21,11 @@ public class PauseDialog extends Dialog implements View.OnClickListener {
         findViewById(R.id.btn_resume).setOnClickListener(this);
         findViewById(R.id.btn_accelerometer).setOnClickListener(this);
 
+        findViewById(R.id.btn_music).setOnFocusChangeListener(this);
+        findViewById(R.id.btn_sound).setOnFocusChangeListener(this);
+        findViewById(R.id.btn_exit).setOnFocusChangeListener(this);
+        findViewById(R.id.btn_resume).setOnFocusChangeListener(this);
+        findViewById(R.id.btn_accelerometer).setOnFocusChangeListener(this);
         updateButtonStates();
     }
 
