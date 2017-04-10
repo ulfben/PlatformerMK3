@@ -8,7 +8,7 @@ import com.ulfben.PlatformerMK3.utilities.SysUtils;
 
 public class VirtualJoystick extends GameInput {
     private static final String TAG = "VirtualJoystick";
-    private static final int SIZE_DP = 48; //TODO: make settings.
+    private static final int SIZE_DP = 60; //TODO: make settings.
     protected float mRadius = 0;
     protected float mStartingPositionX = 0;
     protected float mStartingPositionY = 0;

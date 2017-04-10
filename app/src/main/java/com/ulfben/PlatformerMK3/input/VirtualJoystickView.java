@@ -13,7 +13,7 @@ import com.ulfben.PlatformerMK3.utilities.SysUtils;
 
 public class VirtualJoystickView extends View {
     private static final String TAG = "VirtualJoystickView";
-    private static final int SIZE_DP = 48; //TODO: make settings
+    private static final int SIZE_DP = 60; //TODO: make settings
     private static final int NUB_SIZE_DP = SIZE_DP/4;
     private static final int JOYSTICK_COLOR = Color.GREEN;
     private float mX;

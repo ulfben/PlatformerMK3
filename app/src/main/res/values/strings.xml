@@ -3,18 +3,17 @@
     <string name="pause">Pause</string>
     <string name="resume">Resume</string>
     <string name="start">Start Game!</string>
-    <string name="stop">Exit</string>
+    <string name="exit">Exit</string>
+    <string name="motion">Motion</string>
+    <string name="sfx">SFX</string>
+    <string name="bgm">BGM</string>
     <string name="pause_dialog_title">Press back to resume</string>
-    <string name="pause_dialog_message">Toggle accelerometer, music and sfx</string>
+    <string name="pause_dialog_message">Toggle motion controls, sound effects and background music.</string>
 
     <string name="title_activity_main">Platformer Mark 3</string>
     <string name="game_title">Platformer Mark 3</string>
     <string name="game_subtitle">An exercise in Android- and Java programming</string>
     <string name="gampad_help_title">Gamepad controls</string>
-    <string name="gamepad_help_message">Use the joystick to move, and every button except B to jump.</string>
-    <string name="sound_on">Sound On</string>
-    <string name="music_on">Music On</string>
-    <string name="sound_off">Sound Off</string>
-    <string name="music_off">Music Off</string>
+    <string name="gamepad_help_message">Use the joystick to move, any button to jump and B to exit!</string>
     <string name="exit_confirm">Exit Game?</string>
 </resources>

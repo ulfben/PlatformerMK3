@@ -37,7 +37,7 @@ public class MainMenuFragment extends BaseFragment implements View.OnClickListen
         if (id == R.id.btn_start){
             ((MainActivity) getActivity()).startGame();
         }else if(id == R.id.btn_exit){
-            exit();
+            onBackPressed();
         }
 
     }

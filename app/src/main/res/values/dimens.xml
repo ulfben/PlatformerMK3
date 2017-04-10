@@ -7,13 +7,6 @@
     <dimen name="square_button_border">6dp</dimen>
     <dimen name="round_button_padding">6dp</dimen>
     <dimen name="btn_round_size">60dp</dimen>
-
-    <dimen name="menu_margin">8dp</dimen>
-    <dimen name="game_frame_width">6dp</dimen>
-    <dimen name="game_menu_width">100dp</dimen>
-
-    <dimen name="life_size">30dp</dimen>
-
     <dimen name="dialog_width">400dp</dimen>
     <dimen name="dialog_height">250dp</dimen>
 </resources>
