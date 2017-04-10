@@ -13,7 +13,7 @@
     <string name="title_activity_main">Platformer Mark 3</string>
     <string name="game_title">Platformer Mark 3</string>
     <string name="game_subtitle">An exercise in Android- and Java programming</string>
-    <string name="gampad_help_title">Gamepad controls</string>
+    <string name="gampad_help_title">Gamepad detected!</string>
     <string name="gamepad_help_message">Use the joystick to move, any button to jump and B to exit!</string>
     <string name="exit_confirm">Exit Game?</string>
 </resources>

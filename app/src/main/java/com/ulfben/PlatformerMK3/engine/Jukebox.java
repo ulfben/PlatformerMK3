@@ -157,6 +157,7 @@ public class Jukebox {
         if(mBgPlayer == null) { return; }
         mBgPlayer.stop();
         mBgPlayer.release();
+        mBgPlayer = null;
     }
 
     @SuppressWarnings("deprecation")

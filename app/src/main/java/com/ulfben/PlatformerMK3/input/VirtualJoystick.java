@@ -9,17 +9,16 @@ import com.ulfben.PlatformerMK3.utilities.SysUtils;
 public class VirtualJoystick extends GameInput {
     private static final String TAG = "VirtualJoystick";
     private static final int SIZE_DP = 60; //TODO: make settings.
+    private View mView;
     protected float mRadius = 0;
     protected float mStartingPositionX = 0;
     protected float mStartingPositionY = 0;
 
     public VirtualJoystick(final View view) {
         super();
-        view.findViewById(R.id.joystick_region)
-                .setOnTouchListener(new JoystickTouchListener());
-        view.findViewById(R.id.button_region)
-                .setOnTouchListener(new ActionButtonTouchListener());
+        mView = view;
         mRadius = SysUtils.dpToPx(SIZE_DP);
+        registerListeners();
     }
 
     private class ActionButtonTouchListener implements View.OnTouchListener{
@@ -52,11 +51,52 @@ public class VirtualJoystick extends GameInput {
                 clampInputs();
                 joystickView.touchMove(x, y, mHorizontalFactor, mVerticalFactor);
             }else if(action == MotionEvent.ACTION_UP){
-                mHorizontalFactor = 0.0f;
-                mVerticalFactor = 0.0f;
+                mHorizontalFactor = ZERO_INPUT;
+                mVerticalFactor = ZERO_INPUT;
                 joystickView.touchUp();
             }
             return true;
         }
+    }
+
+    private void registerListeners(){
+        View v = mView.findViewById(R.id.joystick_region); //can give NPE. this is intentional.
+        v.setOnTouchListener(new JoystickTouchListener());
+        v = mView.findViewById(R.id.button_region);
+        v.setOnTouchListener(new ActionButtonTouchListener());
+    }
+    private void unregisterListeners(){
+        if(mView != null) {
+            View v = mView.findViewById(R.id.joystick_region); //can give NPE. this is intentional.
+            v.setOnTouchListener(null);
+            v = mView.findViewById(R.id.button_region);
+            v.setOnTouchListener(null);
+        }
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+    }
+
+    @Override
+    public void onDestroy(){
+        unregisterListeners();
+        mView = null;
     }
 }

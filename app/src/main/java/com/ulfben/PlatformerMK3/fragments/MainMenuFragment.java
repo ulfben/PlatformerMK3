@@ -1,8 +1,6 @@
 package com.ulfben.PlatformerMK3.fragments;
 
 import android.os.Bundle;
-import android.support.v7.app.AlertDialog;
-import android.view.InputDevice;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,7 +11,6 @@ import com.ulfben.PlatformerMK3.gui.ExitDialog;
 
 public class MainMenuFragment extends BaseFragment implements View.OnClickListener, ExitDialog.ExitDialogListener{
     private static final String TAG = "MainMenuFragment";
-    private boolean mDoShowHelp = true;
 
     public MainMenuFragment() {
         super();
@@ -45,31 +42,6 @@ public class MainMenuFragment extends BaseFragment implements View.OnClickListen
     @Override
     public void onResume() {
         super.onResume();
-        if (isGameControllerConnected() && mDoShowHelp) {
-            displayGamepadHelp();
-            mDoShowHelp = false; //only show the alert ones
-        }
-    }
-
-    private void displayGamepadHelp() {
-        new AlertDialog.Builder(getActivity())
-                .setTitle(R.string.gampad_help_title)
-                .setMessage(R.string.gamepad_help_message)
-                .create()
-                .show();
-    }
-
-    public boolean isGameControllerConnected() {
-        final int[] deviceIds = InputDevice.getDeviceIds();
-        for(final int deviceId : deviceIds) {
-            final InputDevice dev = InputDevice.getDevice(deviceId);
-            final int sources = dev.getSources();
-            if(((sources & InputDevice.SOURCE_GAMEPAD) == InputDevice.SOURCE_GAMEPAD) ||
-                    ((sources & InputDevice.SOURCE_JOYSTICK) == InputDevice.SOURCE_JOYSTICK)) {
-                return true;
-            }
-        }
-        return false;
     }
 
     @Override

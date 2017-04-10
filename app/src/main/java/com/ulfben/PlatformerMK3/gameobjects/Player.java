@@ -119,7 +119,9 @@ public class Player extends DynamicGameObject {
     @Override
     public void destroy(){
         super.destroy();
-        mAnim.destroy();
-        mAnim = null;
+        if(mAnim != null) {
+            mAnim.destroy();
+            mAnim = null;
+        }
     }
 }

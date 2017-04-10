@@ -1,4 +1,5 @@
 package com.ulfben.PlatformerMK3.input;
+import android.util.Log;
 import android.view.InputDevice;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
@@ -7,6 +8,7 @@ import com.ulfben.PlatformerMK3.MainActivity;
 // Created by Ulf Benjaminsson (ulfben) on 2017-03-11.
 
 public class Gamepad extends GameInput implements GamepadListener {
+    private static final String TAG = "Gamepad";
     MainActivity mActivity = null;
     public Gamepad(final MainActivity activity) {
         super();
@@ -30,6 +32,14 @@ public class Gamepad extends GameInput implements GamepadListener {
     }
 
     @Override
+    public void onDestroy(){
+        if(mActivity != null) {
+            mActivity.setGamepadListener(null);
+        }
+        mActivity = null;
+    }
+
+    @Override
     public boolean dispatchGenericMotionEvent(final MotionEvent event) {
         if((event.getSource() & InputDevice.SOURCE_JOYSTICK) != InputDevice.SOURCE_JOYSTICK){
             return false; //we don't consume this event
@@ -42,6 +52,10 @@ public class Gamepad extends GameInput implements GamepadListener {
 
     private float getInputFactor(final MotionEvent event, final int axis, final int fallbackAxis){
         final InputDevice device = event.getDevice();
+        if(device == null){ //this has happened.
+            Log.e(TAG, "getInputFactor: no device in MotionEvent.");
+            return ZERO_INPUT;
+        }
         final int source = event.getSource();
         float result = event.getAxisValue(axis);
         InputDevice.MotionRange range = device.getMotionRange(axis, source);
@@ -49,7 +63,7 @@ public class Gamepad extends GameInput implements GamepadListener {
             result = event.getAxisValue(fallbackAxis);
             range = device.getMotionRange(fallbackAxis, source);
             if(Math.abs(result) <= range.getFlat()){
-                result = 0.0f;
+                result = ZERO_INPUT;
             }
         }
         return result;

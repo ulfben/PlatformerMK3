@@ -68,7 +68,10 @@ public class GameObject {
 
     public void update(final float dt){}
 
-    public void destroy(){}
+    public void destroy(){
+        mBitmapKey = null;
+        mSprite = null;
+    }
 
     public void onCollision(final GameObject that){}
 

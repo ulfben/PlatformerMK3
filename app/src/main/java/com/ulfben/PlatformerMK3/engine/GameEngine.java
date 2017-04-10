@@ -17,6 +17,7 @@ import com.ulfben.PlatformerMK3.utilities.BitmapPool;
 import com.ulfben.PlatformerMK3.utilities.BitmapUtils;
 
 import java.util.ArrayList;
+import java.util.Locale;
 // Created by Ulf Benjaminsson (ulfben) on 2017-03-07.
 
 public class GameEngine {
@@ -184,6 +185,23 @@ public class GameEngine {
         }
     }
 
+    public void onDestroy(){
+        if(mJukebox != null){
+            mJukebox.destroy();
+        }
+        //if(mCamera != null){mCamera.destroy();}
+        if(mPlayer != null){ mPlayer.destroy(); mPlayer = null;}
+        if(mLevelManager != null) { mLevelManager.destroy(); }
+        if(mUpdateThread != null){ mUpdateThread.stopThread(); mUpdateThread = null; }
+        if(mRenderThread != null){ mRenderThread.stopThread(); mRenderThread = null; }
+        if(mControl != null){ mControl.onDestroy(); mControl = null; }
+        if(mGameView != null){ mGameView.destroy(); }
+        mObjectsToAdd.clear();
+        mObjectsToRemove.clear();
+        mGameObjects.clear();
+        mActivity = null;
+    }
+
     public void addGameObject(final GameObject gameObject) {
         if (isRunning()){
             mObjectsToAdd.add(gameObject);
@@ -306,12 +324,13 @@ public class GameEngine {
     final static String DBG_OBJ_RENDER_COUNT =  "Objects rendered: %d / %d";
     final static String DBG_PLAYER_INFO =  "Player: [%.2f, %.2f]";
     final static String DBG_EMPTY_STRING = "";
+    final static Locale LOCALE = Locale.getDefault();
     public String[] getDebugStrings(){
         DBG_STRINGS[0] = mCamera.toString();
-        DBG_STRINGS[1] = String.format(DBG_OBJ_RENDER_COUNT, mVisibleObjectCount, mGameObjects.size());
-        DBG_STRINGS[2] = String.format(DBG_PLAYER_INFO, mPlayer.x(), mPlayer.y());
-        DBG_STRINGS[3] = (MULTITHREAD) ? String.format(DBG_FPS, mRenderThread.getAverageFPS()) : DBG_EMPTY_STRING;
-        DBG_STRINGS[4] = String.format(DBG_UPS, mUpdateThread.getAverageFPS());
+        DBG_STRINGS[1] = String.format(LOCALE, DBG_OBJ_RENDER_COUNT, mVisibleObjectCount, mGameObjects.size());
+        DBG_STRINGS[2] = String.format(LOCALE, DBG_PLAYER_INFO, mPlayer.x(), mPlayer.y());
+        DBG_STRINGS[3] = (MULTITHREAD) ? String.format(LOCALE, DBG_FPS, mRenderThread.getAverageFPS()) : DBG_EMPTY_STRING;
+        DBG_STRINGS[4] = String.format(LOCALE, DBG_UPS, mUpdateThread.getAverageFPS());
         return DBG_STRINGS;
     }
 }

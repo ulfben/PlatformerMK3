@@ -83,4 +83,10 @@ public class GameView extends SurfaceView {
         mCanvas = mSurfaceHolder.lockCanvas();
         return (mCanvas != null);
     }
+    public void destroy(){
+        mVisibleGameObjects.clear();
+        mCanvas = null;
+        mSurfaceHolder = null;
+        mPaint = null;
+    }
 }

@@ -67,16 +67,16 @@ public class PauseDialog extends Dialog implements View.OnClickListener {
         else if (id == R.id.btn_music && jukebox != null) {
             jukebox.toggleMusicStatus();
         }
-        else if (id == R.id.btn_exit) {
-            super.dismiss();
-            mListener.exitGame();
-        }
         else if (id == R.id.btn_resume) {
             dismiss();
         }else if(id == R.id.btn_accelerometer){
             mParent.toggleMotionControl();
         }
         updateButtonStates();
+        if (id == R.id.btn_exit) {
+            super.dismiss();
+            mListener.exitGame();
+        }
     }
 
     @Override

@@ -35,8 +35,8 @@ public class CompositeGameInput extends GameInput {
     public void update(final float dt) {
         GameInput temp;
         mJump = false;
-        mHorizontalFactor = 0f;
-        mVerticalFactor = 0f;
+        mHorizontalFactor = ZERO_INPUT;
+        mVerticalFactor = ZERO_INPUT;
         for(int i = 0; i < mCount; i++){
             temp = mInputs.get(i);
             temp.update(dt);

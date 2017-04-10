@@ -1,10 +1,12 @@
 package com.ulfben.PlatformerMK3;
 
+import android.content.Context;
 import android.content.pm.ActivityInfo;
 import android.hardware.input.InputManager;
 import android.media.AudioManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.InputDevice;
@@ -24,7 +26,8 @@ public class MainActivity extends AppCompatActivity implements InputManager.Inpu
     private static final String TAG = "MainActivity";
     private static final String FRAGMENT_TAG = "platformermk3";
     private GamepadListener mGamepadListener = null;
-
+    private boolean mHadGamepad = false;
+    private boolean mShowGamepadHelp = true;
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
@@ -36,13 +39,26 @@ public class MainActivity extends AppCompatActivity implements InputManager.Inpu
         if (savedInstanceState == null) {
             getSupportFragmentManager()
                     .beginTransaction()
-                    .add(R.id.container, new MainMenuFragment(), TAG)
+                    .add(R.id.container, new MainMenuFragment(), FRAGMENT_TAG)
                     .commit();
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+            final InputManager inputManager = (InputManager) getSystemService(Context.INPUT_SERVICE);
+            inputManager.registerInputDeviceListener(this, null);
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+            final InputManager inputManager = (InputManager) getSystemService(Context.INPUT_SERVICE);
+            inputManager.unregisterInputDeviceListener(this);
         }
     }
 
     public void startGame() {
-        navigateToFragment(new GameFragment(), TAG);
+        navigateToFragment(new GameFragment(), FRAGMENT_TAG);
     }
 
     private void navigateToFragment(final BaseFragment dst, final String tag) {
@@ -56,7 +72,7 @@ public class MainActivity extends AppCompatActivity implements InputManager.Inpu
     //this is so ugly that I might want to move the sound system out of the game engine and keep it in the Activity...
     public Jukebox getJukebox(){
         try {
-            final GameFragment fragment = (GameFragment) getSupportFragmentManager().findFragmentByTag(TAG);
+            final GameFragment fragment = (GameFragment) getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG);
             return fragment.getJukebox();
         }catch(final ClassCastException e){
             Log.e(TAG, "getJukebox: accessing non-game fragment from game state.");
@@ -64,9 +80,10 @@ public class MainActivity extends AppCompatActivity implements InputManager.Inpu
         return null;
     }
 
+    //similarly. this reaching-into-fragment-into-engine does not feel kosher.
     public boolean toggleMotionControl(){
         try {
-            final GameFragment fragment = (GameFragment) getSupportFragmentManager().findFragmentByTag(TAG);
+            final GameFragment fragment = (GameFragment) getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG);
             return fragment.toggleMotionControl();
         }catch(final ClassCastException e){
             Log.e(TAG, "toggleMotionControl: accessing non-game fragment from game state.");
@@ -76,7 +93,7 @@ public class MainActivity extends AppCompatActivity implements InputManager.Inpu
 
     public boolean hasMotionControl(){
         try {
-            final GameFragment fragment = (GameFragment) getSupportFragmentManager().findFragmentByTag(TAG);
+            final GameFragment fragment = (GameFragment) getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG);
             return fragment.hasMotionControl();
         }catch(final ClassCastException e){
             Log.e(TAG, "hasMotionControl: accessing non-game fragment from game state.");
@@ -100,7 +117,7 @@ public class MainActivity extends AppCompatActivity implements InputManager.Inpu
 
     @Override
     public void onBackPressed() {
-        final BaseFragment fragment = (BaseFragment) getSupportFragmentManager().findFragmentByTag(TAG);
+        final BaseFragment fragment = (BaseFragment) getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG);
         if (fragment == null || !fragment.onBackPressed()) {
             super.onBackPressed();
         }
@@ -120,7 +137,7 @@ public class MainActivity extends AppCompatActivity implements InputManager.Inpu
         return super.dispatchKeyEvent(ev);
     }
 
-    public boolean isGameControllerConnected() {
+    private boolean isGameControllerConnected() {
         final int[] deviceIds = InputDevice.getDeviceIds();
         for(final int deviceId : deviceIds) {
             final InputDevice dev = InputDevice.getDevice(deviceId);
@@ -136,9 +153,6 @@ public class MainActivity extends AppCompatActivity implements InputManager.Inpu
     @Override
     protected void onResume() {
         super.onResume();
-        if(isGameControllerConnected()){
-            Toast.makeText(this, "Gamepad detected!", Toast.LENGTH_LONG).show();
-        }
     }
 
     @Override
@@ -172,17 +186,48 @@ public class MainActivity extends AppCompatActivity implements InputManager.Inpu
 
     @Override
     public void onInputDeviceAdded(final int deviceId) {
-        Toast.makeText(this, "Input Device Added!", Toast.LENGTH_LONG).show();
+        if(isGameControllerConnected()){
+            mHadGamepad = true;
+            pauseOnGamepadChanges();
+            displayGamepadHelp();
+        }
     }
 
     @Override
     public void onInputDeviceRemoved(final int deviceId) {
-        //probably pause the game and show some dialog?
-        Toast.makeText(this, "Input Device Removed!", Toast.LENGTH_LONG).show();
+        if(mHadGamepad && !isGameControllerConnected()){
+            mHadGamepad = false;
+            pauseOnGamepadChanges();
+            Toast.makeText(this, "Gamepad Removed!", Toast.LENGTH_LONG).show();
+        }
     }
 
     @Override
     public void onInputDeviceChanged(final int deviceId) {
-        Toast.makeText(this, "Input Device Changed!", Toast.LENGTH_LONG).show();
+        //Toast.makeText(this, "Input Device Changed!", Toast.LENGTH_LONG).show();
+        //not sure how to deal with this, so I'll just sink it.
     }
+
+    private void pauseOnGamepadChanges(){
+        try {
+            final GameFragment fragment = (GameFragment) getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG);
+            fragment.pauseGameAndShowPauseDialog();
+        }catch(final ClassCastException e){
+            //game is not running yet
+        }
+    }
+
+    private void displayGamepadHelp() {
+        if(!mShowGamepadHelp){
+            Toast.makeText(this, "Gamepad detected!", Toast.LENGTH_LONG).show();
+            return;
+        }
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.gampad_help_title)
+                .setMessage(R.string.gamepad_help_message)
+                .create()
+                .show();
+        mShowGamepadHelp = false; //only show help once.
+    }
+
 }

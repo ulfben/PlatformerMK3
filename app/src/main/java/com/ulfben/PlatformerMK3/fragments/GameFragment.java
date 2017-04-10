@@ -53,7 +53,9 @@ public class GameFragment extends BaseFragment implements View.OnClickListener, 
     @Override
     public void onClick(final View v) {
         if (v.getId() == R.id.btn_play_pause) {
-            pauseGameAndShowPauseDialog();
+            if (mGameEngine.isRunning()) {
+                pauseGameAndShowPauseDialog();
+            }
         }
     }
 
@@ -69,6 +71,7 @@ public class GameFragment extends BaseFragment implements View.OnClickListener, 
     public void onDestroy() {
         super.onDestroy();
         mGameEngine.stopGame();
+        mGameEngine.onDestroy();
     }
 
     @Override
@@ -82,7 +85,7 @@ public class GameFragment extends BaseFragment implements View.OnClickListener, 
         }
         return consumed;
     }
-    private void pauseGameAndShowPauseDialog() {
+    public void pauseGameAndShowPauseDialog() {
         mGameEngine.pauseGame();
         final PauseDialog dialog = new PauseDialog(getMainActivity());
         dialog.setListener(this);
