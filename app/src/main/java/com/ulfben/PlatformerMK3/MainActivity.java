@@ -36,15 +36,15 @@ public class MainActivity extends AppCompatActivity implements InputManager.Inpu
         setVolumeControlStream(AudioManager.STREAM_MUSIC);
         hideSystemUI();
         setContentView(R.layout.activity_main);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+            final InputManager inputManager = (InputManager) getSystemService(Context.INPUT_SERVICE);
+            inputManager.registerInputDeviceListener(this, null);
+        }
         if (savedInstanceState == null) {
             getSupportFragmentManager()
                     .beginTransaction()
                     .add(R.id.container, new MainMenuFragment(), FRAGMENT_TAG)
                     .commit();
-        }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-            final InputManager inputManager = (InputManager) getSystemService(Context.INPUT_SERVICE);
-            inputManager.registerInputDeviceListener(this, null);
         }
     }
 
@@ -107,10 +107,8 @@ public class MainActivity extends AppCompatActivity implements InputManager.Inpu
 
     @Override
     public boolean dispatchGenericMotionEvent(final MotionEvent ev) {
-        if(mGamepadListener != null){
-            if(mGamepadListener.dispatchGenericMotionEvent(ev)){
-                return true;
-            }
+        if(mGamepadListener != null && mGamepadListener.dispatchGenericMotionEvent(ev)){
+            return true;
         }
         return super.dispatchGenericMotionEvent(ev);
     }
@@ -140,8 +138,8 @@ public class MainActivity extends AppCompatActivity implements InputManager.Inpu
     private boolean isGameControllerConnected() {
         final int[] deviceIds = InputDevice.getDeviceIds();
         for(final int deviceId : deviceIds) {
-            final InputDevice dev = InputDevice.getDevice(deviceId);
-            final int sources = dev.getSources();
+            final InputDevice device = InputDevice.getDevice(deviceId);
+            final int sources = device.getSources();
             if(((sources & InputDevice.SOURCE_GAMEPAD) == InputDevice.SOURCE_GAMEPAD) ||
                     ((sources & InputDevice.SOURCE_JOYSTICK) == InputDevice.SOURCE_JOYSTICK)) {
                 return true;
@@ -153,6 +151,10 @@ public class MainActivity extends AppCompatActivity implements InputManager.Inpu
     @Override
     protected void onResume() {
         super.onResume();
+        if(isGameControllerConnected()){
+            mHadGamepad = true;
+            displayGamepadHelp();
+        }
     }
 
     @Override
@@ -163,7 +165,6 @@ public class MainActivity extends AppCompatActivity implements InputManager.Inpu
         }
         hideSystemUI();
     }
-
 
     private void hideSystemUI() {
         final View decorView = getWindow().getDecorView();

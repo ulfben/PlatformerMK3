@@ -113,8 +113,11 @@ public class Gamepad extends GameInput implements GamepadListener {
                 mJump = false;
                 wasConsumed = true;
             }
-            if (keyCode == KeyEvent.KEYCODE_BUTTON_B) {
-                mActivity.onBackPressed(); //backwards comp
+
+            //the B button is "back" on all modern Androids. For older devices, we must do so by hand.
+            if (keyCode == KeyEvent.KEYCODE_BUTTON_B || keyCode == KeyEvent.KEYCODE_BUTTON_START) {
+                mActivity.onBackPressed();
+                wasConsumed = true;
             }
         }
         return wasConsumed;
