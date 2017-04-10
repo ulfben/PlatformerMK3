@@ -12,9 +12,7 @@ public class ExitDialog extends Dialog implements View.OnClickListener {
         super(activity);
         setContentView(R.layout.dialog_exit);
         findViewById(R.id.btn_exit).setOnClickListener(this);
-        findViewById(R.id.btn_exit).setOnFocusChangeListener(this);
         findViewById(R.id.btn_resume).setOnClickListener(this);
-        findViewById(R.id.btn_resume).setOnFocusChangeListener(this);
     }
 
     public void setListener(final ExitDialogListener listener) {

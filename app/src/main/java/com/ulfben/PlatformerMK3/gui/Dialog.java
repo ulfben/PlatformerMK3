@@ -1,5 +1,4 @@
 package com.ulfben.PlatformerMK3.gui;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -73,6 +72,6 @@ public class Dialog implements View.OnTouchListener, View.OnFocusChangeListener 
 
     @Override
     public void onFocusChange(final View view, final boolean b) {
-        Log.d(TAG, "onFocusChange: " + view.toString() +" isFocused: " + b);
+       // Log.d(TAG, "onFocusChange: " + view.toString() +" isFocused: " + b);
     }
 }
