@@ -22,7 +22,7 @@ import com.ulfben.PlatformerMK3.fragments.MainMenuFragment;
 import com.ulfben.PlatformerMK3.input.GamepadListener;
 // Created by Ulf Benjaminsson (ulfben) on 2017-02-01.
 
-public class MainActivity extends AppCompatActivity implements InputManager.InputDeviceListener, KeyEvent.Callback {
+public class MainActivity extends AppCompatActivity implements InputManager.InputDeviceListener {
     private static final String TAG = "MainActivity";
     private static final String FRAGMENT_TAG = "platformermk3";
     private GamepadListener mGamepadListener = null;
@@ -40,7 +40,6 @@ public class MainActivity extends AppCompatActivity implements InputManager.Inpu
             final InputManager inputManager = (InputManager) getSystemService(Context.INPUT_SERVICE);
             inputManager.registerInputDeviceListener(this, null);
         }
-
         if (savedInstanceState == null) {
             getSupportFragmentManager()
                     .beginTransaction()
@@ -56,22 +55,6 @@ public class MainActivity extends AppCompatActivity implements InputManager.Inpu
             final InputManager inputManager = (InputManager) getSystemService(Context.INPUT_SERVICE);
             inputManager.unregisterInputDeviceListener(this);
         }
-    }
-
-    @Override
-    public boolean onKeyDown(final int keyCode, final KeyEvent event) {
-        Log.d(TAG, "onKeyDown: "+keyCode);
-        //TODO: keyboard controls?
-        //remember key repeats!
-        //wasd, KeyEvent.KEYCODE_DPAD_LEFT: KeyEvent.KEYCODE_DPAD_RIGHT etc
-        // MotionEvent.ACTION_BUTTON_RELEASE / PRESS
-        return super.onKeyDown(keyCode, event);
-    }
-
-    @Override
-    public boolean onKeyUp(final int keyCode, final KeyEvent event) {
-        Log.d(TAG, "onKeyUp: "+keyCode);
-        return super.onKeyUp(keyCode, event);
     }
 
     public void startGame() {
