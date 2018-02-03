@@ -1,11 +1,13 @@
 package com.ulfben.PlatformerMK3.gameobjects;
 import android.graphics.Canvas;
+import android.graphics.Matrix;
 import android.graphics.Paint;
 
 import com.ulfben.PlatformerMK3.Animation;
 import com.ulfben.PlatformerMK3.GameEvent;
 import com.ulfben.PlatformerMK3.R;
 import com.ulfben.PlatformerMK3.engine.GameEngine;
+import com.ulfben.PlatformerMK3.utilities.BitmapPool;
 // Created by Ulf Benjaminsson (ulfben) on 2017-02-13.
 
 public class Player extends DynamicGameObject {
@@ -27,31 +29,18 @@ public class Player extends DynamicGameObject {
     private float mDirectionChangeCooldown = 0.0f;
     private Animation mAnim = null;
 
-    public Player(final GameEngine engine, final String sprite) {
-        super(engine, sprite, DEFAULT_LOCATION, DEFAULT_LOCATION, PLAYER_WIDTH, PLAYER_HEIGHT);
-        init();
-    }
-
-    public Player(final GameEngine engine, final String sprite, final float x, final float y) {
-        super(engine, sprite, x, y, PLAYER_WIDTH, PLAYER_HEIGHT);
-        init();
-    }
-
-    private void init(){
+    public Player(final GameEngine engine) {
+        super(engine, "", PLAYER_WIDTH, PLAYER_HEIGHT);
         mAcceleration.x = PLAYER_ACCELERATION_X;
         mAcceleration.y = PLAYER_ACCELERATION_Y;
         mFriction = PLAYER_FRICTION;
         mAnim = new Animation(mEngine, R.drawable.player_anim, mWidth, mHeight);
+        mBitmap = mAnim.getCurrentBitmap();
         updateBounds();
     }
 
     @Override
-    public void postConstruct(){
-        //no-op atm. using animations.
-    }
-
-    @Override
-    protected synchronized void updateBounds(){
+    protected void updateBounds(){
         if(mAnim != null) {
             mHeight = mAnim.getCurrentHeightMeters(); //scaled
             mWidth = mAnim.getCurrentWidthMeters();
@@ -63,16 +52,13 @@ public class Player extends DynamicGameObject {
     }
 
     @Override
-    public void render(final Canvas canvas, final Paint paint){
-        mTransform.reset();
-        mTransform.setScale(mFacing, 1.0f);
-        mEngine.worldToScreen(mBounds, GameObject.screenCord);
-        float offset = 0;
+    public void render(final Canvas canvas, final Matrix transform, final Paint paint){
+        transform.preScale(mFacing, 1.0f);
         if(mFacing == RIGHT){
-            offset = mWidth*mEngine.getPixelsPerMeterX();
+            float offset = mWidth*mEngine.getPixelsPerMeterX();
+            transform.postTranslate(offset, 0);
         }
-        mTransform.postTranslate(GameObject.screenCord.x+offset, GameObject.screenCord.y);
-        canvas.drawBitmap(mAnim.getCurrentBitmap(), mTransform, paint);
+        canvas.drawBitmap(mBitmap, transform, paint);
     }
 
     @Override
@@ -95,6 +81,7 @@ public class Player extends DynamicGameObject {
             mEngine.onGameEvent(GameEvent.PlayerJump, this);
         }
         mAnim.update(dt);
+        mBitmap = mAnim.getCurrentBitmap();
         super.update(dt);
     }
 
@@ -118,10 +105,10 @@ public class Player extends DynamicGameObject {
 
     @Override
     public void destroy(){
-        super.destroy();
         if(mAnim != null) {
             mAnim.destroy();
             mAnim = null;
         }
+        super.destroy();
     }
 }

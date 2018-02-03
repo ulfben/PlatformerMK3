@@ -4,7 +4,8 @@ import java.util.HashSet;
 
 public abstract class LevelData {
 
-    public static final int NO_TILE = 0;
+    public static final int NO_TILE = 0;//empty space in the dataset
+    public static final String NO_SPRITE = ""; //for objects that will load their own custom assets, like animations.
     public int[][] mTiles;
     public int mHeight;
     public int mWidth;

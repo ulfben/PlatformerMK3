@@ -20,11 +20,9 @@ public class DynamicGameObject extends GameObject {
     DynamicGameObject(final GameEngine engine, final String sprite) {
         super(engine, sprite);
     }
-    DynamicGameObject(final GameEngine engine, final String sprite, final float x, final float y) {
-        super(engine, sprite, x, y);
-    }
-    public DynamicGameObject(final GameEngine engine, final String sprite, final float x, final float y, final float width, final float height){
-        super(engine, sprite, x, y, width, height);
+
+    DynamicGameObject(final GameEngine engine, final String sprite, float width, float height){
+        super(engine, sprite, width, height);
     }
 
     @Override

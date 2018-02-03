@@ -8,11 +8,7 @@ public class Collectible extends DynamicGameObject {
     private static final float DEFAULT_WIDTH_HEIGHT = 0.3f;
 
     public Collectible(final GameEngine engine, final String sprite) {
-        super(engine, sprite, DEFAULT_LOCATION, DEFAULT_LOCATION, DEFAULT_WIDTH_HEIGHT, DEFAULT_WIDTH_HEIGHT);
-    }
-
-    public Collectible(final GameEngine engine, final String sprite, final float x, final float y, final float width, final float height){
-        super(engine, sprite, x, y, width, height);
+        super(engine, sprite, DEFAULT_WIDTH_HEIGHT, DEFAULT_WIDTH_HEIGHT);
     }
 
     @Override

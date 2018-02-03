@@ -49,10 +49,10 @@ public class Viewport {
         setMetersToShow(metersToShowX, metersToShowY);
     }
 
-    public PointF position(){
-        return mLookAt;
-    }
-
+    //setMetersToShow calculates the number of physical pixels per meters
+    //so that we can translate our game world (meters) to the screen (pixels)
+    //provide the dimension(s) you want to lock. Eg; provide the number of vertical meters
+    //and the viewport will automatically size the other axis to fill the screen.
     private void setMetersToShow(final float metersToShowX, final float metersToShowY){
         if (metersToShowX <= 0f && metersToShowY <= 0f) throw new IllegalArgumentException("One of the dimensions must be provided!");
         //formula: new height = (original height / original width) x new width
@@ -95,36 +95,28 @@ public class Viewport {
     }
 
     public void update(final float dt){
-        if(mTarget == null){ return; }
-        synchronized (mLookAt) {
+        if(mTarget != null) {
             mLookAt.x += (mTarget.centerX() - mLookAt.x) * EASE_X;
             mLookAt.y += (mTarget.centerY() - mLookAt.y) * EASE_Y;
-            if(IS_BOUNDED){
-                Utils.clamp(mLookAt, mMinPosition, mMaxPosition);
-            }
+        }
+        if(IS_BOUNDED){
+            Utils.clamp(mLookAt, mMinPosition, mMaxPosition);
         }
     }
 
-
     public void lookAt(final GameObject obj){
-        synchronized (mLookAt) {
-            mLookAt.x = obj.centerX();
-            mLookAt.y = obj.centerY();
-        }
+        mLookAt.x = obj.centerX();
+        mLookAt.y = obj.centerY();
     }
 
     public void lookAt(final PointF pos){
-        synchronized (mLookAt) {
-            mLookAt.x = pos.x;
-            mLookAt.y = pos.y;
-        }
+        mLookAt.x = pos.x;
+        mLookAt.y = pos.y;
     }
 
     public void lookAt(final float x, final float y){
-        synchronized (mLookAt) {
-            mLookAt.x = x;
-            mLookAt.y = y;
-        }
+        mLookAt.x = x;
+        mLookAt.y = y;
     }
 
     public void worldToScreen(final PointF worldPos, final Point screenPos){

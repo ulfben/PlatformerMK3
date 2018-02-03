@@ -1,6 +1,7 @@
 package com.ulfben.PlatformerMK3.levels;
+import android.util.Log;
+
 import com.ulfben.PlatformerMK3.engine.GameEngine;
-import com.ulfben.PlatformerMK3.gameobjects.DebugTextGameObject;
 import com.ulfben.PlatformerMK3.gameobjects.GameObject;
 import com.ulfben.PlatformerMK3.gameobjects.GameObjectFactory;
 import com.ulfben.PlatformerMK3.gameobjects.Player;
@@ -11,9 +12,9 @@ import java.util.ArrayList;
 //Created by Ulf Benjaminsson (ulfben) on 2017-02-13.
 public class LevelManager {
     private static final String TAG = "LevelManager";
-    public ArrayList<GameObject> mGameObjects = new ArrayList<GameObject>();
-    private ArrayList<GameObject> mObjectsToAdd = new ArrayList<GameObject>();
-    private ArrayList<GameObject> mObjectsToRemove = new ArrayList<GameObject>();
+    public ArrayList<GameObject> mGameObjects = new ArrayList<>();
+    private ArrayList<GameObject> mObjectsToAdd = new ArrayList<>();
+    private ArrayList<GameObject> mObjectsToRemove = new ArrayList<>();
 
     private LevelData mData = null;
     public Player mPlayer = null;
@@ -39,13 +40,19 @@ public class LevelManager {
 
     public void addAndRemoveObjects(){
         GameObject temp;
-        while (!mObjectsToRemove.isEmpty()) {
-            temp = mObjectsToRemove.remove(0);
-            mGameObjects.remove(temp);
-        }
-        while (!mObjectsToAdd.isEmpty()) {
-            temp = mObjectsToAdd.remove(0);
-            mGameObjects.add(temp);
+        try {
+            for (int i = mObjectsToRemove.size() - 1; i >= 0; i--) {
+                temp = mObjectsToRemove.remove(i); //remove from the back
+                mGameObjects.remove(temp); //look up and remove.
+            }
+            for (int i = mObjectsToAdd.size() - 1; i >= 0; i--) {
+                temp = mObjectsToAdd.remove(i);
+                mGameObjects.add(temp);
+            }
+        }catch(Exception e){ //this should never happen.
+            Log.e(TAG, "addAndRemoveObjects is missbehaving.");
+            mObjectsToRemove = new ArrayList<>(); //empty and recreate
+            mObjectsToAdd = new ArrayList<>(); //for good measure.
         }
     }
 
@@ -61,28 +68,29 @@ public class LevelManager {
 
     private void loadMapAssets(final LevelData data){
         cleanup();
-        int tileType;
-        GameObject temp;
-        String sprite = LevelData.NULLSPRITE;
         for(int y = 0; y < data.mHeight; y++){
             final int[] row = data.getRow(y);
             for(int x = 0; x < row.length; x++) {
-                tileType = row[x];
+                int tileType = row[x];
                 if(tileType == LevelData.NO_TILE){ continue; }  //ignoring "background tiles"
-                sprite = mData.getSpriteName(tileType);
-                temp = GameObjectFactory.makeObject(mEngine, sprite, x, y);
-                if(temp == null){ continue;}
-                if(mPlayer == null && Player.class.isInstance(temp)){
-                    mPlayer = (Player) temp;
-                }
-                mGameObjects.add(temp);
+                addGameObject(GameObjectFactory.makeObject( //adds to temporary list, filters out null
+                                mEngine, mData.getSpriteName(tileType), x, y));
             }
         }
-        //TODO: text output is a GUI task, not a game object task. Refactor!
-        //mGameObjects.add(new DebugTextGameObject(mEngine, LevelData.NULLSPRITE));
+        addAndRemoveObjects(); //commit the temporary list to our "live" list
+        mPlayer = findPlayerInstance();
     }
 
-    public void cleanup(){
+    private Player findPlayerInstance(){
+        for (final GameObject go : mGameObjects){
+            if(Player.class.isInstance(go)){
+                return (Player) go;
+            }
+        }
+        throw new AssertionError("No player found in the level data!");
+    }
+
+    private void cleanup(){
         for (final GameObject go : mGameObjects){
             go.destroy();
         }

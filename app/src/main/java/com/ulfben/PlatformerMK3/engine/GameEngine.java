@@ -22,6 +22,7 @@ import java.util.Locale;
 
 public class GameEngine {
     private static final String TAG = "GameEngine";
+    public static final boolean SHOW_STATS = true; //print useful stats to screen during game play
     private static final float SCALE_FACTOR = 0.5f; //< 1.0f for fullscreen scaling. 0.5 = use half the screens' resolution.
     private static final float METERS_TO_SHOW_X = 0f; //set the value you want fixed
     private static final float METERS_TO_SHOW_Y = 9f;  //the other is calculated at runtime!
@@ -47,7 +48,6 @@ public class GameEngine {
         BitmapPool.init();
         BitmapUtils.init(getResources());
     }
-
 
     public int getResourceID(final String filename){
         return getResourceID(filename, "drawable");
@@ -173,8 +173,6 @@ public class GameEngine {
         mActivity = null;
     }
 
-
-
     //called from UpdateThread
     public void onUpdate(final float dt) {
         mControl.update(dt);
@@ -183,7 +181,18 @@ public class GameEngine {
         checkCollisions(mLevelManager.mGameObjects);
         mLevelManager.addAndRemoveObjects();
         buildVisibleSet(mLevelManager.mGameObjects, mCamera);
+        if(SHOW_STATS){
+            updateStats();
+        }
         render(mVisibleObjects, mCamera); //will wait on UI thread on post
+    }
+
+    private void updateStats(){
+        DebugTextRenderer.VISIBLE_OBJECTS = mVisibleObjects.size();
+        DebugTextRenderer.TOTAL_OBJECT_COUNT = mLevelManager.mGameObjects.size();
+        DebugTextRenderer.PLAYER_POSITION = mLevelManager.mPlayer.mWorldLocation;
+        DebugTextRenderer.FRAMERATE = mUpdateThread.getAverageFPS();
+        DebugTextRenderer.CAMERA_INFO = mCamera.toString();
     }
 
     private void buildVisibleSet(final ArrayList<GameObject> gameObjects, final Viewport camera){
@@ -198,11 +207,11 @@ public class GameEngine {
         }
     }
 
-    public void render(final ArrayList<GameObject> visibleObjects, final Viewport camera) {
-        mGameView.render(visibleObjects);
+    private void render(final ArrayList<GameObject> visibleObjects, final Viewport camera) {
+        mGameView.render(visibleObjects, camera);
     }
 
-    //checkCollisions will test all game entities against eachother.
+    //checkCollisions will test all game entities against each other.
     //Note the offsets in these loops: [0]-[size-1] and [i+1]-[size]
     //This ensure we never redundantly test a pair.
     //For details, refer to my slides (10-17): https://goo.gl/po4YkK
@@ -227,19 +236,5 @@ public class GameEngine {
 
     public boolean isPaused() {
         return mUpdateThread != null && mUpdateThread.isGamePaused();
-    }
-
-    //TODO: probably move this out of the GameEngine.
-    final String[] DBG_STRINGS = new String[4];
-    final static String DBG_UPS = "Ticks/s: %d";
-    final static String DBG_OBJ_RENDER_COUNT =  "Objects rendered: %d / %d";
-    final static String DBG_PLAYER_INFO =  "Player: [%.2f, %.2f]";
-    final static Locale LOCALE = Locale.getDefault();
-    public String[] getDebugStrings(){
-        DBG_STRINGS[0] = mCamera.toString();
-        DBG_STRINGS[1] = String.format(LOCALE, DBG_OBJ_RENDER_COUNT, mVisibleObjects.size(),  mLevelManager.mGameObjects.size());
-        DBG_STRINGS[2] = String.format(LOCALE, DBG_PLAYER_INFO,  mLevelManager.mPlayer.x(),  mLevelManager.mPlayer.y());
-        DBG_STRINGS[3] = String.format(LOCALE, DBG_UPS, mUpdateThread.getAverageFPS());
-        return DBG_STRINGS;
     }
 }

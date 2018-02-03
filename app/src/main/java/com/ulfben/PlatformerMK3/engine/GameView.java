@@ -2,7 +2,10 @@ package com.ulfben.PlatformerMK3.engine;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Matrix;
 import android.graphics.Paint;
+import android.graphics.Point;
+import android.graphics.PointF;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.SurfaceHolder;
@@ -56,15 +59,25 @@ public class GameView extends SurfaceView {
         return new Viewport(worldWidth, worldHeight, screenWidth, screenHeight, metersToShowX, metersToShowY);
     }
 
-    public void render(final ArrayList<GameObject> visibleGameObjects){
+    public void render(final ArrayList<GameObject> visibleGameObjects, final Viewport camera){
         if(!lockAndAquireCanvas()) {
             return;
         }
         mCanvas.drawColor(BG_COLOR);
         mPaint.setColor(Color.WHITE);
         final int numObjects = visibleGameObjects.size();
-        for (int i = 0; i < numObjects; i++) { //TODO  enchance for?
-            visibleGameObjects.get(i).render(mCanvas, mPaint);
+        final Point screenCord = new Point();
+        final Matrix mTransform = new Matrix();
+        GameObject temp;
+        for (int i = 0; i < numObjects; i++) {
+            mTransform.reset();
+            temp = visibleGameObjects.get(i);
+            camera.worldToScreen(temp.mBounds, screenCord);
+            mTransform.postTranslate(screenCord.x, screenCord.y);
+            visibleGameObjects.get(i).render(mCanvas, mTransform, mPaint);
+        }
+        if(GameEngine.SHOW_STATS){
+            DebugTextRenderer.render(mCanvas, camera, mPaint);
         }
         mSurfaceHolder.unlockCanvasAndPost(mCanvas);
     }

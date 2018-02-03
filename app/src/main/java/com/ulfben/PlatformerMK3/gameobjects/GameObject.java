@@ -19,57 +19,47 @@ public class GameObject {
     public static final float DEFAULT_HEIGHT = 1f; //meters
     public static final float DEFAULT_WIDTH = 1f;
 
-    protected static final Point screenCord = new Point(); //Q&D Point pool
-    protected static final PointF overlap = new PointF(0,0); //Q&D PointF pool, for collision reactions
-    protected static final Matrix mTransform = new Matrix(); //Q&D Matrix pool
     protected final GameEngine mEngine;
-
     public final PointF mWorldLocation = new PointF(DEFAULT_LOCATION, DEFAULT_LOCATION);
     public float mWidth = DEFAULT_WIDTH;
     public float mHeight = DEFAULT_HEIGHT;
     public final RectF mBounds = new RectF(DEFAULT_LOCATION, DEFAULT_LOCATION, DEFAULT_WIDTH, DEFAULT_HEIGHT);
-    private String mBitmapKey = "";
-    public String mSprite = "";
+    protected Bitmap mBitmap = null; //We do not own the bitmap. The BitmapPool will recycle it!
 
     public GameObject(final GameEngine engine, final String sprite){
         super();
         mEngine = engine;
-        init(sprite, DEFAULT_LOCATION, DEFAULT_LOCATION, DEFAULT_WIDTH, DEFAULT_HEIGHT);
+        init(sprite, DEFAULT_WIDTH, DEFAULT_HEIGHT);
     }
 
-    public GameObject(final GameEngine engine, final String sprite, final float x, final float y){
+    public GameObject(final GameEngine engine, final String sprite, float width, float height){
         super();
         mEngine = engine;
-        init(sprite, x, y, DEFAULT_WIDTH, DEFAULT_HEIGHT);
+        init(sprite, width, height);
     }
 
-    public GameObject(final GameEngine engine, final String sprite, final float x, final float y, final float width, final float height){
-        super();
-        mEngine = engine;
-        init(sprite, x, y, width, height);
-    }
-
-    private void init(final String sprite, final float x, final float y, final float width, final float height){
-        mSprite = sprite;
-        mHeight = height;
+    private void init(final String sprite, float width, float height){
         mWidth = width;
-        mWorldLocation.x = x;
-        mWorldLocation.y = y;
+        mHeight = height;
         updateBounds();
+        if(sprite.isEmpty()) { //some objects will want to load their own assets.
+            return;
+        }
+        mBitmap = BitmapPool.createBitmap(mEngine, sprite, mWidth, mHeight);
+        if(mBitmap == null){
+            throw new AssertionError("Failed to intitialize game object!");
+        }
     }
 
-    public void render(final Canvas canvas, final Paint paint){
-        mTransform.reset();
-        mEngine.worldToScreen(mBounds, GameObject.screenCord);
-        mTransform.postTranslate(GameObject.screenCord.x, GameObject.screenCord.y);
-        canvas.drawBitmap(BitmapPool.getBitmap(mBitmapKey), mTransform, paint);
+
+    public void render(final Canvas canvas, final Matrix transform, final Paint paint){
+        canvas.drawBitmap(mBitmap, transform, paint);
     }
 
     public void update(final float dt){}
 
     public void destroy(){
-        mBitmapKey = null;
-        mSprite = null;
+        mBitmap = null;
     }
 
     public void onCollision(final GameObject that){}
@@ -78,21 +68,11 @@ public class GameObject {
         return RectF.intersects(this.mBounds, that.mBounds);
     }
 
-    public void postConstruct(){
-        final String key = BitmapPool.makeKey(mSprite, mWidth, mHeight);
-        if(!BitmapPool.contains(key)){
-            try {
-                final Bitmap bmp = BitmapUtils.loadScaledBitmap(mEngine.getResourceID(mSprite), (int)mEngine.worldToScreen(mWidth, Axis.X), (int)mEngine.worldToScreen(mHeight, Axis.Y));
-                BitmapPool.put(key, bmp);
-            }catch(final Exception e){
-                e.printStackTrace();
-            }
-        }
-        mBitmapKey = key;
-    }
+
 
     //SAT intersection test. http://www.metanetsoftware.com/technique/tutorialA.html
     //returns true on intersection, and sets the least intersecting axis in overlap
+    protected static final PointF overlap = new PointF(0,0); //Q&D PointF pool, for collision reactions
     public static boolean getOverlap(final GameObject a, final GameObject b, final PointF overlap) {
         overlap.x = 0.0f;
         overlap.y = 0.0f;
@@ -119,7 +99,7 @@ public class GameObject {
         return true;
     }
 
-    protected synchronized void updateBounds(){
+    protected void updateBounds(){
         mBounds.left = mWorldLocation.x;
         mBounds.top = mWorldLocation.y;
         mBounds.right = mWorldLocation.x + mWidth;
