@@ -59,11 +59,11 @@ public class Player extends DynamicGameObject {
 
     @Override
     public void update(final float dt){
-        final float direction = mEngine.mControl.mHorizontalFactor;
+        final float direction = mEngine.mControls.mHorizontalFactor;
         mTargetSpeed.x = direction * (PLAYER_RUN_SPEED);
         updateFacingDirection(direction, dt);
         updateAnimationRate();
-        if(mEngine.mControl.mJump && mIsOnGround){
+        if(mEngine.mControls.mJump && mIsOnGround){
             mVelocity.y = JUMP_FORCE;
             mIsOnGround = false;
             mEngine.onGameEvent(GameEvent.PlayerJump, this);

@@ -21,7 +21,7 @@ import com.ulfben.PlatformerMK3.input.VirtualJoystick;
 public class GameFragment extends BaseFragment implements View.OnClickListener, PauseDialog.PauseDialogListener {
     private static final String TAG = "GameFragment";
     private GameEngine mGameEngine;
-    private ConfigurableGameInput mControls;
+
     public GameFragment() {
         super();
     }
@@ -35,17 +35,10 @@ public class GameFragment extends BaseFragment implements View.OnClickListener, 
     @Override
     public void onViewCreated(final View view, final Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        final GameView gameView = (GameView) view.findViewById(R.id.gameView);
-        final MainActivity activity = (MainActivity) getActivity();
+        final GameView gameView = view.findViewById(R.id.gameView);
+        final MainActivity activity = getMainActivity();
         mGameEngine = new GameEngine(activity, gameView);
         view.findViewById(R.id.btn_play_pause).setOnClickListener(this);
-        mControls = new ConfigurableGameInput(activity,
-                //new VirtualKeypad(findViewById(R.id.keypad)),
-                new VirtualJoystick(view.findViewById(R.id.virtual_joystick)),
-                new Gamepad(activity),
-                new Accelerometer(activity)
-        );
-        mGameEngine.setGameInput(mControls);
         mGameEngine.loadLevel("TestLevel");
         mGameEngine.startGame();
     }
@@ -97,18 +90,18 @@ public class GameFragment extends BaseFragment implements View.OnClickListener, 
         return mGameEngine.getJukebox();
     }
 
+    //TODO: make jukebox and other fragment-reacharound-objects parts of the Application?
     public boolean toggleMotionControl(){
-        return mControls.toggleMotionControl();
+        return mGameEngine.toggleMotionControl();
     }
-
     public boolean hasMotionControl(){
-        return mControls.hasMotionControl();
+        return mGameEngine.hasMotionControl();
     }
 
     private void updatePauseButton(){
         final View view = getView();
         if(view == null){
-            Log.e(TAG, "View not available!");
+            Log.i(TAG, "View not available!");
             return;
         }
         final Button button = (Button) view.findViewById(R.id.btn_play_pause);

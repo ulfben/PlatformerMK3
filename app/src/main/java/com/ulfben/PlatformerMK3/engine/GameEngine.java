@@ -8,9 +8,15 @@ import android.graphics.RectF;
 import android.util.Log;
 
 import com.ulfben.PlatformerMK3.GameEvent;
+import com.ulfben.PlatformerMK3.MainActivity;
+import com.ulfben.PlatformerMK3.R;
 import com.ulfben.PlatformerMK3.gameobjects.GameObject;
 import com.ulfben.PlatformerMK3.gameobjects.Player;
+import com.ulfben.PlatformerMK3.input.Accelerometer;
+import com.ulfben.PlatformerMK3.input.ConfigurableGameInput;
 import com.ulfben.PlatformerMK3.input.GameInput;
+import com.ulfben.PlatformerMK3.input.Gamepad;
+import com.ulfben.PlatformerMK3.input.VirtualJoystick;
 import com.ulfben.PlatformerMK3.levels.LevelManager;
 import com.ulfben.PlatformerMK3.utilities.Axis;
 import com.ulfben.PlatformerMK3.utilities.BitmapPool;
@@ -28,37 +34,48 @@ public class GameEngine {
     private static final float METERS_TO_SHOW_Y = 9f;  //the other is calculated at runtime!
 
     private UpdateThread mUpdateThread = null;
-    public Activity mActivity = null;
-
-    private final GameView mGameView;
-    public LevelManager mLevelManager = null; //TODO: maybe move entity management out of the levelmanager
+    private MainActivity mActivity;
+    private GameView mGameView;
+    public LevelManager mLevelManager = null;
     public Viewport mCamera = null;
-    public GameInput mControl = null;
+    public ConfigurableGameInput mControls;
     private ArrayList<GameObject> mVisibleObjects = new ArrayList<>();
     private final Jukebox mJukebox;
 
-    public GameEngine(final Activity a, final GameView gameView) {
+    public GameEngine(final MainActivity a, final GameView gameView) {
         super();
         mActivity = a;
         mGameView = gameView;
         //TODO: remove viewPort from gameView!
         mCamera = mGameView.createViewport(0f, 0f, METERS_TO_SHOW_X, METERS_TO_SHOW_Y, SCALE_FACTOR);
-        mJukebox = new Jukebox(a);
-        mControl = new GameInput(); //placeholder inputs
+        mJukebox = new Jukebox(mActivity);
+        mControls = new ConfigurableGameInput(mActivity,
+                    new Gamepad( mActivity),
+                    new Accelerometer(mActivity),
+                    new VirtualJoystick(mActivity.findViewById(R.id.virtual_joystick))
+                );
         GameObject.mEngine = this;
         BitmapPool.init();
-        BitmapUtils.init(getResources());
+        BitmapUtils.init(a.getResources());
+    }
+
+
+    public boolean toggleMotionControl(){
+        return mControls.toggleMotionControl(mActivity);
+    }
+    public boolean hasMotionControl(){
+        return mControls.hasMotionControl();
     }
 
     public int getResourceID(final String filename){
         return getResourceID(filename, "drawable");
     }
     public int getResourceID(final String filename, final String type){
-        return getResources().getIdentifier(filename, type, getPackageName());
+        return mGameView.getResources().getIdentifier(filename, type, mGameView.getContext().getPackageName());
     }
-    public String getPackageName(){ return mActivity.getPackageName(); }
-    public Resources getResources(){ return mActivity.getResources(); }
-    public Context getContext(){ return mActivity; }
+//    public String getPackageName(){ return mActivity.getPackageName(); }
+//    public Resources getResources(){ return mActivity.getResources(); }
+    public Context getContext(){ return mGameView.getContext(); }
     public int getPixelsPerMeterY(){
         return mCamera.getPixelsPerMeterY();
     }
@@ -113,24 +130,16 @@ public class GameEngine {
         return mJukebox;
     }
 
-    public void setGameInput(final GameInput controller) {
-        mControl = controller;
-    }
-
     public void startGame() {
         stopGame(); // Stop a game if it is running
-        if (mControl != null) {
-            mControl.onStart();
-        }
+        mControls.onStart();
         mUpdateThread = new UpdateThread(this);
         mUpdateThread.start();
         mJukebox.resumeBgMusic();
     }
 
     public void stopGame() {
-        if (mControl != null) {
-            mControl.onStop();
-        }
+        mControls.onStop();
         if (mUpdateThread != null) {
             mUpdateThread.stopThread();
         }
@@ -142,9 +151,7 @@ public class GameEngine {
         if (mUpdateThread != null) {
             mUpdateThread.pauseThread();
         }
-        if (mControl != null) {
-            mControl.onPause();
-        }
+        mControls.onPause();
         if(mJukebox != null){
             mJukebox.pauseBgMusic();
         }
@@ -154,9 +161,7 @@ public class GameEngine {
         if(mJukebox != null){
             mJukebox.resumeBgMusic();
         }
-        if (mControl != null) {
-            mControl.onResume();
-        }
+        mControls.onResume();
         if (mUpdateThread != null) {
             mUpdateThread.resumeThread();
         }
@@ -169,15 +174,14 @@ public class GameEngine {
         //if(mCamera != null){mCamera.destroy();}
         if(mLevelManager != null) { mLevelManager.destroy(); mLevelManager = null;}
         if(mUpdateThread != null){ mUpdateThread.stopThread(); mUpdateThread = null; }
-        if(mControl != null){ mControl.onDestroy(); mControl = null; }
+        if(mControls != null){ mControls.onDestroy(); mControls = null; }
         if(mGameView != null){ mGameView.destroy(); }
         GameObject.mEngine = null;
-        mActivity = null;
     }
 
     //called from UpdateThread
     public void onUpdate(final float dt) {
-        mControl.update(dt);
+        mControls.update(dt);
         mCamera.update(dt);
         mLevelManager.update(dt);
         checkCollisions(mLevelManager.mGameObjects);

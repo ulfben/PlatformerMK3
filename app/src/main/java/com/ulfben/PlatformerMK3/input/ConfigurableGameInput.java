@@ -8,12 +8,11 @@ import android.preference.PreferenceManager;
 // without ruining the relatively clean base class.
 public class ConfigurableGameInput extends CompositeGameInput {
     private static final String ACCELEROMETER_PREF_KEY = "accelerometer_pref_key";
-    private Context mContext = null;
     private boolean mAllowMotionControl;
     private Accelerometer mMotionControl = null;
     public ConfigurableGameInput(final Context context, final GameInput... inputs) {
         super(inputs);
-        mContext = context;
+
         final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
         mAllowMotionControl = prefs.getBoolean(ACCELEROMETER_PREF_KEY, true);
         if(!mAllowMotionControl){
@@ -25,14 +24,14 @@ public class ConfigurableGameInput extends CompositeGameInput {
         return mAllowMotionControl;
     }
 
-    public boolean toggleMotionControl(){
+    public boolean toggleMotionControl(final Context context){
         mAllowMotionControl = !mAllowMotionControl;
         if(!mAllowMotionControl){
             removeAccelerometer();
         }else if(mMotionControl != null){
             super.addInput(mMotionControl);
         }
-        PreferenceManager.getDefaultSharedPreferences(mContext)
+        PreferenceManager.getDefaultSharedPreferences(context)
                 .edit().putBoolean(ACCELEROMETER_PREF_KEY, mAllowMotionControl)
                 .apply();
         return mAllowMotionControl;

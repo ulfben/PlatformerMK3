@@ -59,13 +59,13 @@ public class MainActivity extends AppCompatActivity implements InputManager.Inpu
 
     @Override
     protected void onDestroy() {
-        super.onDestroy();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
             final InputManager inputManager = (InputManager) getSystemService(Context.INPUT_SERVICE);
             if(inputManager != null) {
                 inputManager.unregisterInputDeviceListener(this);
             }
         }
+        super.onDestroy();
     }
 
     private void showActionBar(){

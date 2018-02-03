@@ -13,6 +13,8 @@ public class UpdateThread extends Thread {
     private static final long FPS_CAP = 90;
     private static final long TARGET_FRAMETIME = (FrameTimer.SECOND_IN_NANOSECONDS / FPS_CAP);
 
+
+    //TODO: consider throwing out the thread pausing. Just create a new thread on resume?
     public UpdateThread(final GameEngine gameEngine) {
         super();
         mGameEngine = gameEngine;
@@ -27,7 +29,7 @@ public class UpdateThread extends Thread {
 
     public void stopThread() {
         mIsRunning = false;
-        resumeThread();
+        resumeThread(); //if we are currently paused, resume so we can die.
     }
 
     @Override
@@ -58,6 +60,7 @@ public class UpdateThread extends Thread {
 
     private void waitUntilResumed(){
         while(mIsPaused){
+            if(!mIsRunning){return;} //we were asked to shutdown while resting, let's bail
             try{
                 synchronized(mLock){
                     mLock.wait();
