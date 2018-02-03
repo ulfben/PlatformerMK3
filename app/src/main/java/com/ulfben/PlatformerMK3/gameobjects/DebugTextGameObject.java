@@ -11,7 +11,6 @@ public class DebugTextGameObject extends GameObject {
 
     public DebugTextGameObject(final GameEngine engine, final String sprite){
         super(engine, sprite, 0f, 0f, 0.0f, 0.3f);
-        mCanCollide = false;
     }
 
     @Override

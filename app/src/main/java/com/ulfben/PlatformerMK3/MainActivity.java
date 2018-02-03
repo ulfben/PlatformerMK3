@@ -6,11 +6,15 @@ import android.hardware.input.InputManager;
 import android.media.AudioManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.InputDevice;
 import android.view.KeyEvent;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Toast;
@@ -34,11 +38,13 @@ public class MainActivity extends AppCompatActivity implements InputManager.Inpu
         super.onCreate(savedInstanceState);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
         setVolumeControlStream(AudioManager.STREAM_MUSIC);
-        hideSystemUI();
+       //hideSystemUI();
         setContentView(R.layout.activity_main);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
             final InputManager inputManager = (InputManager) getSystemService(Context.INPUT_SERVICE);
-            inputManager.registerInputDeviceListener(this, null);
+            if(inputManager != null) {
+                inputManager.registerInputDeviceListener(this, null);
+            }
         }
         if (savedInstanceState == null) {
             getSupportFragmentManager()
@@ -46,6 +52,9 @@ public class MainActivity extends AppCompatActivity implements InputManager.Inpu
                     .add(R.id.container, new MainMenuFragment(), FRAGMENT_TAG)
                     .commit();
         }
+        Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
+        setSupportActionBar(myToolbar);
+        showActionBar();
     }
 
     @Override
@@ -53,12 +62,48 @@ public class MainActivity extends AppCompatActivity implements InputManager.Inpu
         super.onDestroy();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
             final InputManager inputManager = (InputManager) getSystemService(Context.INPUT_SERVICE);
-            inputManager.unregisterInputDeviceListener(this);
+            if(inputManager != null) {
+                inputManager.unregisterInputDeviceListener(this);
+            }
         }
+    }
+
+    private void showActionBar(){
+        ActionBar ab = getSupportActionBar();
+        if(ab != null) {
+            ab.show();
+        }
+    }
+
+    private void hideActionBar(){
+        ActionBar ab = getSupportActionBar();
+        if(ab != null) {
+            ab.hide();
+        }
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        super.onPrepareOptionsMenu(menu);
+        menu.findItem(R.id.btn_exit).setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(final MenuItem menuItem) {
+                onBackPressed();
+                return false;
+            }
+        });
+        return true;
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.action_bar_menu, menu);
+        return true;
     }
 
     public void startGame() {
         navigateToFragment(new GameFragment(), FRAGMENT_TAG);
+        hideActionBar();
     }
 
     private void navigateToFragment(final BaseFragment dst, final String tag) {
@@ -167,7 +212,8 @@ public class MainActivity extends AppCompatActivity implements InputManager.Inpu
     }
 
     private void hideSystemUI() {
-        final View decorView = getWindow().getDecorView();
+        return;
+        /*final View decorView = getWindow().getDecorView();
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT){
             decorView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE |
                     View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN |
@@ -182,7 +228,7 @@ public class MainActivity extends AppCompatActivity implements InputManager.Inpu
                     View.SYSTEM_UI_FLAG_FULLSCREEN |
                     View.SYSTEM_UI_FLAG_LOW_PROFILE
             );
-        }
+        }*/
     }
 
     @Override

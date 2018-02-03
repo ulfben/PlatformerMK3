@@ -79,7 +79,7 @@ public class Player extends DynamicGameObject {
     public void onCollision(final GameObject that){
         super.onCollision(that);
         if(Spears.class.isInstance(that)){
-            mEngine.onGameEvent(GameEvent.PlayerSpikeCollision);
+            mEngine.onGameEvent(GameEvent.PlayerSpikeCollision, this);
         }
     }
 
@@ -92,7 +92,7 @@ public class Player extends DynamicGameObject {
         if(mEngine.mControl.mJump && mIsOnGround){
             mVelocity.y = JUMP_FORCE;
             mIsOnGround = false;
-            mEngine.onGameEvent(GameEvent.PlayerJump);
+            mEngine.onGameEvent(GameEvent.PlayerJump, this);
         }
         mAnim.update(dt);
         super.update(dt);

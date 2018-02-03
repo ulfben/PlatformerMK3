@@ -160,6 +160,9 @@ public class Jukebox {
         mBgPlayer = null;
     }
 
+
+    //the SoundPool API was changed in Lollipop (SDK 21) so I implement both
+    //the old and new, and decorate the method to silence lint warnings.
     @SuppressWarnings("deprecation")
     private void createSoundPool(){
         if(Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP){

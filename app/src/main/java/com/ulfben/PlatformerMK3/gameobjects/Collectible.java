@@ -19,8 +19,7 @@ public class Collectible extends DynamicGameObject {
     public void onCollision(final GameObject that){
         super.onCollision(that);
         if(Player.class.isInstance(that)){
-            mEngine.onGameEvent(GameEvent.PlayerCoinPickup);
-            mEngine.removeGameObject(this);
+            mEngine.onGameEvent(GameEvent.PlayerCoinPickup, this);
         }
     }
 }

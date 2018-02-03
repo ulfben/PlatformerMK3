@@ -37,19 +37,17 @@ public class UpdateThread extends Thread {
             if(mIsPaused){
                 waitUntilResumed();
             }
-            if(GameEngine.MULTITHREAD && mTimer.getElapsedNanos() < TARGET_FRAMETIME) {
-                //we only sleep when multithreaded (rendering happening on other thread)
-                //when single threading (= this thread draws), the render-step will sleep us.
-                //see the RenderThread for more info.
-                sleep();
-            }
             mGameEngine.onUpdate(mTimer.tick());
+            //maybeSleep(); //SurfaceView will enforce rate limiting for us in unlockCanvasAndPost
         }
     }
 
-    private void sleep(){
+    private void maybeSleep(){
+        long delayNS = TARGET_FRAMETIME - mTimer.getElapsedNanos();
+        if(delayNS < FrameTimer.NANOSECONDS_TO_MILLISECONDS){
+            return; //only sleep if there's more than a millisecond left.
+        }
         try {
-            long delayNS = TARGET_FRAMETIME - mTimer.getElapsedNanos();
             final long delayMS = (long) (delayNS * FrameTimer.NANOSECONDS_TO_MILLISECONDS);
             delayNS = delayNS % FrameTimer.MILLISECOND_IN_NANOSECONDS;
             Thread.sleep(delayMS, (int) delayNS);

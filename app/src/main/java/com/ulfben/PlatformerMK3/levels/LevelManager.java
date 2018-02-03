@@ -11,10 +11,13 @@ import java.util.ArrayList;
 //Created by Ulf Benjaminsson (ulfben) on 2017-02-13.
 public class LevelManager {
     private static final String TAG = "LevelManager";
-    public ArrayList<GameObject> mGameObjects = new ArrayList<>();
-    public LevelData mData = null;
+    public ArrayList<GameObject> mGameObjects = new ArrayList<GameObject>();
+    private ArrayList<GameObject> mObjectsToAdd = new ArrayList<GameObject>();
+    private ArrayList<GameObject> mObjectsToRemove = new ArrayList<GameObject>();
+
+    private LevelData mData = null;
     public Player mPlayer = null;
-    public GameEngine mEngine = null;
+    private GameEngine mEngine = null;
 
     public LevelManager(final GameEngine engine, final String levelName){
         super();
@@ -25,6 +28,32 @@ public class LevelManager {
                 break;
         }
         loadMapAssets(mData);// Load all the GameObjects and Bitmaps
+    }
+
+    public void update(final float dt) {
+        final int numObjects = mGameObjects.size();
+        for (int i = 0; i < numObjects; i++) {
+            mGameObjects.get(i).update(dt);
+        }
+    }
+
+    public void addAndRemoveObjects(){
+        GameObject temp;
+        while (!mObjectsToRemove.isEmpty()) {
+            temp = mObjectsToRemove.remove(0);
+            mGameObjects.remove(temp);
+        }
+        while (!mObjectsToAdd.isEmpty()) {
+            temp = mObjectsToAdd.remove(0);
+            mGameObjects.add(temp);
+        }
+    }
+
+    public void addGameObject(final GameObject object) {
+        if(object != null) { mObjectsToAdd.add(object); }
+    }
+    public void removeGameObject(final GameObject object) {
+        if(object != null) { mObjectsToRemove.add(object); }
     }
 
     public float getLevelWidth(){ return mData.mWidth; }
@@ -49,21 +78,27 @@ public class LevelManager {
                 mGameObjects.add(temp);
             }
         }
-        mGameObjects.add(new DebugTextGameObject(mEngine, LevelData.NULLSPRITE));
+        //TODO: text output is a GUI task, not a game object task. Refactor!
+        //mGameObjects.add(new DebugTextGameObject(mEngine, LevelData.NULLSPRITE));
     }
 
     public void cleanup(){
         for (final GameObject go : mGameObjects){
             go.destroy();
         }
+        if(mPlayer != null){ mPlayer.destroy(); mPlayer = null;}
         mGameObjects = new ArrayList<>();
         BitmapPool.empty();
     }
 
     public void destroy(){
         cleanup();
+        mObjectsToAdd.clear();
+        mObjectsToRemove.clear();
+        mGameObjects.clear();
         mGameObjects = null;
         mEngine = null;
         mData = null;
+        mPlayer = null;
     }
 }

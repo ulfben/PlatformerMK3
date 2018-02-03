@@ -9,7 +9,6 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
 import com.ulfben.PlatformerMK3.gameobjects.GameObject;
-import com.ulfben.PlatformerMK3.utilities.SysUtils;
 
 import java.util.ArrayList;
 
@@ -19,8 +18,6 @@ public class GameView extends SurfaceView {
     private static final String TAG = "GameView";
     private static final int AVD_TRUE_SCREEN_WIDTH = 1920; //q&d, see createViewport
     private static final int BG_COLOR = Color.rgb(135,206,235);//sky blue
-
-    private ArrayList<GameObject> mVisibleGameObjects = new ArrayList<>();
     private Canvas mCanvas = null;
     private SurfaceHolder mSurfaceHolder = null;
     private Paint mPaint = null;
@@ -48,7 +45,7 @@ public class GameView extends SurfaceView {
         //suspect it can be solved if I could get accurate resolution info. it seems the soft navigation keys of my AVD
         //is still encroaching on my SurfaceView. Might have to implement the SurfaceView.Callbacks.
         //for now, hardcode emulator's resolution to avoid hard crashes.
-        int screenWidth = SysUtils.isProbablyEmulator() ? AVD_TRUE_SCREEN_WIDTH : getResources().getDisplayMetrics().widthPixels;
+        int screenWidth = AVD_TRUE_SCREEN_WIDTH; //SysUtils.isProbablyEmulator() ? AVD_TRUE_SCREEN_WIDTH : getResources().getDisplayMetrics().widthPixels;
         int screenHeight = getResources().getDisplayMetrics().heightPixels;
         if(scaleFactor != 1.0f){
             screenWidth = (int) (screenWidth * scaleFactor);
@@ -59,24 +56,20 @@ public class GameView extends SurfaceView {
         return new Viewport(worldWidth, worldHeight, screenWidth, screenHeight, metersToShowX, metersToShowY);
     }
 
-    public void setVisibleObjects(final ArrayList<GameObject> gameObjects) {
-        mVisibleGameObjects = gameObjects;
-    }
-
-    public void render(){
-        if(!lockAndSetCanvas()) {
+    public void render(final ArrayList<GameObject> visibleGameObjects){
+        if(!lockAndAquireCanvas()) {
             return;
         }
         mCanvas.drawColor(BG_COLOR);
         mPaint.setColor(Color.WHITE);
-        final int numObjects = mVisibleGameObjects.size();
-        for (int i = 0; i < numObjects; i++) {
-            mVisibleGameObjects.get(i).render(mCanvas, mPaint);
+        final int numObjects = visibleGameObjects.size();
+        for (int i = 0; i < numObjects; i++) { //TODO  enchance for?
+            visibleGameObjects.get(i).render(mCanvas, mPaint);
         }
         mSurfaceHolder.unlockCanvasAndPost(mCanvas);
     }
 
-    private boolean lockAndSetCanvas() {
+    private boolean lockAndAquireCanvas() {
         if(!mSurfaceHolder.getSurface().isValid()){
             return false;
         }
@@ -84,7 +77,6 @@ public class GameView extends SurfaceView {
         return (mCanvas != null);
     }
     public void destroy(){
-        mVisibleGameObjects.clear();
         mCanvas = null;
         mSurfaceHolder = null;
         mPaint = null;

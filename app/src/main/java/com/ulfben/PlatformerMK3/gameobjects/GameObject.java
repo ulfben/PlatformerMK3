@@ -30,7 +30,6 @@ public class GameObject {
     public final RectF mBounds = new RectF(DEFAULT_LOCATION, DEFAULT_LOCATION, DEFAULT_WIDTH, DEFAULT_HEIGHT);
     private String mBitmapKey = "";
     public String mSprite = "";
-    public boolean mCanCollide = true;
 
     public GameObject(final GameEngine engine, final String sprite){
         super();

@@ -22,34 +22,25 @@ import java.util.Locale;
 
 public class GameEngine {
     private static final String TAG = "GameEngine";
-    private static final float SCALE_FACTOR = 0.5f; //< 1.0f for fullscreen scaling. 0.5 = use half resolution.
+    private static final float SCALE_FACTOR = 0.5f; //< 1.0f for fullscreen scaling. 0.5 = use half the screens' resolution.
     private static final float METERS_TO_SHOW_X = 0f; //set the value you want fixed
     private static final float METERS_TO_SHOW_Y = 9f;  //the other is calculated at runtime!
-    public  static boolean MULTITHREAD = false;
-    private static final float THREADING_TOGGLE_TIMEOUT = 2f;
-    private float mThreadingToggleTimer = 0f;
-
-    private static final Object updateLock = new Object();
-    private ArrayList<GameObject> mGameObjects = new ArrayList<GameObject>();
-    private ArrayList<GameObject> mVisibleObjects = new ArrayList<>();
-    private ArrayList<GameObject> mObjectsToAdd = new ArrayList<GameObject>();
-    private ArrayList<GameObject> mObjectsToRemove = new ArrayList<GameObject>();
-    private volatile int mVisibleObjectCount = 0;
-    public Player mPlayer = null;
-    public Viewport mCamera = null;
-    private LevelManager mLevelManager = null;
 
     private UpdateThread mUpdateThread = null;
-    private RenderThread mRenderThread = null;
     public Activity mActivity = null;
-    public GameInput mControl = null;
+
     private final GameView mGameView;
+    public LevelManager mLevelManager = null; //TODO: maybe move entity management out of the levelman
+    public Viewport mCamera = null;
+    public GameInput mControl = null;
+    private ArrayList<GameObject> mVisibleObjects = new ArrayList<>();
     private final Jukebox mJukebox;
 
     public GameEngine(final Activity a, final GameView gameView) {
         super();
         mActivity = a;
         mGameView = gameView;
+        //TODO: remove viewPort from gameView!
         mCamera = mGameView.createViewport(0f, 0f, METERS_TO_SHOW_X, METERS_TO_SHOW_Y, SCALE_FACTOR);
         mJukebox = new Jukebox(a);
         mControl = new GameInput(); //placeholder inputs
@@ -100,8 +91,11 @@ public class GameEngine {
     public void worldToScreen(final RectF worldLocation, final Point screenCord){
         mCamera.worldToScreen(worldLocation, screenCord);
     }
-    public void onGameEvent(final GameEvent e){
+    public void onGameEvent(final GameEvent e, final GameObject source){
         mJukebox.playSoundForGameEvent(e);
+        if(e == GameEvent.PlayerCoinPickup){
+            mLevelManager.removeGameObject(source);
+        }
     }
 
     public void loadLevel(final String levelName){
@@ -109,12 +103,9 @@ public class GameEngine {
             mLevelManager.destroy(); //release loaded assets
         }
         mLevelManager = new LevelManager(this, levelName);
-        mGameObjects = mLevelManager.mGameObjects;
-        mPlayer = mLevelManager.mPlayer;
-        mCamera.lookAt(mPlayer.x(), mPlayer.y());
-        mCamera.follow(mPlayer);
+        mCamera.lookAt(mLevelManager.mPlayer);
+        mCamera.follow(mLevelManager.mPlayer);
         mCamera.setBounds(getWorldWidth(), getWorldHeight());
-        mGameView.setVisibleObjects(mVisibleObjects);
     }
 
     public Jukebox getJukebox(){
@@ -132,35 +123,23 @@ public class GameEngine {
         }
         mUpdateThread = new UpdateThread(this);
         mUpdateThread.start();
-
-        //a thread object is relatively lightweight until asked to start, so I'm just going to always
-        //create the thread, even if I don't use it. This is to keep me sane while developing and
-        //flipping MULTITHREAD back and forth :P
-        mRenderThread = new RenderThread(this);
-        if(MULTITHREAD) {
-            mRenderThread.start();
-        }
         mJukebox.resumeBgMusic();
     }
 
     public void stopGame() {
-        if (mUpdateThread != null) {
-            mUpdateThread.stopThread();
-        }
-        if (mRenderThread != null && MULTITHREAD) {
-            mRenderThread.stopThread();
-        }
         if (mControl != null) {
             mControl.onStop();
         }
+        if (mUpdateThread != null) {
+            mUpdateThread.stopThread();
+        }
+        //TODO maybe stop jukebox?
+
     }
 
     public void pauseGame() {
         if (mUpdateThread != null) {
             mUpdateThread.pauseThread();
-        }
-        if (mRenderThread != null && MULTITHREAD) {
-            mRenderThread.pauseThread();
         }
         if (mControl != null) {
             mControl.onPause();
@@ -171,17 +150,14 @@ public class GameEngine {
     }
 
     public void resumeGame() {
-        if (mRenderThread != null && MULTITHREAD) {
-            mRenderThread.resumeThread();
-        }
-        if (mUpdateThread != null) {
-            mUpdateThread.resumeThread();
+        if(mJukebox != null){
+            mJukebox.resumeBgMusic();
         }
         if (mControl != null) {
             mControl.onResume();
         }
-        if(mJukebox != null){
-            mJukebox.resumeBgMusic();
+        if (mUpdateThread != null) {
+            mUpdateThread.resumeThread();
         }
     }
 
@@ -190,123 +166,59 @@ public class GameEngine {
             mJukebox.destroy();
         }
         //if(mCamera != null){mCamera.destroy();}
-        if(mPlayer != null){ mPlayer.destroy(); mPlayer = null;}
-        if(mLevelManager != null) { mLevelManager.destroy(); }
+        if(mLevelManager != null) { mLevelManager.destroy(); mLevelManager = null;}
         if(mUpdateThread != null){ mUpdateThread.stopThread(); mUpdateThread = null; }
-        if(mRenderThread != null){ mRenderThread.stopThread(); mRenderThread = null; }
         if(mControl != null){ mControl.onDestroy(); mControl = null; }
         if(mGameView != null){ mGameView.destroy(); }
-        mObjectsToAdd.clear();
-        mObjectsToRemove.clear();
-        mGameObjects.clear();
         mActivity = null;
     }
 
-    public void addGameObject(final GameObject gameObject) {
-        if (isRunning()){
-            mObjectsToAdd.add(gameObject);
-        } else {
-            addGameObjectNow(gameObject);
-        }
-    }
-    public void removeGameObject(final GameObject gameObject) {
-        mObjectsToRemove.add(gameObject);
-    }
+
 
     //called from UpdateThread
     public void onUpdate(final float dt) {
         mControl.update(dt);
         mCamera.update(dt);
-        final int numObjects = mGameObjects.size();
-        for (int i = 0; i < numObjects; i++) {
-            mGameObjects.get(i).update(dt);
-        }
-        checkCollisions();
-        addAndRemoveObjects();
-        if(!MULTITHREAD) {
-            render();
-        }
-        //checkForMaybeToggleThreading(dt);
-    }
-    public void toggleRenderThread(){
-        MULTITHREAD = !MULTITHREAD;
-        if(MULTITHREAD){
-            Log.d(TAG, "Render thread ON.");
-            mRenderThread.resumeThread();
-        }else{
-            Log.d(TAG, "Render thread OFF.");
-            mRenderThread.stopThread();
-        }
-        mThreadingToggleTimer = 0f;
+        mLevelManager.update(dt);
+        checkCollisions(mLevelManager.mGameObjects);
+        mLevelManager.addAndRemoveObjects();
+        buildVisibleSet(mLevelManager.mGameObjects, mCamera);
+        render(mVisibleObjects, mCamera); //will wait on UI thread on post
     }
 
-    private void checkForMaybeToggleThreading(final float dt){
-        if(mControl.mJump){ //hold jump for THREADING_TOGGLE_TIMEOUT to toggle threading on/off
-            mThreadingToggleTimer+=dt;
-            if(mThreadingToggleTimer > THREADING_TOGGLE_TIMEOUT){
-                toggleRenderThread();
-            }
-        }else{
-            mThreadingToggleTimer = 0f;
-        }
-    }
-
-    private void addAndRemoveObjects(){
-        GameObject temp;
-        synchronized (updateLock) {//we only lock when changing the length of our entity list.
-            while (!mObjectsToRemove.isEmpty()) {
-                temp = mObjectsToRemove.remove(0);
-                mGameObjects.remove(temp);
-            }
-            while (!mObjectsToAdd.isEmpty()) {
-                temp = mObjectsToAdd.remove(0);
-                addGameObjectNow(temp);
-            }
-        }
-    }
-
-    //called from RenderThread
-    //note that the mVisibleObjects are not *copied* from the game state, it is a list of direct refs
-    //meaning some of them might be touched (= move) by update() while being rendered.
-    //The vast majority of objects are not movable so this is generally not perceptible,
-    //except for one crucial aspect; the viewport!
-    //Ergo: I need to pass the viewport settings (by copy) into the render thread each frame.
-    //TODO: pass (a copy of) the current viewport "matrix" into render-call.
-    public void render() {
+    private void buildVisibleSet(final ArrayList<GameObject> gameObjects, final Viewport camera){
         GameObject temp;
         mVisibleObjects.clear();
-        synchronized (updateLock) {
-            final int numObjects = mGameObjects.size();
-            for (int i = 0; i < numObjects; i++) {
-                temp = mGameObjects.get(i);
-                if (mCamera.inView(temp.mBounds)) {
-                    mVisibleObjects.add(mGameObjects.get(i));
-                }
+        final int numObjects = gameObjects.size();
+        for (int i = 0; i < numObjects; i++) {
+            temp =  gameObjects.get(i);
+            if (camera.inView(temp.mBounds)) {
+                mVisibleObjects.add(temp);
             }
         }
-        mVisibleObjectCount = mVisibleObjects.size();
-        mGameView.render();
     }
 
-    private void checkCollisions() {
-        final int count = mGameObjects.size();
+    public void render(final ArrayList<GameObject> visibleObjects, final Viewport camera) {
+        mGameView.render(visibleObjects);
+    }
+
+    //checkCollisions will test all game entities against eachother.
+    //Note the offsets in these loops: [0]-[size-1] and [i+1]-[size]
+    //This ensure we never redundantly test a pair.
+    //For details, refer to my slides (10-17): https://goo.gl/po4YkK
+    private void checkCollisions(final ArrayList<GameObject> gameObjects) {
+        final int count = gameObjects.size();
         GameObject a, b;
         for(int i = 0; i < count-1; i++){
-            a = mGameObjects.get(i);
-            if(!a.mCanCollide){ continue; }
+            a = gameObjects.get(i);
             for(int j = i+1; j < count; j++){
-                b = mGameObjects.get(j);
-                if(!b.mCanCollide){ continue; }
+                b = gameObjects.get(j);
                 if(a.isColliding(b)){
                     a.onCollision(b);
                     b.onCollision(a);
                 }
             }
         }
-    }
-
-    private void addGameObjectNow(final GameObject object) {
-        mGameObjects.add(object);
     }
 
     public boolean isRunning() {
@@ -318,19 +230,16 @@ public class GameEngine {
     }
 
     //TODO: probably move this out of the GameEngine.
-    final String[] DBG_STRINGS = new String[5];
-    final static String DBG_FPS = "Frames/s: %d";
+    final String[] DBG_STRINGS = new String[4];
     final static String DBG_UPS = "Ticks/s: %d";
     final static String DBG_OBJ_RENDER_COUNT =  "Objects rendered: %d / %d";
     final static String DBG_PLAYER_INFO =  "Player: [%.2f, %.2f]";
-    final static String DBG_EMPTY_STRING = "";
     final static Locale LOCALE = Locale.getDefault();
     public String[] getDebugStrings(){
         DBG_STRINGS[0] = mCamera.toString();
-        DBG_STRINGS[1] = String.format(LOCALE, DBG_OBJ_RENDER_COUNT, mVisibleObjectCount, mGameObjects.size());
-        DBG_STRINGS[2] = String.format(LOCALE, DBG_PLAYER_INFO, mPlayer.x(), mPlayer.y());
-        DBG_STRINGS[3] = (MULTITHREAD) ? String.format(LOCALE, DBG_FPS, mRenderThread.getAverageFPS()) : DBG_EMPTY_STRING;
-        DBG_STRINGS[4] = String.format(LOCALE, DBG_UPS, mUpdateThread.getAverageFPS());
+        DBG_STRINGS[1] = String.format(LOCALE, DBG_OBJ_RENDER_COUNT, mVisibleObjects.size(),  mLevelManager.mGameObjects.size());
+        DBG_STRINGS[2] = String.format(LOCALE, DBG_PLAYER_INFO,  mLevelManager.mPlayer.x(),  mLevelManager.mPlayer.y());
+        DBG_STRINGS[3] = String.format(LOCALE, DBG_UPS, mUpdateThread.getAverageFPS());
         return DBG_STRINGS;
     }
 }

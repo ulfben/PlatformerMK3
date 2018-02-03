@@ -27,6 +27,10 @@ public class CompositeGameInput extends GameInput {
         refresh();
     }
 
+    /* Since the list length almost never changes during the application lifetime I really want to cache the value.
+    This makes it easy for child-classes to break things by forgetting to update the mCount when needed.
+    Ergo: this is not elegant, but it's a compromise I'm willing to make.
+    * */
     protected void refresh(){
         mCount = mInputs.size();
     }

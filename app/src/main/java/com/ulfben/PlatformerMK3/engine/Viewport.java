@@ -6,6 +6,8 @@ import android.graphics.RectF;
 
 import com.ulfben.PlatformerMK3.gameobjects.GameObject;
 import com.ulfben.PlatformerMK3.utilities.Utils;
+
+import java.util.Locale;
 // Created by Ulf Benjaminsson (ulfben) on 2017-02-13.
 
 public class Viewport {
@@ -68,7 +70,7 @@ public class Viewport {
         mPixelsPerMeterX = (int)(mScreenWidth / mMetersToShowX);
         mPixelsPerMeterY = (int)(mScreenHeight / mMetersToShowY);
         updateMinMaxPosition();
-        DBG_VIEWPORT = String.format("Viewport [%dpx, %dpx / %.1fm, %.1fm]", mScreenWidth, mScreenHeight, mMetersToShowX, mMetersToShowY);
+        DBG_VIEWPORT = String.format(Locale.getDefault(),"Viewport [%dpx, %dpx / %.1fm, %.1fm]", mScreenWidth, mScreenHeight, mMetersToShowX, mMetersToShowY);
     }
 
     public void setBounds(final float width, final float height){
@@ -100,6 +102,14 @@ public class Viewport {
             if(IS_BOUNDED){
                 Utils.clamp(mLookAt, mMinPosition, mMaxPosition);
             }
+        }
+    }
+
+
+    public void lookAt(final GameObject obj){
+        synchronized (mLookAt) {
+            mLookAt.x = obj.centerX();
+            mLookAt.y = obj.centerY();
         }
     }
 
