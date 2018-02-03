@@ -17,26 +17,21 @@ public class DynamicGameObject extends GameObject {
     protected float mFriction = 1.0f; //1 == no friction, 0 == no motion.
     protected boolean mIsOnGround = false;
 
-    DynamicGameObject(final GameEngine engine, final String sprite) {
-        super(engine, sprite);
-    }
-
-    DynamicGameObject(final GameEngine engine, final String sprite, float width, float height){
-        super(engine, sprite, width, height);
+    DynamicGameObject(final String sprite, float width, float height){
+        super(sprite, width, height);
     }
 
     @Override
     public void onCollision(final GameObject that){
         GameObject.getOverlap(this, that, GameObject.overlap);
         mWorldLocation.offset(GameObject.overlap.x, GameObject.overlap.y); //move us out of the collision
-        if(overlap.y != 0f){
+        if(overlap.y != 0f) {
             mTargetSpeed.y = 0f;
             mVelocity.y = 0f;
-            if(overlap.y < 0f){ //feet
+            if (overlap.y < 0f) { //feet
                 mIsOnGround = true;
             }//else if(overlap.y > 0) { //head
         }
-        updateBounds();
     }
 
     @Override
@@ -55,7 +50,6 @@ public class DynamicGameObject extends GameObject {
             final float margin = 2f;
             setPosition(Random.between(margin, mEngine.getWorldWidth()-margin), 0f);
         }
-        updateBounds();
         mIsOnGround = false; //reset ground flag every frame
     }
 

@@ -30,15 +30,15 @@ public class GameObjectFactory {
     public static GameObject makeObject(final GameEngine engine, final String sprite){
         GameObject o = null;
         if(LevelData.PLAYER.equalsIgnoreCase(sprite)) {
-            o = new Player(engine);
+            o = new Player();
         }else if(LevelData.SPEARS.equalsIgnoreCase(sprite)) {
-            o = new Spears(engine);
+            o = new Spears();
         }else if(LevelData.COIN.equalsIgnoreCase(sprite)) {
-            o = new Collectible(engine, sprite);
+            o = new Collectible(sprite);
         }else if(LevelData.WALKER.equalsIgnoreCase(sprite)) {
-            o = new Walker(engine, sprite); //trivial "AI"
+            o = new Walker(sprite); //trivial "AI"
         }else{
-            o = new GameObject(engine, sprite);
+            o = new GameObject(sprite);
         }
         return o;
     }

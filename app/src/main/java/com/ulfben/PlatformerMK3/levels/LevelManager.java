@@ -18,17 +18,15 @@ public class LevelManager {
 
     private LevelData mData = null;
     public Player mPlayer = null;
-    private GameEngine mEngine = null;
 
     public LevelManager(final GameEngine engine, final String levelName){
         super();
-        mEngine = engine;
         switch(levelName){
             default:
                 mData = new TestLevel();
                 break;
         }
-        loadMapAssets(mData);// Load all the GameObjects and Bitmaps
+        loadMapAssets(mData, engine);// Load all the GameObjects and Bitmaps
     }
 
     public void update(final float dt) {
@@ -66,7 +64,7 @@ public class LevelManager {
     public float getLevelWidth(){ return mData.mWidth; }
     public float getLevelHeight(){ return mData.mHeight; }
 
-    private void loadMapAssets(final LevelData data){
+    private void loadMapAssets(final LevelData data, final GameEngine engine){
         cleanup();
         for(int y = 0; y < data.mHeight; y++){
             final int[] row = data.getRow(y);
@@ -74,7 +72,7 @@ public class LevelManager {
                 int tileType = row[x];
                 if(tileType == LevelData.NO_TILE){ continue; }  //ignoring "background tiles"
                 addGameObject(GameObjectFactory.makeObject( //adds to temporary list, filters out null
-                                mEngine, mData.getSpriteName(tileType), x, y));
+                                engine, mData.getSpriteName(tileType), x, y));
             }
         }
         addAndRemoveObjects(); //commit the temporary list to our "live" list
@@ -94,7 +92,7 @@ public class LevelManager {
         for (final GameObject go : mGameObjects){
             go.destroy();
         }
-        if(mPlayer != null){ mPlayer.destroy(); mPlayer = null;}
+        mPlayer = null;
         mGameObjects = new ArrayList<>();
         BitmapPool.empty();
     }
@@ -105,7 +103,7 @@ public class LevelManager {
         mObjectsToRemove.clear();
         mGameObjects.clear();
         mGameObjects = null;
-        mEngine = null;
+        mData.unload();
         mData = null;
         mPlayer = null;
     }

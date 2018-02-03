@@ -47,4 +47,9 @@ public abstract class LevelData {
         mWidth = mTiles[0].length;
     }
     abstract public String getSpriteName(final int tileType);
+
+    public void unload(){
+        mTiles = null;
+    }
+
 }

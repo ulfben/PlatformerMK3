@@ -9,12 +9,11 @@ public class Walker extends DynamicGameObject {
     private static final float WALKER_HEIGHT = 0.40f;
     private float mDirection = 1f;
 
-    public Walker(final GameEngine engine, final String sprite){
-        super(engine, sprite, DEFAULT_WIDTH, WALKER_HEIGHT);
+    public Walker(final String sprite){
+        super(sprite, DEFAULT_WIDTH, WALKER_HEIGHT);
         mTargetSpeed.x = (Random.coinFlip()) ? TARGET_SPEED : -TARGET_SPEED;
         mTargetSpeed.y = 0.0f;
         mGravity = 0.0f; //no gravity for this object
-        updateBounds();
     }
 
     @Override
@@ -28,7 +27,6 @@ public class Walker extends DynamicGameObject {
         GameObject.getOverlap(this, that, GameObject.overlap);
         mDirection *= -1f; //invert direction when colliding on x
         mWorldLocation.offset(GameObject.overlap.x, 0f); //move us out of collisions on X axis
-        updateBounds();
     }
 }
 

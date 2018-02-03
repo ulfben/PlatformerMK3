@@ -42,7 +42,7 @@ public class GameView extends SurfaceView {
         mSurfaceHolder = getHolder();
     }
 
-    //TODO: probably move Viewport-creation out of the GameView
+    //TODO: move Viewport-creation out of the GameView
     public Viewport createViewport(final float worldWidth, final float worldHeight, final float metersToShowX, final float metersToShowY, final float scaleFactor){
         //WARNING: using unmodified widthPixels == AVD hard crash, on my development machine.
         //suspect it can be solved if I could get accurate resolution info. it seems the soft navigation keys of my AVD
@@ -72,7 +72,7 @@ public class GameView extends SurfaceView {
         for (int i = 0; i < numObjects; i++) {
             mTransform.reset();
             temp = visibleGameObjects.get(i);
-            camera.worldToScreen(temp.mBounds, screenCord);
+            camera.worldToScreen(temp.mWorldLocation, screenCord);
             mTransform.postTranslate(screenCord.x, screenCord.y);
             visibleGameObjects.get(i).render(mCanvas, mTransform, mPaint);
         }

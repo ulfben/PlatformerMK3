@@ -31,7 +31,7 @@ public class GameEngine {
     public Activity mActivity = null;
 
     private final GameView mGameView;
-    public LevelManager mLevelManager = null; //TODO: maybe move entity management out of the levelman
+    public LevelManager mLevelManager = null; //TODO: maybe move entity management out of the levelmanager
     public Viewport mCamera = null;
     public GameInput mControl = null;
     private ArrayList<GameObject> mVisibleObjects = new ArrayList<>();
@@ -45,6 +45,7 @@ public class GameEngine {
         mCamera = mGameView.createViewport(0f, 0f, METERS_TO_SHOW_X, METERS_TO_SHOW_Y, SCALE_FACTOR);
         mJukebox = new Jukebox(a);
         mControl = new GameInput(); //placeholder inputs
+        GameObject.mEngine = this;
         BitmapPool.init();
         BitmapUtils.init(getResources());
     }
@@ -170,6 +171,7 @@ public class GameEngine {
         if(mUpdateThread != null){ mUpdateThread.stopThread(); mUpdateThread = null; }
         if(mControl != null){ mControl.onDestroy(); mControl = null; }
         if(mGameView != null){ mGameView.destroy(); }
+        GameObject.mEngine = null;
         mActivity = null;
     }
 
@@ -201,7 +203,7 @@ public class GameEngine {
         final int numObjects = gameObjects.size();
         for (int i = 0; i < numObjects; i++) {
             temp =  gameObjects.get(i);
-            if (camera.inView(temp.mBounds)) {
+            if (camera.inView(temp.mWorldLocation, temp.mWidth, temp.mHeight)) {
                 mVisibleObjects.add(temp);
             }
         }

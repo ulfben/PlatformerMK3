@@ -29,27 +29,15 @@ public class Player extends DynamicGameObject {
     private float mDirectionChangeCooldown = 0.0f;
     private Animation mAnim = null;
 
-    public Player(final GameEngine engine) {
-        super(engine, "", PLAYER_WIDTH, PLAYER_HEIGHT);
+    public Player() {
+        super("", PLAYER_WIDTH, PLAYER_HEIGHT);
         mAcceleration.x = PLAYER_ACCELERATION_X;
         mAcceleration.y = PLAYER_ACCELERATION_Y;
         mFriction = PLAYER_FRICTION;
         mAnim = new Animation(mEngine, R.drawable.player_anim, mWidth, mHeight);
         mBitmap = mAnim.getCurrentBitmap();
-        updateBounds();
     }
 
-    @Override
-    protected void updateBounds(){
-        if(mAnim != null) {
-            mHeight = mAnim.getCurrentHeightMeters(); //scaled
-            mWidth = mAnim.getCurrentWidthMeters();
-        }
-        mBounds.left = mWorldLocation.x;
-        mBounds.top = mWorldLocation.y - mHeight;
-        mBounds.right = mWorldLocation.x + mWidth;
-        mBounds.bottom =  mBounds.top + mHeight;
-    }
 
     @Override
     public void render(final Canvas canvas, final Matrix transform, final Paint paint){
@@ -82,6 +70,8 @@ public class Player extends DynamicGameObject {
         }
         mAnim.update(dt);
         mBitmap = mAnim.getCurrentBitmap();
+        mHeight = mAnim.getCurrentHeightMeters(); //scaled
+        mWidth = mAnim.getCurrentWidthMeters();
         super.update(dt);
     }
 

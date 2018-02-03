@@ -5,22 +5,22 @@ import android.util.SparseArray;
 
 public class TestLevel extends LevelData {
     private static final String TAG = "TestLevel";
-    SparseArray<String> tileToSprite = new SparseArray<String>();
+    SparseArray<String> mTileIdToSpriteName = new SparseArray<String>();
     public TestLevel(){
         super();
-        tileToSprite.put(0, "background");
-        tileToSprite.put(1, PLAYER); //player uses animation
-        tileToSprite.put(2, "ground");
-        tileToSprite.put(3, "enemyblockiron");
-        tileToSprite.put(4, SPEARS); //spears are animated
-        tileToSprite.put(5, COIN);
-        tileToSprite.put(6, WALKER);
-        tileToSprite.put(7, "ground_right");
-        tileToSprite.put(8, "ground_left");
-        tileToSprite.put(9, "mud_square");
-        tileToSprite.put(10, "ground_round");
-        tileToSprite.put(11, "mud_right");
-        tileToSprite.put(12, "mud_left");
+        mTileIdToSpriteName.put(0, "background");
+        mTileIdToSpriteName.put(1, PLAYER); //player uses animation
+        mTileIdToSpriteName.put(2, "ground");
+        mTileIdToSpriteName.put(3, "enemyblockiron");
+        mTileIdToSpriteName.put(4, SPEARS); //spears are animated
+        mTileIdToSpriteName.put(5, COIN);
+        mTileIdToSpriteName.put(6, WALKER);
+        mTileIdToSpriteName.put(7, "ground_right");
+        mTileIdToSpriteName.put(8, "ground_left");
+        mTileIdToSpriteName.put(9, "mud_square");
+        mTileIdToSpriteName.put(10, "ground_round");
+        mTileIdToSpriteName.put(11, "mud_right");
+        mTileIdToSpriteName.put(12, "mud_left");
 
         mTiles = new int[][]{
                 {5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5},
@@ -47,11 +47,17 @@ public class TestLevel extends LevelData {
     }
 
     public String getSpriteName(final int tileType){
-        final String fileName = tileToSprite.get(tileType);
+        final String fileName = mTileIdToSpriteName.get(tileType);
         if(fileName == null){
             Log.d(TAG, "getSpriteName: Unknown tileType: " + tileType + ". Using null-sprite.");
             return NULLSPRITE;
         }
         return fileName;
+    }
+
+    @Override
+    public void unload(){
+        mTileIdToSpriteName.clear();
+        super.unload();
     }
 }
