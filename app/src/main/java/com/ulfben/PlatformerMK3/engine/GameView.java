@@ -68,13 +68,13 @@ public class GameView extends SurfaceView {
         final int numObjects = visibleGameObjects.size();
         final Point screenCord = new Point();
         final Matrix mTransform = new Matrix();
-        GameObject temp;
+        GameObject obj;
         for (int i = 0; i < numObjects; i++) {
+            obj = visibleGameObjects.get(i);
+            camera.worldToScreen(obj, screenCord);
             mTransform.reset();
-            temp = visibleGameObjects.get(i);
-            camera.worldToScreen(temp.mWorldLocation, screenCord);
             mTransform.postTranslate(screenCord.x, screenCord.y);
-            visibleGameObjects.get(i).render(mCanvas, mTransform, mPaint);
+            obj.render(mCanvas, mTransform, mPaint);
         }
         if(GameEngine.SHOW_STATS){
             DebugTextRenderer.render(mCanvas, camera, mPaint);

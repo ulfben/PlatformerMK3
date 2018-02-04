@@ -14,20 +14,20 @@ public class Spears extends GameObject {
         super("");
         mAnim = new Animation(mEngine, R.drawable.spear_anim, DEFAULT_WIDTH, 0f);
         mBitmap = mAnim.getCurrentBitmap();
-        setPosition(mWorldLocation.x, mWorldLocation.y);
-        mHeight = mAnim.getCurrentHeightMeters(); //scaled
-        mWidth = mAnim.getCurrentWidthMeters();
+        setPosition(x, y);
+        height = mAnim.getCurrentHeightMeters(); //scaled
+        width = mAnim.getCurrentWidthMeters();
     }
 
     @Override
     public void update(final float dt){
         mAnim.update(dt);
         mBitmap = mAnim.getCurrentBitmap();
-        mHeight = mAnim.getCurrentHeightMeters(); //scaled
-        mWidth = mAnim.getCurrentWidthMeters();
+        height = mAnim.getCurrentHeightMeters(); //scaled
+        width = mAnim.getCurrentWidthMeters();
         //ensure we're "bottom aligned" to our tile, even when height changes
         //assumes 1 meter per tile, and that Spears will be <1 meter tall.
-        mWorldLocation.y = mInitialPositionY + (1f-mHeight);
+        y = mInitialPositionY + (1f- height);
     }
 
     @Override
@@ -41,7 +41,7 @@ public class Spears extends GameObject {
 
     @Override
     public void setPosition(final float x, final float y){
-        mWorldLocation.x = x;
-        mInitialPositionY = y;
+        this.x = x;
+        this.mInitialPositionY = y;
     }
 }

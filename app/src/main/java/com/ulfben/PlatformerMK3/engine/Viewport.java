@@ -129,6 +129,11 @@ public class Viewport {
         screenPos.y = (int) (mScreenCenterY - ((mLookAt.y - bounds.top) * mPixelsPerMeterY));
     }
 
+    public void worldToScreen(final GameObject obj, final Point screenPos){
+        screenPos.x = (int) (mScreenCenterX - ((mLookAt.x - obj.x) * mPixelsPerMeterX));
+        screenPos.y = (int) (mScreenCenterY - ((mLookAt.y - obj.y) * mPixelsPerMeterY));
+    }
+
     public void worldToScreen(final RectF bounds, final Rect out){
         final int left = (int) (mScreenCenterX - ((mLookAt.x - bounds.left) * mPixelsPerMeterX));
         final int top = (int) (mScreenCenterY - ((mLookAt.y - bounds.top) * mPixelsPerMeterY));
@@ -154,13 +159,13 @@ public class Viewport {
                 && (bounds.top < bottom && bounds.bottom > top);
     }
 
-	public boolean inView(final PointF worldPos, final float objectWidth, final float objectHeight) {
+	public boolean inView(final GameObject obj) {
         final float maxX = (mLookAt.x + mHalfDistX);
-        final float minX = (mLookAt.x - mHalfDistX)-objectWidth;
+        final float minX = (mLookAt.x - mHalfDistX)-obj.width;
         final float maxY = (mLookAt.y + mHalfDistY);
-        final float minY  = (mLookAt.y - mHalfDistY)-objectHeight;
-        return (worldPos.x > minX && worldPos.x < maxX)
-                && (worldPos.y > minY && worldPos.y < maxY);
+        final float minY  = (mLookAt.y - mHalfDistY)-obj.height;
+        return (obj.x > minX && obj.x < maxX)
+                && (obj.y > minY && obj.y < maxY);
     }
 
     public float getHorizontalView(){ return mMetersToShowX; }

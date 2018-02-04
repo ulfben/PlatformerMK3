@@ -24,7 +24,8 @@ public class DynamicGameObject extends GameObject {
     @Override
     public void onCollision(final GameObject that){
         GameObject.getOverlap(this, that, GameObject.overlap);
-        mWorldLocation.offset(GameObject.overlap.x, GameObject.overlap.y); //move us out of the collision
+        x += GameObject.overlap.x; //move us out of the collision
+        y += GameObject.overlap.y;
         if(overlap.y != 0f) {
             mTargetSpeed.y = 0f;
             mVelocity.y = 0f;
@@ -42,11 +43,11 @@ public class DynamicGameObject extends GameObject {
         }
         if(!mIsOnGround){
             mVelocity.y += mGravity * dt;
-            mWorldLocation.y += Utils.clamp(mVelocity.y*dt, -MAX_DELTA, MAX_DELTA);
+            y += Utils.clamp(mVelocity.y*dt, -MAX_DELTA, MAX_DELTA);
         }
-        mWorldLocation.x += Utils.clamp(mVelocity.x*dt, -MAX_DELTA, MAX_DELTA);
+        x += Utils.clamp(mVelocity.x*dt, -MAX_DELTA, MAX_DELTA);
 
-        if(mWorldLocation.y > mEngine.getWorldHeight()){
+        if(y > mEngine.getWorldHeight()){
             final float margin = 2f;
             setPosition(Random.between(margin, mEngine.getWorldWidth()-margin), 0f);
         }

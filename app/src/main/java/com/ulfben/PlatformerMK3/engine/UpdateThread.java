@@ -1,5 +1,7 @@
 package com.ulfben.PlatformerMK3.engine;
 
+import android.util.Log;
+
 import com.ulfben.PlatformerMK3.utilities.FrameTimer;
 // Created by Ulf Benjaminsson (ulfben) on 2017-03-07.
 
@@ -32,15 +34,30 @@ public class UpdateThread extends Thread {
         resumeThread(); //if we are currently paused, resume so we can die.
     }
 
+
+    // Belts *and* Suspenders:
+    //A user reported NPE and OOB exceptions with the game under some circumstances.
+    //I was unable to recreate these crashes! After simplifying and cleaning up some of
+    //the suspect code-paths, I also added this try/catch around the core loop to avoid
+    //uncaught exceptions to bubble out. The game will just stop processing and wait for a quit.
     @Override
     public void run() {
-        mTimer.reset();
-        while(mIsRunning) {
-            if(mIsPaused){
-                waitUntilResumed();
+        try {
+            mTimer.reset();
+            while (mIsRunning) {
+                if (mIsPaused) {
+                    waitUntilResumed();
+                }
+                mGameEngine.onUpdate(mTimer.tick());
+                //maybeSleep(); //SurfaceView will enforce rate limiting for us in unlockCanvasAndPost
+                                //maybeSleep will be necessary GLSurfaceView though!
             }
-            mGameEngine.onUpdate(mTimer.tick());
-            //maybeSleep(); //SurfaceView will enforce rate limiting for us in unlockCanvasAndPost
+        }catch(NullPointerException npe){
+            Log.e(TAG, "NPE in core loop! " + npe.toString());
+        }catch(IndexOutOfBoundsException oob){
+            Log.e(TAG, "Out of Bounds in core loop! " + oob.toString());
+        }catch(Exception e){
+            Log.e(TAG, "Exception in core loop! " + e.toString());
         }
     }
 

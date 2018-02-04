@@ -3,26 +3,23 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Paint;
-import android.graphics.Point;
 import android.graphics.PointF;
-import android.graphics.RectF;
 
 import com.ulfben.PlatformerMK3.engine.GameEngine;
-import com.ulfben.PlatformerMK3.utilities.Axis;
 import com.ulfben.PlatformerMK3.utilities.BitmapPool;
-import com.ulfben.PlatformerMK3.utilities.BitmapUtils;
 //Created by Ulf Benjaminsson (ulfben) on 2017-02-13.
 
 public class GameObject {
+    //The engine reference is set by the engine, and must be nulled by the engine!
+    public static GameEngine mEngine;
     private static final String TAG = "GameObject";
-    public static final float DEFAULT_LOCATION = 0f;
-    public static final float DEFAULT_HEIGHT = 1f; //meters
-    public static final float DEFAULT_WIDTH = 1f;
-
-    public static GameEngine mEngine; //set by GameEngine, shared by all GameObjects
-    public final PointF mWorldLocation = new PointF(DEFAULT_LOCATION, DEFAULT_LOCATION);
-    public float mWidth = DEFAULT_WIDTH;
-    public float mHeight = DEFAULT_HEIGHT;
+    public static final float DEFAULT_LOCATION = 0f; //meters
+    public static final float DEFAULT_HEIGHT = 1f;   //meters
+    public static final float DEFAULT_WIDTH = 1f;    //meters
+    public float x = DEFAULT_LOCATION; //world location, meters!
+    public float y = DEFAULT_LOCATION;
+    public float width = DEFAULT_WIDTH;
+    public float height = DEFAULT_HEIGHT;
     protected Bitmap mBitmap = null; //We do not own the bitmap. The BitmapPool will recycle it!
 
     public GameObject(final String sprite){
@@ -36,12 +33,12 @@ public class GameObject {
     }
 
     private void init(final String sprite, float width, float height){
-        mWidth = width;
-        mHeight = height;
-        if(sprite.isEmpty()) { //some objects will want to load their own assets.
+        this.width = width;
+        this.height = height;
+        if(sprite.isEmpty()) { //some child classes will want to load their own assets.
             return;
         }
-        mBitmap = BitmapPool.createBitmap(mEngine, sprite, mWidth, mHeight);
+        mBitmap = BitmapPool.createBitmap(mEngine, sprite, this.width, this.height);
         if(mBitmap == null){
             throw new AssertionError("Failed to intitialize game object!");
         }
@@ -63,15 +60,51 @@ public class GameObject {
         return GameObject.isAABBOverlapping(this, that);
     }
 
+    //Some good reading on bounding-box intersection tests:
+    //https://gamedev.stackexchange.com/questions/586/what-is-the-fastest-way-to-work-out-2d-bounding-box-intersection
+    /*public static boolean isAABBOverlapping(final GameObject a, final GameObject b){
+        return  !(a.right() <= b.left()
+                || b.right() <= a.left()
+                || a.bottom() <= b.top()
+                || b.bottom() <= a.top());
+    }*/
+
     public static boolean isAABBOverlapping(final GameObject a, final GameObject b){
-        return !(a.right() < b.left()
-                || b.right() < a.left()
-                || a.bottom() < b.top()
-                || b.bottom() < a.top());
+        final float dx = Math.abs(a.x - b.x); //assumes top-left registration point
+        final float dy = Math.abs(a.y - b.y);
+        return  (dx < (a.width + b.width)) &&
+                (dy < (a.height+b.height));
     }
+
+    protected static final PointF overlap = new PointF(0,0); //Q&D PointF pool for collision detection. Assumes single threading.
+    public static boolean getOverlap(final GameObject a, final GameObject b, final PointF overlap) {
+        overlap.x = 0.0f;
+        overlap.y = 0.0f;
+        float dx = Math.abs(a.x - b.x); //assumes top-left registration point
+        float dy = Math.abs(a.y - b.y);
+        final float minDistX = (a.width + b.width);
+        final float minDistY = (a.height+b.height);
+        if (dx > minDistX || dy > minDistY) return false; //if either axis fails to overlap, there is no collision
+
+        dx = (minDistX - dx); //overlap on x
+        dy = (minDistY - dy); //overlap on y
+        //dx = ((a.width() + b.width()) * 0.5f) - Math.abs(a.centerX() - b.centerX()); //overlap on x
+        //dy = ((a.height() + b.height()) * 0.5f) - Math.abs(a.centerY() - b.centerY()); //overlap on y
+        if (dy < dx) {
+            overlap.y = (a.y < b.y) ? -dy : dy;
+        } else if (dy > dx) {
+            overlap.x = (a.x < b.x) ? -dx : dx;
+        } else {
+            overlap.y = (a.y < b.y) ? -dy : dy;
+            overlap.x = (a.x < b.x) ? -dx : dx;
+        }
+        return true;
+    }
+
+
     //SAT intersection test. http://www.metanetsoftware.com/technique/tutorialA.html
     //returns true on intersection, and sets the least intersecting axis in overlap
-    protected static final PointF overlap = new PointF(0,0); //Q&D PointF pool, for collision reactions
+  /*  protected static final PointF overlap = new PointF(0,0); //Q&D PointF pool for collision detection. Assumes single threading.
     public static boolean getOverlap(final GameObject a, final GameObject b, final PointF overlap) {
         overlap.x = 0.0f;
         overlap.y = 0.0f;
@@ -96,23 +129,19 @@ public class GameObject {
             overlap.y = (centerDeltaY < 0) ? -dy : dy;
         }
         return true;
-    }
+    }*/
 
-    public float x(){ return mWorldLocation.x; }
-    public float y(){ return mWorldLocation.y; }
-    public float centerX(){ return mWorldLocation.x + mWidth*0.5f; }
-    public float centerY(){ return mWorldLocation.y + mHeight*0.5f; }
-    public float width(){ return mWidth; }
-    public float height(){ return mHeight; }
-    public float left(){ return mWorldLocation.x; }
-    public float right(){ return mWorldLocation.x + mWidth; }
-    public float top(){ return mWorldLocation.y; }
-    public float bottom(){ return mWorldLocation.y + mHeight; }
+    public float x(){ return x; }
+    public float y(){ return y; }
+    public float centerX(){ return x + width *0.5f; }
+    public float centerY(){ return y + height *0.5f; }
+    public float width(){ return width; }
+    public float height(){ return height; }
+    public float left(){ return x; }
+    public float right(){ return x + width; }
+    public float top(){ return y; }
+    public float bottom(){ return y + height; }
 
    // public void offset(final float x, final float y){ mBounds.left += x; mBounds.top += y; }
-    public void setPosition(final float x, final float y){ mWorldLocation.x = x; mWorldLocation.y = y; }
-    public void setWidth(final float width) {mWidth = width; }
-    public void setHeight(final float height) {mHeight = height;}
-    public void setWidthHeight(final float w, final float h){mWidth = w; mHeight=h;}
-
+    public void setPosition(final float x, final float y){ this.x = x; this.y = y; }
 }

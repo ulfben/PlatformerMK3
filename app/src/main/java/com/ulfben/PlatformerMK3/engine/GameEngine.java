@@ -1,20 +1,15 @@
 package com.ulfben.PlatformerMK3.engine;
-import android.app.Activity;
 import android.content.Context;
-import android.content.res.Resources;
 import android.graphics.Point;
 import android.graphics.PointF;
 import android.graphics.RectF;
-import android.util.Log;
 
 import com.ulfben.PlatformerMK3.GameEvent;
 import com.ulfben.PlatformerMK3.MainActivity;
 import com.ulfben.PlatformerMK3.R;
 import com.ulfben.PlatformerMK3.gameobjects.GameObject;
-import com.ulfben.PlatformerMK3.gameobjects.Player;
 import com.ulfben.PlatformerMK3.input.Accelerometer;
 import com.ulfben.PlatformerMK3.input.ConfigurableGameInput;
-import com.ulfben.PlatformerMK3.input.GameInput;
 import com.ulfben.PlatformerMK3.input.Gamepad;
 import com.ulfben.PlatformerMK3.input.VirtualJoystick;
 import com.ulfben.PlatformerMK3.levels.LevelManager;
@@ -23,7 +18,6 @@ import com.ulfben.PlatformerMK3.utilities.BitmapPool;
 import com.ulfben.PlatformerMK3.utilities.BitmapUtils;
 
 import java.util.ArrayList;
-import java.util.Locale;
 // Created by Ulf Benjaminsson (ulfben) on 2017-03-07.
 
 public class GameEngine {
@@ -196,7 +190,8 @@ public class GameEngine {
     private void updateStats(){
         DebugTextRenderer.VISIBLE_OBJECTS = mVisibleObjects.size();
         DebugTextRenderer.TOTAL_OBJECT_COUNT = mLevelManager.mGameObjects.size();
-        DebugTextRenderer.PLAYER_POSITION = mLevelManager.mPlayer.mWorldLocation;
+        DebugTextRenderer.PLAYER_POSITION.x = mLevelManager.mPlayer.x;
+        DebugTextRenderer.PLAYER_POSITION.y = mLevelManager.mPlayer.y;
         DebugTextRenderer.FRAMERATE = mUpdateThread.getAverageFPS();
         DebugTextRenderer.CAMERA_INFO = mCamera.toString();
     }
@@ -207,7 +202,7 @@ public class GameEngine {
         final int numObjects = gameObjects.size();
         for (int i = 0; i < numObjects; i++) {
             temp =  gameObjects.get(i);
-            if (camera.inView(temp.mWorldLocation, temp.mWidth, temp.mHeight)) {
+            if (camera.inView(temp)) {
                 mVisibleObjects.add(temp);
             }
         }

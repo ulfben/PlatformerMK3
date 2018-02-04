@@ -6,8 +6,6 @@ import android.graphics.Paint;
 import com.ulfben.PlatformerMK3.Animation;
 import com.ulfben.PlatformerMK3.GameEvent;
 import com.ulfben.PlatformerMK3.R;
-import com.ulfben.PlatformerMK3.engine.GameEngine;
-import com.ulfben.PlatformerMK3.utilities.BitmapPool;
 // Created by Ulf Benjaminsson (ulfben) on 2017-02-13.
 
 public class Player extends DynamicGameObject {
@@ -34,7 +32,7 @@ public class Player extends DynamicGameObject {
         mAcceleration.x = PLAYER_ACCELERATION_X;
         mAcceleration.y = PLAYER_ACCELERATION_Y;
         mFriction = PLAYER_FRICTION;
-        mAnim = new Animation(mEngine, R.drawable.player_anim, mWidth, mHeight);
+        mAnim = new Animation(mEngine, R.drawable.player_anim, width, height);
         mBitmap = mAnim.getCurrentBitmap();
     }
 
@@ -43,7 +41,7 @@ public class Player extends DynamicGameObject {
     public void render(final Canvas canvas, final Matrix transform, final Paint paint){
         transform.preScale(mFacing, 1.0f);
         if(mFacing == RIGHT){
-            float offset = mWidth*mEngine.getPixelsPerMeterX();
+            float offset = width *mEngine.getPixelsPerMeterX();
             transform.postTranslate(offset, 0);
         }
         canvas.drawBitmap(mBitmap, transform, paint);
@@ -70,8 +68,8 @@ public class Player extends DynamicGameObject {
         }
         mAnim.update(dt);
         mBitmap = mAnim.getCurrentBitmap();
-        mHeight = mAnim.getCurrentHeightMeters(); //scaled
-        mWidth = mAnim.getCurrentWidthMeters();
+        height = mAnim.getCurrentHeightMeters(); //scaled
+        width = mAnim.getCurrentWidthMeters();
         super.update(dt);
     }
 

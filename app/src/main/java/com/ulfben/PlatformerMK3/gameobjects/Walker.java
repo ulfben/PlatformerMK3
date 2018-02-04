@@ -26,7 +26,7 @@ public class Walker extends DynamicGameObject {
     public void onCollision(final GameObject that){
         GameObject.getOverlap(this, that, GameObject.overlap);
         mDirection *= -1f; //invert direction when colliding on x
-        mWorldLocation.offset(GameObject.overlap.x, 0f); //move us out of collisions on X axis
+        x += GameObject.overlap.x; //move us out of collisions on X axis
     }
 }
 
