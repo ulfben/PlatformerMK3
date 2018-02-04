@@ -32,15 +32,26 @@ public class Jukebox {
     public static final String SOUNDS_PREF_KEY = "sounds_pref_key";
     public static final String MUSIC_PREF_KEY = "music_pref_key";
     private final SharedPreferences mPrefs;
-    public boolean mSoundEnabled = true;
-    public boolean mMusicEnabled = true;
+    public boolean mSoundEnabled = false;
+    public boolean mMusicEnabled = false;
 
     //https://developer.android.com/guide/topics/media-apps/volume-and-earphones.html
     public Jukebox(final Context context) {
         super();
         mContext = context;
         mPrefs = PreferenceManager.getDefaultSharedPreferences(context);
-        reloadAndApplySettings();
+        mSoundEnabled = mPrefs.getBoolean(SOUNDS_PREF_KEY, true);
+        mMusicEnabled = mPrefs.getBoolean(MUSIC_PREF_KEY, true);
+        loadIfNeeded();
+    }
+
+    private void loadIfNeeded(){
+        if(mSoundEnabled){
+            loadSounds();
+        }
+        if(mMusicEnabled){
+            loadMusic();
+        }
     }
 
     private void loadSounds(){
@@ -67,11 +78,11 @@ public class Jukebox {
             mBgPlayer.setVolume(DEFAULT_MUSIC_VOLUME, DEFAULT_MUSIC_VOLUME);
             mBgPlayer.prepare();
         }catch(final IOException e){
-            e.printStackTrace();
+            Log.d(TAG, e.toString());
         }
     }
     public void playSoundForGameEvent(final GameEvent event){
-        if(!mSoundEnabled){return;}
+        if(!mSoundEnabled || mSoundPool == null){return;}
         final float leftVolume = DEFAULT_SFX_VOLUME;
         final float rightVolume = DEFAULT_SFX_VOLUME;
         final int priority = 1;
@@ -85,15 +96,15 @@ public class Jukebox {
 
     public void reloadAndApplySettings(){
         mSoundEnabled = mPrefs.getBoolean(SOUNDS_PREF_KEY, true);
-        mMusicEnabled = mPrefs.getBoolean(MUSIC_PREF_KEY, true);
-        if(mSoundEnabled){
-            loadSounds();
-        }else{
+        if(mSoundEnabled && mSoundPool == null){
+            loadSounds(); //only load again if we have unloaded before.
+        } else if(!mSoundEnabled){
             unloadSounds();
         }
-        if(mMusicEnabled){
+        mMusicEnabled = mPrefs.getBoolean(MUSIC_PREF_KEY, true);
+        if(mMusicEnabled && mBgPlayer == null){
             loadMusic();
-        }else{
+        }else if(!mMusicEnabled){
             unloadMusic();
         }
     }

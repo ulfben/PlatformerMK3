@@ -160,6 +160,9 @@ public class GameEngine {
         if(mJukebox != null){
             mJukebox.reloadAndApplySettings();
         }
+        if(mControls != null){
+            mControls.reloadAndApplySettings();
+        }
     }
 
     public void resumeGame() {
@@ -201,15 +204,6 @@ public class GameEngine {
     public float getWorldHeight(){ return mLevel.getWorldHeight(); }
     public int getResolutionY(){ return mCamera.getScreenHeight(); } //our framebuffer is not tied
     public int getResolutionX(){ return mCamera.getScreenWidth(); }  //to the screens physical pixel count.
-    public boolean toggleMotionControl(){
-        return mControls.toggleMotionControl(mActivity);
-    }
-    public boolean hasMotionControl(){
-        return mControls.hasMotionControl();
-    }
-    public Jukebox getJukebox(){
-        return mJukebox;
-    }
     public boolean isRunning() {
         return mGameThread != null && mGameThread.isGameRunning();
     }

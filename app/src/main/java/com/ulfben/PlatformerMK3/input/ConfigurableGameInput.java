@@ -7,34 +7,22 @@ import android.preference.PreferenceManager;
 //extending CompositeGameInput to add a few features (persistent settings, removing inputs at runtime)
 // without ruining the relatively clean base class.
 public class ConfigurableGameInput extends CompositeGameInput {
-    private static final String ACCELEROMETER_PREF_KEY = "accelerometer_pref_key";
-    private boolean mAllowMotionControl;
+    public static final String ACCELEROMETER_PREF_KEY = "accelerometer_pref_key";
     private Accelerometer mMotionControl = null;
+    private final SharedPreferences mPrefs;
     public ConfigurableGameInput(final Context context, final GameInput... inputs) {
         super(inputs);
-
-        final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-        mAllowMotionControl = prefs.getBoolean(ACCELEROMETER_PREF_KEY, true);
-        if(!mAllowMotionControl){
-            removeAccelerometer();
-        }
+        mPrefs = PreferenceManager.getDefaultSharedPreferences(context);
+        reloadAndApplySettings();
     }
 
-    public boolean hasMotionControl(){
-        return mAllowMotionControl;
-    }
-
-    public boolean toggleMotionControl(final Context context){
-        mAllowMotionControl = !mAllowMotionControl;
-        if(!mAllowMotionControl){
+    public void reloadAndApplySettings(){
+        final boolean allowMotionControl = mPrefs.getBoolean(ACCELEROMETER_PREF_KEY, true);
+        if(!allowMotionControl){
             removeAccelerometer();
         }else if(mMotionControl != null){
             super.addInput(mMotionControl);
         }
-        PreferenceManager.getDefaultSharedPreferences(context)
-                .edit().putBoolean(ACCELEROMETER_PREF_KEY, mAllowMotionControl)
-                .apply();
-        return mAllowMotionControl;
     }
 
     public void removeAccelerometer(){

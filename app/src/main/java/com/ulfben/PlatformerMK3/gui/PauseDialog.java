@@ -7,6 +7,7 @@ import android.widget.ImageView;
 import com.ulfben.PlatformerMK3.MainActivity;
 import com.ulfben.PlatformerMK3.R;
 import com.ulfben.PlatformerMK3.engine.Jukebox;
+import com.ulfben.PlatformerMK3.input.ConfigurableGameInput;
 //Created by Ulf Benjaminsson (ulfben) on 2017-04-04.
 
 public class PauseDialog extends Dialog implements View.OnClickListener {
@@ -15,7 +16,7 @@ public class PauseDialog extends Dialog implements View.OnClickListener {
     private final SharedPreferences mPrefs;
     private boolean musicEnabled = true;
     private boolean soundEnabled = true;
-
+    private boolean allowMotionControl = true;
     public PauseDialog(final MainActivity activity, PauseDialogListener listener) {
         super(activity);
         mListener = listener;
@@ -28,6 +29,7 @@ public class PauseDialog extends Dialog implements View.OnClickListener {
         mPrefs = PreferenceManager.getDefaultSharedPreferences(activity.getApplicationContext());
         musicEnabled =  mPrefs.getBoolean(Jukebox.MUSIC_PREF_KEY, true);
         soundEnabled = mPrefs.getBoolean(Jukebox.SOUNDS_PREF_KEY, true);
+        allowMotionControl = mPrefs.getBoolean(ConfigurableGameInput.ACCELEROMETER_PREF_KEY, true);
         updateButtonStates();
     }
 
@@ -40,12 +42,8 @@ public class PauseDialog extends Dialog implements View.OnClickListener {
         btnMusic.setImageResource((musicEnabled) ? R.drawable.music_on_no_bg : R.drawable.music_off_no_bg);
         final ImageView btnSounds = (ImageView) findViewById(R.id.btn_sound);
         btnSounds.setImageResource((soundEnabled) ? R.drawable.sounds_on_no_bg : R.drawable.sounds_off_no_bg);
-
         final ImageView motionControls = (ImageView) findViewById(R.id.btn_accelerometer);
-        motionControls.setImageResource(R.drawable.ic_screen_lock_rotation_black_24dp);
-        if(mListener.hasMotionControl()){
-            motionControls.setImageResource(R.drawable.ic_screen_rotation_black_24dp);
-        }
+        motionControls.setImageResource((allowMotionControl) ? R.drawable.ic_screen_rotation_black_24dp : R.drawable.ic_screen_lock_rotation_black_24dp);
     }
 
     @Override
@@ -62,7 +60,8 @@ public class PauseDialog extends Dialog implements View.OnClickListener {
         else if (id == R.id.btn_resume) {
             dismiss();
         }else if(id == R.id.btn_accelerometer){
-            mListener.toggleMotionControl();
+            allowMotionControl = !allowMotionControl;
+            mPrefs.edit().putBoolean(ConfigurableGameInput.ACCELEROMETER_PREF_KEY, allowMotionControl).commit();
         }
         updateButtonStates();
         if (id == R.id.btn_exit) {
@@ -78,8 +77,6 @@ public class PauseDialog extends Dialog implements View.OnClickListener {
     }
 
     public interface PauseDialogListener {
-        public boolean toggleMotionControl();
-        public boolean hasMotionControl();
         void exitGame();
         void resumeGame();
     }
