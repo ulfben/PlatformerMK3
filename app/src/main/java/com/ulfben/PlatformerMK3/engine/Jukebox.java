@@ -100,7 +100,7 @@ public class Jukebox {
         }
         PreferenceManager.getDefaultSharedPreferences(mContext)
                 .edit().putBoolean(SOUNDS_PREF_KEY, mSoundEnabled)
-                .apply();
+                .commit();
     }
     public void toggleMusicStatus(){
         mMusicEnabled = !mMusicEnabled;
@@ -111,7 +111,7 @@ public class Jukebox {
         }
         PreferenceManager.getDefaultSharedPreferences(mContext)
                 .edit().putBoolean(MUSIC_PREF_KEY, mMusicEnabled)
-                .apply();
+                .commit();
     }
 
     public boolean isSoundEnabled(){
@@ -126,6 +126,7 @@ public class Jukebox {
         if(mMusicEnabled){
             unloadMusic();
         }
+        mContext = null;
     }
 
     public void pauseBgMusic(){
@@ -156,10 +157,10 @@ public class Jukebox {
     private void unloadMusic(){
         if(mBgPlayer == null) { return; }
         mBgPlayer.stop();
+        mBgPlayer.reset();
         mBgPlayer.release();
         mBgPlayer = null;
     }
-
 
     //the SoundPool API was changed in Lollipop (SDK 21) so I implement both
     //the old and new, and decorate the method to silence lint warnings.

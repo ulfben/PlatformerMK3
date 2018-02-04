@@ -41,12 +41,12 @@ public class GameEngine {
         //TODO: fix resolution settings for our framebuffer. (without crashing the AVD, preferably)
         //TODO: add app bar to application
         mCamera = mGameView.createViewport(0f, 0f, METERS_TO_SHOW_X, METERS_TO_SHOW_Y, SCALE_FACTOR);
-        mJukebox = new Jukebox(mActivity);
-        mControls = new ConfigurableGameInput(mActivity,
-                    new Gamepad( mActivity),
-                    new Accelerometer(mActivity),
-                    new VirtualJoystick(mActivity.findViewById(R.id.virtual_joystick))
-                );
+        mJukebox = new Jukebox(mActivity.getApplicationContext());
+        mControls = new ConfigurableGameInput(mActivity.getApplicationContext(),
+                            new Gamepad(mActivity),
+                            new Accelerometer(mActivity),
+                            new VirtualJoystick(mActivity.findViewById(R.id.virtual_joystick))
+                     );
         GameObject.mEngine = this; //NOTE: this reference must be nulled in onDestroy!
         loadLevel("TestLevel");
     }

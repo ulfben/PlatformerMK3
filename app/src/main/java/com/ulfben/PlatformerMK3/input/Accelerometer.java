@@ -56,6 +56,7 @@ public class Accelerometer extends GameInput {
 
     private void registerListeners() {
         final SensorManager sm = (SensorManager) mActivity.getSystemService(Activity.SENSOR_SERVICE);
+        if(sm == null){ return; }
         sm.registerListener(mAccelerometerListener,
                 sm.getDefaultSensor(Sensor.TYPE_ACCELEROMETER),
                 SensorManager.SENSOR_DELAY_GAME);
@@ -66,6 +67,7 @@ public class Accelerometer extends GameInput {
 
     private void unregisterListeners() {
         final SensorManager sm = (SensorManager) mActivity.getSystemService(Activity.SENSOR_SERVICE);
+        if(sm == null){ return; }
         sm.unregisterListener(mAccelerometerListener);
         sm.unregisterListener(mMagneticListener);
     }
@@ -79,6 +81,9 @@ public class Accelerometer extends GameInput {
     public void onStop() {
         unregisterListeners();
     }
+
+    @Override
+    public void onDestroy() { unregisterListeners(); }
 
     @Override
     public void onResume() {
