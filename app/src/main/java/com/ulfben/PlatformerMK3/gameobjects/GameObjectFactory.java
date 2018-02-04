@@ -15,8 +15,8 @@ public class GameObjectFactory {
         super();
     }
 
-    public static GameObject makeObject(final GameEngine engine, final String sprite, final float x, final float y){
-        final GameObject o = makeObject(engine, sprite);
+    public static GameObject makeObject(final String sprite, final float x, final float y){
+        final GameObject o = makeObject(sprite);
         if(o != null) {
             float offset = 0f;
             if(o.width() < 1f){
@@ -27,7 +27,7 @@ public class GameObjectFactory {
         return o;
     }
 
-    public static GameObject makeObject(final GameEngine engine, final String sprite){
+    public static GameObject makeObject(final String sprite){
         GameObject o = null;
         if(LevelData.PLAYER.equalsIgnoreCase(sprite)) {
             o = new Player();

@@ -114,38 +114,6 @@ public class MainActivity extends AppCompatActivity implements InputManager.Inpu
                 .commit();
     }
 
-    //this is so ugly that I might want to move the sound system out of the game engine and keep it in the Activity...
-    public Jukebox getJukebox(){
-        try {
-            final GameFragment fragment = (GameFragment) getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG);
-            return fragment.getJukebox();
-        }catch(final ClassCastException e){
-            Log.e(TAG, "getJukebox: accessing non-game fragment from game state.");
-        }
-        return null;
-    }
-
-    //similarly. this reaching-into-fragment-into-engine does not feel kosher.
-    public boolean toggleMotionControl(){
-        try {
-            final GameFragment fragment = (GameFragment) getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG);
-            return fragment.toggleMotionControl();
-        }catch(final ClassCastException e){
-            Log.e(TAG, "toggleMotionControl: accessing non-game fragment from game state.");
-        }
-        return false;
-    }
-
-    public boolean hasMotionControl(){
-        try {
-            final GameFragment fragment = (GameFragment) getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG);
-            return fragment.hasMotionControl();
-        }catch(final ClassCastException e){
-            Log.e(TAG, "hasMotionControl: accessing non-game fragment from game state.");
-        }
-        return false;
-    }
-
     public void setGamepadListener(final GamepadListener listener) {
         mGamepadListener = listener;
     }

@@ -48,8 +48,7 @@ public class MainMenuFragment extends BaseFragment implements View.OnClickListen
     public boolean onBackPressed() {
         boolean consumed = super.onBackPressed();
         if(!consumed){
-            final ExitDialog exitDialog = new ExitDialog(getMainActivity());
-            exitDialog.setListener(this);
+            final ExitDialog exitDialog = new ExitDialog(getMainActivity(), this);
             showDialog(exitDialog);
             consumed = true;
         }

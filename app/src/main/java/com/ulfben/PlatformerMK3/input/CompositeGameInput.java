@@ -78,4 +78,12 @@ public class CompositeGameInput extends GameInput {
             im.onResume();
         }
     }
+
+    @Override
+    public void onDestroy() {
+        for(final GameInput im : mInputs){
+            im.onDestroy();
+        }
+        mInputs.clear();
+    }
 }

@@ -20,7 +20,7 @@ import com.ulfben.PlatformerMK3.input.VirtualJoystick;
 
 public class GameFragment extends BaseFragment implements View.OnClickListener, PauseDialog.PauseDialogListener {
     private static final String TAG = "GameFragment";
-    private GameEngine mGameEngine;
+    private GameEngine mGameEngine = null;
 
     public GameFragment() {
         super();
@@ -36,35 +36,34 @@ public class GameFragment extends BaseFragment implements View.OnClickListener, 
     public void onViewCreated(final View view, final Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         final GameView gameView = view.findViewById(R.id.gameView);
-        final MainActivity activity = getMainActivity();
-        mGameEngine = new GameEngine(activity, gameView);
+        if(mGameEngine != null){
+            Log.w(TAG, "Fragment re-created without cleanup!"); //if this ever happens I want to know about it.
+            mGameEngine.onDestroy();
+        }
+        mGameEngine = new GameEngine(getMainActivity(), gameView);
         view.findViewById(R.id.btn_play_pause).setOnClickListener(this);
-        mGameEngine.loadLevel("TestLevel");
         mGameEngine.startGame();
     }
 
     @Override
     public void onClick(final View v) {
-        if (v.getId() == R.id.btn_play_pause) {
-            if (mGameEngine.isRunning()) {
-                pauseGameAndShowPauseDialog();
-            }
+        if (v.getId() == R.id.btn_play_pause && mGameEngine.isRunning()) {
+            pauseGameAndShowPauseDialog();
         }
     }
-
     @Override
     public void onPause() {
-        super.onPause();
         if (mGameEngine.isRunning()){
             pauseGameAndShowPauseDialog();
         }
+        super.onPause();
     }
 
     @Override
     public void onDestroy() {
-        super.onDestroy();
         mGameEngine.stopGame();
         mGameEngine.onDestroy();
+        super.onDestroy();
     }
 
     @Override
@@ -80,17 +79,17 @@ public class GameFragment extends BaseFragment implements View.OnClickListener, 
     }
     public void pauseGameAndShowPauseDialog() {
         mGameEngine.pauseGame();
-        final PauseDialog dialog = new PauseDialog(getMainActivity());
-        dialog.setListener(this);
+        final PauseDialog dialog = new PauseDialog(getMainActivity(), this);
         showDialog(dialog);
         updatePauseButton();
     }
 
+    // Q&D: ugly hack to let UI buttons and dialog boxes read/write game settings.
+    // TODO: figure out how to signal GameEngine from the UI and PauseDialog elements, indirectly
+    // I'm not comfortable having the UI reach through the activity -> fragment -> engine -> controls.
     public Jukebox getJukebox(){
         return mGameEngine.getJukebox();
     }
-
-    //TODO: make jukebox and other fragment-reacharound-objects parts of the Application?
     public boolean toggleMotionControl(){
         return mGameEngine.toggleMotionControl();
     }

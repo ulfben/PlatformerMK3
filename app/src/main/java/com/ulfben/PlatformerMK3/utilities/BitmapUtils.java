@@ -12,13 +12,9 @@ public class BitmapUtils {
     private static final boolean FILTER = false;
     private static final BitmapFactory.Options mOptions = new BitmapFactory.Options(); //Q&D pool
     private static final Point mDimensions = new Point(0,0); //Q&D pool
-    private static Resources RES = null;
+    public static Resources RES = null;
 
     private BitmapUtils(){super();}
-
-    public static void init(final Resources res){
-        RES = res;
-    }
 
     public static Bitmap scaleBitmap(final Bitmap bmp, final int targetWidth, final int targetHeight){
         if(targetWidth == bmp.getWidth() && targetHeight == bmp.getHeight()){
@@ -33,13 +29,6 @@ public class BitmapUtils {
         final Resources res = context.getResources();
         final int resID = res.getIdentifier(bitmapName, "drawable", context.getPackageName());
         return loadScaledBitmap(res, resID, targetWidth, targetHeight);
-    }
-
-    public static Bitmap loadScaledBitmap(final int resID, final int targetWidth, final int targetHeight) throws Exception{
-       if(BitmapUtils.RES == null){
-           throw new Exception("You have forgotten to init() BitmapUtils!");
-       }
-       return loadScaledBitmap(BitmapUtils.RES, resID, targetWidth, targetHeight);
     }
 
     //Set either of the dimensions for aspect-correct scaling, or both to force the aspect.

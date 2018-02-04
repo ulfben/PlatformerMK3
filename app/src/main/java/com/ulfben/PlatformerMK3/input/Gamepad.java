@@ -9,7 +9,7 @@ import com.ulfben.PlatformerMK3.MainActivity;
 
 public class Gamepad extends GameInput implements GamepadListener {
     private static final String TAG = "Gamepad";
-    MainActivity mActivity = null;
+    private MainActivity mActivity = null;
     public Gamepad(final MainActivity activity) {
         super();
         mActivity = activity;
@@ -23,14 +23,14 @@ public class Gamepad extends GameInput implements GamepadListener {
 
     @Override
     public void onStop() {
-        super.onStop();
         unregisterListener();
+        super.onStop();
     }
 
     @Override
     public void onPause() {
-        super.onPause();
         unregisterListener();
+        super.onPause();
     }
 
     @Override
@@ -52,9 +52,7 @@ public class Gamepad extends GameInput implements GamepadListener {
 
     @Override
     public void onDestroy(){
-        if(mActivity != null) {
-            mActivity.setGamepadListener(null);
-        }
+        unregisterListener();
         mActivity = null;
     }
 

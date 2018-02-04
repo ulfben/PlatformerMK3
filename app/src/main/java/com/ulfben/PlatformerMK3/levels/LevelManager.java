@@ -10,23 +10,28 @@ import com.ulfben.PlatformerMK3.utilities.BitmapPool;
 import java.util.ArrayList;
 
 //Created by Ulf Benjaminsson (ulfben) on 2017-02-13.
+//the LevelManager parses LevelData and uses a GameObjectFactory
+//to create all necessary GameObjects and position them in the world.
+//After construction it holds a list of all GameObjects (including the player-object)
+
 public class LevelManager {
     private static final String TAG = "LevelManager";
+
     public ArrayList<GameObject> mGameObjects = new ArrayList<>();
+    public Player mPlayer = null;
+
+    private LevelData mData = null;
     private ArrayList<GameObject> mObjectsToAdd = new ArrayList<>();
     private ArrayList<GameObject> mObjectsToRemove = new ArrayList<>();
 
-    private LevelData mData = null;
-    public Player mPlayer = null;
-
-    public LevelManager(final GameEngine engine, final String levelName){
+    public LevelManager(final String levelName){
         super();
         switch(levelName){
             default:
                 mData = new TestLevel();
                 break;
         }
-        loadMapAssets(mData, engine);// Load all the GameObjects and Bitmaps
+        loadMapAssets(mData);
     }
 
     public void update(final float dt) {
@@ -48,7 +53,7 @@ public class LevelManager {
                 mGameObjects.add(temp);
             }
         }catch(Exception e){ //this should never happen.
-            Log.e(TAG, "addAndRemoveObjects is missbehaving.");
+            Log.e(TAG, "addAndRemoveObjects is misbehaving.");
             mObjectsToRemove = new ArrayList<>(); //empty and recreate
             mObjectsToAdd = new ArrayList<>(); //for good measure.
         }
@@ -61,18 +66,17 @@ public class LevelManager {
         if(object != null) { mObjectsToRemove.add(object); }
     }
 
-    public float getLevelWidth(){ return mData.mWidth; }
-    public float getLevelHeight(){ return mData.mHeight; }
+    public float getWorldWidth(){ return mData.mWidth; }
+    public float getWorldHeight(){ return mData.mHeight; }
 
-    private void loadMapAssets(final LevelData data, final GameEngine engine){
+    private void loadMapAssets(final LevelData data){
         cleanup();
         for(int y = 0; y < data.mHeight; y++){
             final int[] row = data.getRow(y);
             for(int x = 0; x < row.length; x++) {
                 int tileType = row[x];
                 if(tileType == LevelData.NO_TILE){ continue; }  //ignoring "background tiles"
-                addGameObject(GameObjectFactory.makeObject( //adds to temporary list, filters out null
-                                engine, mData.getSpriteName(tileType), x, y));
+                addGameObject(GameObjectFactory.makeObject(mData.getSpriteName(tileType), x, y)); //adds to temporary list, filters out any null-values (which should never happen)
             }
         }
         addAndRemoveObjects(); //commit the temporary list to our "live" list
@@ -102,7 +106,6 @@ public class LevelManager {
         mObjectsToAdd.clear();
         mObjectsToRemove.clear();
         mGameObjects.clear();
-        mGameObjects = null;
         mData.unload();
         mData = null;
         mPlayer = null;

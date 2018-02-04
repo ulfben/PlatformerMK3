@@ -1,6 +1,7 @@
 package com.ulfben.PlatformerMK3.input;
 // Created by Ulf Benjaminsson (ulfben) on 2017-02-14.
 
+import com.ulfben.PlatformerMK3.utilities.Utils;
 public class GameInput {
     public static final float MIN = -1.0f;
     public static final float MAX = 1.0f;
@@ -10,16 +11,8 @@ public class GameInput {
     public boolean mJump = false;
 
     protected void clampInputs(){
-        if(mVerticalFactor < MIN){
-            mVerticalFactor = MIN;
-        }else if(mVerticalFactor > MAX){
-            mVerticalFactor = MAX;
-        }
-        if(mHorizontalFactor < MIN){
-            mHorizontalFactor = MIN;
-        }else if(mHorizontalFactor > MAX){
-            mHorizontalFactor = MAX;
-        }
+        mVerticalFactor = Utils.clamp(mVerticalFactor, MIN, MAX);
+        mHorizontalFactor = Utils.clamp(mHorizontalFactor, MIN, MAX);
     }
     public void update(final float dt) {}
 

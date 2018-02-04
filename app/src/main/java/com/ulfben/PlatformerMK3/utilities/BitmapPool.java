@@ -10,16 +10,12 @@ public class BitmapPool {
     private static HashMap<String, Bitmap> mBitmaps = new HashMap<>();
     private BitmapPool(){super();}
 
-    public static void init(){
-        empty();
-    }
-
     public static Bitmap createBitmap(final GameEngine engine, final String sprite, float widthMeters, float heightMeters){
         final String key = BitmapPool.makeKey(sprite, widthMeters, heightMeters);
         Bitmap bmp = BitmapPool.getBitmap(key);
         if(bmp == null){
             try {
-                bmp = BitmapUtils.loadScaledBitmap(engine.getResourceID(sprite), (int)engine.worldToScreen(widthMeters, Axis.X), (int)engine.worldToScreen(heightMeters, Axis.Y));
+                bmp = BitmapUtils.loadScaledBitmap(engine.getContext(), sprite, (int)engine.worldToScreen(widthMeters, Axis.X), (int)engine.worldToScreen(heightMeters, Axis.Y));
                 BitmapPool.put(key, bmp);
             }catch(final Exception e){
                 e.printStackTrace();

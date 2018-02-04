@@ -62,64 +62,33 @@ public class GameObject {
 
     //Some good reading on bounding-box intersection tests:
     //https://gamedev.stackexchange.com/questions/586/what-is-the-fastest-way-to-work-out-2d-bounding-box-intersection
-    /*public static boolean isAABBOverlapping(final GameObject a, final GameObject b){
+    public static boolean isAABBOverlapping(final GameObject a, final GameObject b){
         return  !(a.right() <= b.left()
                 || b.right() <= a.left()
                 || a.bottom() <= b.top()
                 || b.bottom() <= a.top());
-    }*/
-
-    public static boolean isAABBOverlapping(final GameObject a, final GameObject b){
-        final float dx = Math.abs(a.x - b.x); //assumes top-left registration point
-        final float dy = Math.abs(a.y - b.y);
-        return  (dx < (a.width + b.width)) &&
-                (dy < (a.height+b.height));
     }
-
-    protected static final PointF overlap = new PointF(0,0); //Q&D PointF pool for collision detection. Assumes single threading.
-    public static boolean getOverlap(final GameObject a, final GameObject b, final PointF overlap) {
-        overlap.x = 0.0f;
-        overlap.y = 0.0f;
-        float dx = Math.abs(a.x - b.x); //assumes top-left registration point
-        float dy = Math.abs(a.y - b.y);
-        final float minDistX = (a.width + b.width);
-        final float minDistY = (a.height+b.height);
-        if (dx > minDistX || dy > minDistY) return false; //if either axis fails to overlap, there is no collision
-
-        dx = (minDistX - dx); //overlap on x
-        dy = (minDistY - dy); //overlap on y
-        //dx = ((a.width() + b.width()) * 0.5f) - Math.abs(a.centerX() - b.centerX()); //overlap on x
-        //dy = ((a.height() + b.height()) * 0.5f) - Math.abs(a.centerY() - b.centerY()); //overlap on y
-        if (dy < dx) {
-            overlap.y = (a.y < b.y) ? -dy : dy;
-        } else if (dy > dx) {
-            overlap.x = (a.x < b.x) ? -dx : dx;
-        } else {
-            overlap.y = (a.y < b.y) ? -dy : dy;
-            overlap.x = (a.x < b.x) ? -dx : dx;
-        }
-        return true;
-    }
-
 
     //SAT intersection test. http://www.metanetsoftware.com/technique/tutorialA.html
     //returns true on intersection, and sets the least intersecting axis in overlap
-  /*  protected static final PointF overlap = new PointF(0,0); //Q&D PointF pool for collision detection. Assumes single threading.
+    protected static final PointF overlap = new PointF(0,0); //Q&D PointF pool for collision detection. Assumes single threading.
     public static boolean getOverlap(final GameObject a, final GameObject b, final PointF overlap) {
         overlap.x = 0.0f;
         overlap.y = 0.0f;
         final float centerDeltaX = a.centerX() - b.centerX();
         final float halfWidths = (a.width() + b.width()) * 0.5f;
+        float dx = Math.abs(centerDeltaX);//cache the abs, we need it twice
 
-        if (Math.abs(centerDeltaX) > halfWidths) return false; //no overlap on x == no collision
+        if (dx > halfWidths) return false; //no overlap on x == no collision
 
         final float centerDeltaY = a.centerY() - b.centerY();
         final float halfHeights = (a.height() + b.height()) * 0.5f;
+        float dy = Math.abs(centerDeltaY);
 
-        if (Math.abs(centerDeltaY) > halfHeights) return false; //no overlap on y == no collision
+        if (dy > halfHeights) return false; //no overlap on y == no collision
 
-        final float dx = halfWidths - Math.abs(centerDeltaX); //overlap on x
-        final float dy = halfHeights - Math.abs(centerDeltaY); //overlap on y
+        dx = halfWidths - dx; //overlap on x
+        dy = halfHeights - dy; //overlap on y
         if (dy < dx) {
             overlap.y = (centerDeltaY < 0) ? -dy : dy;
         } else if (dy > dx) {
@@ -129,12 +98,12 @@ public class GameObject {
             overlap.y = (centerDeltaY < 0) ? -dy : dy;
         }
         return true;
-    }*/
+    }
 
     public float x(){ return x; }
     public float y(){ return y; }
-    public float centerX(){ return x + width *0.5f; }
-    public float centerY(){ return y + height *0.5f; }
+    public float centerX(){ return x + width*0.5f; }
+    public float centerY(){ return y + height*0.5f; }
     public float width(){ return width; }
     public float height(){ return height; }
     public float left(){ return x; }

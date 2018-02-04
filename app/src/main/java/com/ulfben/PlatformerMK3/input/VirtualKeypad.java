@@ -18,21 +18,21 @@ public class VirtualKeypad extends GameInput implements View.OnTouchListener {
     public boolean onTouch(final View v, final MotionEvent event) {
         final int action = event.getActionMasked();
         final int id = v.getId();
-        if(action == MotionEvent.ACTION_DOWN){
-            if(id == R.id.keypad_up){
+        if (action == MotionEvent.ACTION_DOWN) {
+            if (id == R.id.keypad_up) {
                 mVerticalFactor -= 1;
-            }else if (id == R.id.keypad_down) {
+            } else if (id == R.id.keypad_down) {
                 mVerticalFactor += 1;
             }
             if (id == R.id.keypad_left) {
                 mHorizontalFactor -= 1;
-            } else if(id == R.id.keypad_right) {
+            } else if (id == R.id.keypad_right) {
                 mHorizontalFactor += 1;
             }
             if (id == R.id.keypad_jump) {
                 mJump = true;
             }
-        } else if(action == MotionEvent.ACTION_UP) {
+        } else if (action == MotionEvent.ACTION_UP) {
             if (id == R.id.keypad_up) {
                 mVerticalFactor += 1;
             } else if (id == R.id.keypad_down) {

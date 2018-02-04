@@ -5,19 +5,17 @@ import android.util.Log;
 import com.ulfben.PlatformerMK3.utilities.FrameTimer;
 // Created by Ulf Benjaminsson (ulfben) on 2017-03-07.
 
-public class UpdateThread extends Thread {
-    private static final String TAG = "UpdateThread";
+public class GameThread extends Thread {
+    private static final String TAG = "GameThread";
     private final GameEngine mGameEngine;
     private volatile boolean mIsRunning = true;
     private volatile boolean mIsPaused = false;
-    private static final Object mLock = new Object();
+    private static final Object mLock = new Object(); //used
     private final FrameTimer mTimer = new FrameTimer();
-    private static final long FPS_CAP = 90;
+    private static final long FPS_CAP = 60;
     private static final long TARGET_FRAMETIME = (FrameTimer.SECOND_IN_NANOSECONDS / FPS_CAP);
 
-
-    //TODO: consider throwing out the thread pausing. Just create a new thread on resume?
-    public UpdateThread(final GameEngine gameEngine) {
+    public GameThread(final GameEngine gameEngine) {
         super();
         mGameEngine = gameEngine;
     }
@@ -34,30 +32,16 @@ public class UpdateThread extends Thread {
         resumeThread(); //if we are currently paused, resume so we can die.
     }
 
-
-    // Belts *and* Suspenders:
-    //A user reported NPE and OOB exceptions with the game under some circumstances.
-    //I was unable to recreate these crashes! After simplifying and cleaning up some of
-    //the suspect code-paths, I also added this try/catch around the core loop to avoid
-    //uncaught exceptions to bubble out. The game will just stop processing and wait for a quit.
     @Override
     public void run() {
-        try {
-            mTimer.reset();
-            while (mIsRunning) {
-                if (mIsPaused) {
-                    waitUntilResumed();
-                }
-                mGameEngine.onUpdate(mTimer.tick());
-                //maybeSleep(); //SurfaceView will enforce rate limiting for us in unlockCanvasAndPost
-                                //maybeSleep will be necessary GLSurfaceView though!
+        mTimer.reset();
+        while (mIsRunning) {
+            mGameEngine.tick(mTimer.tick());
+            //maybeSleep(); //SurfaceView.unlockCanvasAndPost will enforce rate limiting for us
+                            //when we render to a GLSurfaceView  we will need maybeSleep though!
+            if (mIsPaused) { //pause at end of frame, so if we are waking up only to shut down
+                waitUntilResumed(); //we don't execute another frame unnecessarily.
             }
-        }catch(NullPointerException npe){
-            Log.e(TAG, "NPE in core loop! " + npe.toString());
-        }catch(IndexOutOfBoundsException oob){
-            Log.e(TAG, "Out of Bounds in core loop! " + oob.toString());
-        }catch(Exception e){
-            Log.e(TAG, "Exception in core loop! " + e.toString());
         }
     }
 
