@@ -152,13 +152,19 @@ public class GameEngine {
 
     public void pauseGame() {
         if (mGameThread != null) { mGameThread.pauseThread(); } //pause thread first!
-        if(mControls != null) { mControls.onPause(); }
-        if(mJukebox != null){ mJukebox.pauseBgMusic(); }
+        if (mControls != null) { mControls.onPause(); }
+        if (mJukebox != null){ mJukebox.pauseBgMusic(); }
+    }
+
+    public void reloadPreferences(){
+        if(mJukebox != null){
+            mJukebox.reloadAndApplySettings();
+        }
     }
 
     public void resumeGame() {
-        if(mJukebox != null){ mJukebox.resumeBgMusic(); }
-        if(mControls != null){ mControls.onResume(); }
+        if (mJukebox != null){ mJukebox.resumeBgMusic(); }
+        if (mControls != null){ mControls.onResume(); }
         if (mGameThread != null) { mGameThread.resumeThread(); } //resume thread last!
     }
 

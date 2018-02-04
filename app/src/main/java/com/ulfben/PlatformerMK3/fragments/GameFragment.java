@@ -87,9 +87,6 @@ public class GameFragment extends BaseFragment implements View.OnClickListener, 
     // Q&D: ugly hack to let UI buttons and dialog boxes read/write game settings.
     // TODO: figure out how to signal GameEngine from the UI and PauseDialog elements, indirectly
     // I'm not comfortable having the UI reach through the  fragment -> engine -> controls.
-    public Jukebox getJukebox(){
-        return mGameEngine.getJukebox();
-    }
     public boolean toggleMotionControl(){
         return mGameEngine.toggleMotionControl();
     }
@@ -112,6 +109,7 @@ public class GameFragment extends BaseFragment implements View.OnClickListener, 
     }
 
     public void resumeGame() {
+        mGameEngine.reloadPreferences();
         mGameEngine.resumeGame();
         updatePauseButton();
     }

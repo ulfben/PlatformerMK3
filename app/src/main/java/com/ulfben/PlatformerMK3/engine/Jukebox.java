@@ -29,29 +29,20 @@ public class Jukebox {
     private MediaPlayer mBgPlayer = null;
     private HashMap<GameEvent, Integer> mSoundsMap = null;
 
-    private static final String SOUNDS_PREF_KEY = "sounds_pref_key";
-    private static final String MUSIC_PREF_KEY = "music_pref_key";
-    public boolean mSoundEnabled;
-    public boolean mMusicEnabled;
+    public static final String SOUNDS_PREF_KEY = "sounds_pref_key";
+    public static final String MUSIC_PREF_KEY = "music_pref_key";
+    private final SharedPreferences mPrefs;
+    public boolean mSoundEnabled = true;
+    public boolean mMusicEnabled = true;
 
     //https://developer.android.com/guide/topics/media-apps/volume-and-earphones.html
     public Jukebox(final Context context) {
         super();
         mContext = context;
-        final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-        mSoundEnabled = prefs.getBoolean(SOUNDS_PREF_KEY, true);
-        mMusicEnabled = prefs.getBoolean(MUSIC_PREF_KEY, true);
-        loadIfNeeded();
+        mPrefs = PreferenceManager.getDefaultSharedPreferences(context);
+        reloadAndApplySettings();
     }
 
-    private void loadIfNeeded(){
-        if(mSoundEnabled){
-            loadSounds();
-        }
-        if(mMusicEnabled){
-            loadMusic();
-        }
-    }
     private void loadSounds(){
         createSoundPool();
         mSoundsMap = new HashMap<GameEvent, Integer>();
@@ -91,33 +82,21 @@ public class Jukebox {
             mSoundPool.play(soundID, leftVolume, rightVolume, priority, loop, rate);
         }
     }
-    public void toggleSoundStatus(){
-        mSoundEnabled = !mSoundEnabled;
+
+    public void reloadAndApplySettings(){
+        mSoundEnabled = mPrefs.getBoolean(SOUNDS_PREF_KEY, true);
+        mMusicEnabled = mPrefs.getBoolean(MUSIC_PREF_KEY, true);
         if(mSoundEnabled){
             loadSounds();
         }else{
             unloadSounds();
         }
-        PreferenceManager.getDefaultSharedPreferences(mContext)
-                .edit().putBoolean(SOUNDS_PREF_KEY, mSoundEnabled)
-                .commit();
-    }
-    public void toggleMusicStatus(){
-        mMusicEnabled = !mMusicEnabled;
         if(mMusicEnabled){
             loadMusic();
         }else{
             unloadMusic();
         }
-        PreferenceManager.getDefaultSharedPreferences(mContext)
-                .edit().putBoolean(MUSIC_PREF_KEY, mMusicEnabled)
-                .commit();
     }
-
-    public boolean isSoundEnabled(){
-        return mSoundEnabled;
-    }
-    public boolean ismMusicEnabled(){ return mMusicEnabled; }
 
     public void destroy(){
         if(mSoundEnabled){
