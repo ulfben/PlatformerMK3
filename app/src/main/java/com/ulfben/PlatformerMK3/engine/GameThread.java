@@ -10,7 +10,7 @@ public class GameThread extends Thread {
     private final GameEngine mGameEngine;
     private volatile boolean mIsRunning = true;
     private volatile boolean mIsPaused = false;
-    private static final Object mLock = new Object(); //used
+    private static final Object mLock = new Object();
     private final FrameTimer mTimer = new FrameTimer();
     private static final long FPS_CAP = 60;
     private static final long TARGET_FRAMETIME = (FrameTimer.SECOND_IN_NANOSECONDS / FPS_CAP);

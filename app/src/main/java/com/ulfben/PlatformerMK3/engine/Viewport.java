@@ -15,7 +15,7 @@ public class Viewport {
     private static final float EASE_Y = 0.25f; //move faster on the shorter axis, so the player never falls out of view
     private PointF mMaxPosition = new PointF(Float.MAX_VALUE, Float.MAX_VALUE);
     private PointF mMinPosition = new PointF(-Float.MIN_VALUE, -Float.MIN_VALUE);
-    private static boolean IS_BOUNDED = false;
+    private boolean mIsBounded = false;
     private float mWorldWidth = Float.MAX_VALUE;
     private float mWorldHeight = Float.MAX_VALUE;
     private int mScreenWidth;
@@ -36,10 +36,12 @@ public class Viewport {
     // You can provide both or only one of the metersToShow arguments.
     // By setting one to 0, Viewport will calculate the optimal distance
     // based on the aspect ratio of screenWidth and screenHeight.
-    public Viewport(final float worldWidth, final float worldHeight, final int screenWidth, final int screenHeight, final float metersToShowX, final float metersToShowY){
+    public Viewport(final int screenWidth, final int screenHeight, final float metersToShowX, final float metersToShowY){
         super();
-        mWorldWidth = worldWidth;
-        mWorldHeight = worldHeight;
+        reset(screenWidth, screenHeight, metersToShowX, metersToShowY);
+    }
+
+    public void reset(final int screenWidth, final int screenHeight, final float metersToShowX, final float metersToShowY){
         mScreenWidth = screenWidth;
         mScreenHeight = screenHeight;
         mScreenCenterX = mScreenWidth / 2;
@@ -65,8 +67,8 @@ public class Viewport {
                 mMetersToShowY = ((float) mScreenHeight / mScreenWidth) * metersToShowX;
             }
         }
-        mHalfDistX = (mMetersToShowX+BUFFER) / 2f;
-        mHalfDistY = (mMetersToShowY+BUFFER) / 2f;
+        mHalfDistX = (mMetersToShowX+BUFFER) * 0.5f;
+        mHalfDistY = (mMetersToShowY+BUFFER) * 0.5f;
         mPixelsPerMeterX = (int)(mScreenWidth / mMetersToShowX);
         mPixelsPerMeterY = (int)(mScreenHeight / mMetersToShowY);
         updateMinMaxPosition();
@@ -74,20 +76,20 @@ public class Viewport {
     }
 
     public void setBounds(final float width, final float height){
-        IS_BOUNDED = true;
+        mIsBounded = true;
         mWorldWidth = width;
         mWorldHeight = height;
         updateMinMaxPosition();
     }
 
     private void updateMinMaxPosition(){
-        if(!IS_BOUNDED) {
+        if(!mIsBounded) {
             return;
         }
-        mMinPosition.x = (mMetersToShowX/2f);
-        mMinPosition.y = (mMetersToShowY/2);
-        mMaxPosition.x = mWorldWidth-(mMetersToShowX/2);
-        mMaxPosition.y = mWorldHeight-(mMetersToShowY/2);
+        mMinPosition.x = (mMetersToShowX*0.5f);
+        mMinPosition.y = (mMetersToShowY*0.5f);
+        mMaxPosition.x = mWorldWidth-(mMetersToShowX*0.5f);
+        mMaxPosition.y = mWorldHeight-(mMetersToShowY*0.5f);
     }
 
     public void follow(final GameObject go){
@@ -99,7 +101,7 @@ public class Viewport {
             mLookAt.x += (mTarget.centerX() - mLookAt.x) * EASE_X;
             mLookAt.y += (mTarget.centerY() - mLookAt.y) * EASE_Y;
         }
-        if(IS_BOUNDED){
+        if(mIsBounded){
             Utils.clamp(mLookAt, mMinPosition, mMaxPosition);
         }
     }

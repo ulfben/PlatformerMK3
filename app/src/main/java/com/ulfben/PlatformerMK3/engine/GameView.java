@@ -5,11 +5,11 @@ import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Point;
-import android.graphics.PointF;
 import android.util.AttributeSet;
-import android.util.Log;
+import android.util.DisplayMetrics;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
+import android.view.WindowManager;
 
 import com.ulfben.PlatformerMK3.gameobjects.GameObject;
 
@@ -17,13 +17,16 @@ import java.util.ArrayList;
 
 // Created by Ulf Benjaminsson (ulfben) on 2017-02-12.
 
-public class GameView extends SurfaceView {
+public class GameView extends SurfaceView{
     private static final String TAG = "GameView";
-    private static final int AVD_TRUE_SCREEN_WIDTH = 1920; //q&d, see createViewport
     private static final int BG_COLOR = Color.rgb(135,206,235);//sky blue
+    public static final int DEFAULT_WIDTH = 1920;
+    public static final int DEFAULT_HEIGHT = 1280;
     private Canvas mCanvas = null;
     private SurfaceHolder mSurfaceHolder = null;
     private Paint mPaint = null;
+    private int fixedWidth = 0;
+    private int fixedHeight = 0;
 
     public GameView(final Context context) {
         super(context);
@@ -42,47 +45,76 @@ public class GameView extends SurfaceView {
         mSurfaceHolder = getHolder();
     }
 
-    //TODO: move Viewport-creation out of the GameView
-    public Viewport createViewport(final float worldWidth, final float worldHeight, final float metersToShowX, final float metersToShowY, final float scaleFactor){
-        //WARNING: using unmodified widthPixels == AVD hard crash, on my development machine.
-        //suspect it can be solved if I could get accurate resolution info. it seems the soft navigation keys of my AVD
-        //is still encroaching on my SurfaceView. Might have to implement the SurfaceView.Callbacks.
-        //for now, hardcode emulator's resolution to avoid hard crashes.
-        int screenWidth = AVD_TRUE_SCREEN_WIDTH; //SysUtils.isProbablyEmulator() ? AVD_TRUE_SCREEN_WIDTH : getResources().getDisplayMetrics().widthPixels;
-        int screenHeight = getResources().getDisplayMetrics().heightPixels;
-        if(scaleFactor != 1.0f){
-            screenWidth = (int) (screenWidth * scaleFactor);
-            screenHeight = (int) (screenHeight * scaleFactor);
-            mSurfaceHolder.setFixedSize(screenWidth, screenHeight);
+    //getSafeWidth / getSafeHeight will always return a reasonable number, even if the surface hasn't been created yet.
+    // they return either SurfaceView.getWidth() or  DefaultDisplay.widthPixels or DEFAULT_WIDTH
+    //I need this so I don't have to deal with two lifecycles (the Application/GameEngine and the SurfaceView)
+    //the can simply start with the place-holder values, and once the Holder.callbacks starts coming
+    //the engine will switch over to the most up-to-date and correct values.
+    public int getSafeWidth(){
+        int width = getWidth();
+        if(width > 0){ return width; }
+
+        DisplayMetrics metrics = new DisplayMetrics();
+        WindowManager wm = (WindowManager) getContext().getSystemService(Context.WINDOW_SERVICE);
+        if(wm != null){
+            wm.getDefaultDisplay().getMetrics(metrics);
         }
-        Log.i(TAG, "createViewport: " + screenWidth +" : " +screenHeight + " Scale factor: " + scaleFactor);
-        return new Viewport(worldWidth, worldHeight, screenWidth, screenHeight, metersToShowX, metersToShowY);
+        if(metrics.widthPixels > 0) { return metrics.widthPixels; }
+        return DEFAULT_WIDTH;
+    }
+
+    public int getSafeHeight(){
+        int height = getHeight();
+        if(height > 0){ return height;}
+
+        DisplayMetrics metrics = new DisplayMetrics();
+        WindowManager wm = (WindowManager) getContext().getSystemService(Context.WINDOW_SERVICE);
+        if(wm != null){
+            wm.getDefaultDisplay().getMetrics(metrics);
+        }
+        if(metrics.heightPixels > 0){ return metrics.heightPixels; }
+        return DEFAULT_HEIGHT;
+    }
+
+    //Render to a fixed-size buffer and then scale on the GPU
+    // is recommended practice for games on Android:
+    //https://android-developers.googleblog.com/2013/09/using-hardware-scaler-for-performance.html
+    public void setFixedSize(int bufferWidth, int bufferHeight){
+        fixedWidth = bufferWidth;
+        fixedHeight = bufferHeight;
+        if(fixedWidth > 0 && fixedHeight > 0) {
+            mSurfaceHolder.setFixedSize(fixedWidth, fixedHeight);
+        }
     }
 
     public void render(final ArrayList<GameObject> visibleGameObjects, final Viewport camera){
-        if(!lockAndAquireCanvas()) {
+        if(!lockAndAcquireCanvas()) {
             return;
         }
-        mCanvas.drawColor(BG_COLOR);
-        mPaint.setColor(Color.WHITE);
-        final int numObjects = visibleGameObjects.size();
-        final Point screenCord = new Point();
-        final Matrix mTransform = new Matrix();
-        GameObject obj;
-        for (int i = 0; i < numObjects; i++) {
-            obj = visibleGameObjects.get(i);
-            camera.worldToScreen(obj, screenCord);
-            mTransform.reset();
-            mTransform.postTranslate(screenCord.x, screenCord.y);
-            obj.render(mCanvas, mTransform, mPaint);
+        try {
+            mCanvas.drawColor(BG_COLOR);
+            mPaint.setColor(Color.WHITE);
+            final int numObjects = visibleGameObjects.size();
+            final Point screenCord = new Point();
+            final Matrix mTransform = new Matrix();
+            GameObject obj;
+            for (int i = 0; i < numObjects; i++) {
+                obj = visibleGameObjects.get(i);
+                camera.worldToScreen(obj, screenCord);
+                mTransform.reset();
+                mTransform.postTranslate(screenCord.x, screenCord.y);
+                obj.render(mCanvas, mTransform, mPaint);
+            }
+            if (GameEngine.SHOW_STATS) {
+                DebugTextRenderer.render(mCanvas, camera, mPaint);
+            }
+        } finally { //Belt and Suspenders! Make sure we unlock the canvas no matter what happened during rendering.
+            if(mCanvas != null) {
+                mSurfaceHolder.unlockCanvasAndPost(mCanvas);
+            }
         }
-        if(GameEngine.SHOW_STATS){
-            DebugTextRenderer.render(mCanvas, camera, mPaint);
-        }
-        mSurfaceHolder.unlockCanvasAndPost(mCanvas);
     }
-
-    private boolean lockAndAquireCanvas() {
+    private boolean lockAndAcquireCanvas() {
         if(!mSurfaceHolder.getSurface().isValid()){
             return false;
         }

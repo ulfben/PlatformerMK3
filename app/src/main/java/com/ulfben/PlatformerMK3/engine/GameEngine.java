@@ -1,6 +1,7 @@
 package com.ulfben.PlatformerMK3.engine;
 import android.content.Context;
 import android.util.Log;
+import android.view.SurfaceHolder;
 
 import com.ulfben.PlatformerMK3.GameEvent;
 import com.ulfben.PlatformerMK3.MainActivity;
@@ -12,35 +13,34 @@ import com.ulfben.PlatformerMK3.input.Gamepad;
 import com.ulfben.PlatformerMK3.input.VirtualJoystick;
 import com.ulfben.PlatformerMK3.levels.LevelManager;
 import com.ulfben.PlatformerMK3.utilities.Axis;
-import com.ulfben.PlatformerMK3.utilities.BitmapPool;
 
 import java.util.ArrayList;
 // Created by Ulf Benjaminsson (ulfben) on 2017-03-07.
 
-public class GameEngine {
+public class GameEngine implements SurfaceHolder.Callback{
     private static final String TAG = "GameEngine";
     public static final boolean SHOW_STATS = true; //print useful stats to screen during game play
-    private static final float SCALE_FACTOR = 0.5f; // we render to a framebuffer and scale it to fit the display. 0.5 = use half the screens' resolution.
+    private static final float SCALE_FACTOR = 0.5f; // we render to buffer 0.5x the resolution of the physical screen.
+        //and use the GPU to fill the screen with it. This is recommended practice: https://android-developers.googleblog.com/2013/09/using-hardware-scaler-for-performance.html
     private static final float METERS_TO_SHOW_X = 0f; //set the value you want fixed
     private static final float METERS_TO_SHOW_Y = 9f;  //the other is calculated at runtime!
 
     private GameThread mGameThread = null;
     private MainActivity mActivity;
     private GameView mGameView;
-    public LevelManager mLevel = null;
-    public Viewport mCamera = null;
+    private LevelManager mLevel = null;
+    private Viewport mCamera;
     public ConfigurableGameInput mControls;
     private ArrayList<GameObject> mVisibleObjects = new ArrayList<>();
     private final Jukebox mJukebox;
+    private boolean mIsSurfaceInitialized = false;
 
+    //TODO: figure out what to do with the app bar
+    //TODO: decide if you want to keep rotation. If so; sort out serialization of the game state...
     public GameEngine(final MainActivity a, final GameView gameView) {
         super();
         mActivity = a;
         mGameView = gameView;
-        //TODO: move viewPort from gameView!
-        //TODO: fix resolution settings for our framebuffer. (without crashing the AVD, preferably)
-        //TODO: add app bar to application
-        mCamera = mGameView.createViewport(0f, 0f, METERS_TO_SHOW_X, METERS_TO_SHOW_Y, SCALE_FACTOR);
         mJukebox = new Jukebox(mActivity.getApplicationContext());
         mControls = new ConfigurableGameInput(mActivity.getApplicationContext(),
                             new Gamepad(mActivity),
@@ -48,7 +48,23 @@ public class GameEngine {
                             new VirtualJoystick(mActivity.findViewById(R.id.virtual_joystick))
                      );
         GameObject.mEngine = this; //NOTE: this reference must be nulled in onDestroy!
+        mGameView.getHolder().addCallback(this); //call onFirstSurfaceChange as soon as the SurfaceView is available.
+    }
+
+    private void onFirstSurfaceChange(int frameBufferWidth, int frameBufferHeight){
+        mCamera = createViewport(frameBufferWidth, frameBufferHeight, METERS_TO_SHOW_X, METERS_TO_SHOW_Y);
         loadLevel("TestLevel");
+        startGame();
+    }
+
+    private Viewport createViewport(int frameBufferWidth, int frameBufferHeight, float metersToShowX, float metersToShowY){
+        Viewport camera = new Viewport(frameBufferWidth, frameBufferHeight, metersToShowX, metersToShowY);
+        if(mLevel != null) {
+            camera.lookAt(mLevel.mPlayer);
+            camera.follow(mLevel.mPlayer);
+            camera.setBounds(mLevel.getWorldWidth(), mLevel.getWorldHeight());
+        }
+        return camera;
     }
 
     public void loadLevel(final String levelName){
@@ -56,12 +72,15 @@ public class GameEngine {
             mLevel.destroy(); //release loaded assets
         }
         mLevel = new LevelManager(levelName);
-        mCamera.lookAt(mLevel.mPlayer);
-        mCamera.follow(mLevel.mPlayer);
-        mCamera.setBounds(mLevel.getWorldWidth(), mLevel.getWorldHeight());
+        if(mCamera != null) {
+            mCamera.lookAt(mLevel.mPlayer);
+            mCamera.follow(mLevel.mPlayer);
+            mCamera.setBounds(mLevel.getWorldWidth(), mLevel.getWorldHeight());
+        }
     }
 
     public void startGame() {
+        Log.d(TAG, "startGame");
         stopGame(); // Stop a game if it is already running.
         mControls.onStart();
         mJukebox.resumeBgMusic();
@@ -223,5 +242,35 @@ public class GameEngine {
         DebugTextRenderer.PLAYER_POSITION.y = mLevel.mPlayer.y;
         DebugTextRenderer.FRAMERATE = mGameThread.getAverageFPS();
         DebugTextRenderer.CAMERA_INFO = mCamera.toString();
+    }
+
+    @Override
+    public void surfaceCreated(final SurfaceHolder holder) {
+        Log.d(TAG, "surfaceCreated");
+    }
+
+    @Override
+    public void surfaceChanged(final SurfaceHolder holder, final int format, final int width, final int height) {
+        Log.d(TAG, "surfaceChanged: " + width +" : "+height);
+        if(mIsSurfaceInitialized){return;}
+        if(width > 0 && height > 0){
+            int frameBufferWidth = (int) (width * SCALE_FACTOR);
+            int frameBufferHeight = (int) (height * SCALE_FACTOR);
+            if(SCALE_FACTOR != 1.0f){
+                Log.d(TAG, "setFixedSize: " + frameBufferWidth +" : "+frameBufferHeight);
+                mGameView.setFixedSize(frameBufferWidth, frameBufferHeight);
+            }
+            mIsSurfaceInitialized = true;
+            onFirstSurfaceChange(frameBufferWidth, frameBufferHeight);
+        }
+    }
+
+    @Override
+    public void surfaceDestroyed(final SurfaceHolder holder) {
+        Log.d(TAG, "surfaceDestroyed");
+        if(mGameThread == null){ return; } //GameView won't touch the surface if it's gone,
+        while(!mGameThread.isGamePaused()){ //so this is redundant. But let's follow the letter of the law
+            mGameThread.pauseThread();      // https://goo.gl/VrjXRW
+        }
     }
 }

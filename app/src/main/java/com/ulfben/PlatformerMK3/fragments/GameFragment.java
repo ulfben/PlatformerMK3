@@ -42,7 +42,6 @@ public class GameFragment extends BaseFragment implements View.OnClickListener, 
         }
         mGameEngine = new GameEngine(getMainActivity(), gameView);
         view.findViewById(R.id.btn_play_pause).setOnClickListener(this);
-        mGameEngine.startGame();
     }
 
     @Override
