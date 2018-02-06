@@ -4,6 +4,7 @@ import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.PointF;
+import android.util.Log;
 
 import com.ulfben.PlatformerMK3.engine.GameEngine;
 import com.ulfben.PlatformerMK3.utilities.BitmapPool;
@@ -21,6 +22,7 @@ public class GameObject {
     public float width = DEFAULT_WIDTH;
     public float height = DEFAULT_HEIGHT;
     protected Bitmap mBitmap = null; //We do not own the bitmap. The BitmapPool will recycle it!
+    private String mSprite ="";
 
     public GameObject(final String sprite){
         super();
@@ -35,12 +37,20 @@ public class GameObject {
     private void init(final String sprite, float width, float height){
         this.width = width;
         this.height = height;
+        mSprite = sprite;
         if(sprite.isEmpty()) { //some child classes will want to load their own assets.
             return;
         }
-        mBitmap = BitmapPool.createBitmap(mEngine, sprite, this.width, this.height);
+        resampleSprite();
+    }
+
+    public void resampleSprite(){
+        if(mBitmap != null) {
+            BitmapPool.remove(mBitmap);
+        }
+        mBitmap = BitmapPool.createBitmap(mEngine, mSprite, width, height);
         if(mBitmap == null){
-            throw new AssertionError("Failed to intitialize game object!");
+            Log.e(TAG, "Failed to create game object bitmap! Sprite: " + mSprite);
         }
     }
 

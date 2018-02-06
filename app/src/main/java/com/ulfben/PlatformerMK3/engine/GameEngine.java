@@ -33,10 +33,15 @@ public class GameEngine implements SurfaceHolder.Callback{
     public ConfigurableGameInput mControls;
     private ArrayList<GameObject> mVisibleObjects = new ArrayList<>();
     private final Jukebox mJukebox;
-    private boolean mIsSurfaceInitialized = false;
+    private boolean mCameraNeedsUpdating = false;
+    private int mSurfaceChangeCount = 0;
+    private int frameBufferWidth = 1280; //will be adjusted by surface
+    private int frameBufferHeight = 720;
 
     //TODO: figure out what to do with the app bar
-    //TODO: decide if you want to keep rotation. If so; sort out serialization of the game state...
+    //TODO: add rotation-toggle to the action-bar
+    //TODO: fix game startup procedure to avoid redundant resampling of assets (eg. wait for surface to "stabilize")
+    //TODO: teach viewport to always scale on shortest axis (eg. METERS_TO_SHOW_ON_SHORTEST_AXIS)
     public GameEngine(final MainActivity a, final GameView gameView) {
         super();
         mActivity = a;
@@ -48,40 +53,45 @@ public class GameEngine implements SurfaceHolder.Callback{
                             new VirtualJoystick(mActivity.findViewById(R.id.virtual_joystick))
                      );
         GameObject.mEngine = this; //NOTE: this reference must be nulled in onDestroy!
-        mGameView.getHolder().addCallback(this); //call onFirstSurfaceChange as soon as the SurfaceView is available.
-    }
-
-    private void onFirstSurfaceChange(int frameBufferWidth, int frameBufferHeight){
-        mCamera = createViewport(frameBufferWidth, frameBufferHeight, METERS_TO_SHOW_X, METERS_TO_SHOW_Y);
+        mGameView.getHolder().addCallback(this);
         loadLevel("TestLevel");
         startGame();
     }
 
-    private Viewport createViewport(int frameBufferWidth, int frameBufferHeight, float metersToShowX, float metersToShowY){
-        Viewport camera = new Viewport(frameBufferWidth, frameBufferHeight, metersToShowX, metersToShowY);
-        if(mLevel != null) {
-            camera.lookAt(mLevel.mPlayer);
-            camera.follow(mLevel.mPlayer);
-            camera.setBounds(mLevel.getWorldWidth(), mLevel.getWorldHeight());
+    private boolean buildViewport(int frameBufferWidth, int frameBufferHeight, float metersToShowX, float metersToShowY){
+        mCameraNeedsUpdating = false; //reset the flag
+        if(mCamera != null && (mCamera.getScreenWidth() == frameBufferWidth && mCamera.getScreenHeight() == frameBufferHeight)){
+            Log.d(TAG, "Viewport is already at the correct resolution. No action taken.");
+            return false;//false alarm - the camera already matches the framebuffer.
         }
-        return camera;
+        Log.d(TAG, "Building viewport for: " + frameBufferWidth +" : "+frameBufferHeight);
+        mCamera = new Viewport(frameBufferWidth, frameBufferHeight, metersToShowX, metersToShowY);
+        updateCameraTargetAndBounds();
+        return true;
     }
 
     public void loadLevel(final String levelName){
         if(mLevel != null){
             mLevel.destroy(); //release loaded assets
+            mLevel = null;
+        }
+        if(mCamera == null || mCameraNeedsUpdating){ //the LevelManager need the viewport to know the correct pixel density (pixels-per-meter)
+            buildViewport(frameBufferWidth, frameBufferHeight, METERS_TO_SHOW_X, METERS_TO_SHOW_Y);
         }
         mLevel = new LevelManager(levelName);
-        if(mCamera != null) {
-            mCamera.lookAt(mLevel.mPlayer);
-            mCamera.follow(mLevel.mPlayer);
-            mCamera.setBounds(mLevel.getWorldWidth(), mLevel.getWorldHeight());
-        }
+        updateCameraTargetAndBounds();
+    }
+
+    private void updateCameraTargetAndBounds(){
+        if(mCamera == null || mLevel == null){ return; }
+        mCamera.lookAt(mLevel.mPlayer);
+        mCamera.follow(mLevel.mPlayer);
+        mCamera.setBounds(mLevel.getWorldWidth(), mLevel.getWorldHeight());
     }
 
     public void startGame() {
         Log.d(TAG, "startGame");
-        stopGame(); // Stop a game if it is already running.
+        stopGame(); // Stop the gamethread if it is already running.
         mControls.onStart();
         mJukebox.resumeBgMusic();
         mGameThread = new GameThread(this);
@@ -104,6 +114,13 @@ public class GameEngine implements SurfaceHolder.Callback{
 
     private void input(final float dt){
         mControls.update(dt);
+        if(mCameraNeedsUpdating){
+           final boolean didChange = buildViewport(frameBufferWidth, frameBufferHeight, METERS_TO_SHOW_X, METERS_TO_SHOW_Y);
+           if (didChange && mLevel != null) {
+                Log.d(TAG, "Viewport updated. Reloading all bitmaps.");
+                mLevel.reloadBitmaps();
+           }
+        }
     }
 
     private void update(final float dt){
@@ -247,21 +264,19 @@ public class GameEngine implements SurfaceHolder.Callback{
     @Override
     public void surfaceCreated(final SurfaceHolder holder) {
         Log.d(TAG, "surfaceCreated");
+        mSurfaceChangeCount = 0;
     }
 
     @Override
     public void surfaceChanged(final SurfaceHolder holder, final int format, final int width, final int height) {
-        Log.d(TAG, "surfaceChanged: " + width +" : "+height);
-        if(mIsSurfaceInitialized){return;}
-        if(width > 0 && height > 0){
-            int frameBufferWidth = (int) (width * SCALE_FACTOR);
-            int frameBufferHeight = (int) (height * SCALE_FACTOR);
-            if(SCALE_FACTOR != 1.0f){
-                Log.d(TAG, "setFixedSize: " + frameBufferWidth +" : "+frameBufferHeight);
-                mGameView.setFixedSize(frameBufferWidth, frameBufferHeight);
-            }
-            mIsSurfaceInitialized = true;
-            onFirstSurfaceChange(frameBufferWidth, frameBufferHeight);
+        mSurfaceChangeCount++;
+        Log.d(TAG, "surfaceChanged (" + mSurfaceChangeCount + "): " + width +" : "+height);
+        if(width != frameBufferWidth || height != frameBufferHeight){ //avoid infinite callbacks
+            frameBufferWidth = (int) (width * SCALE_FACTOR);
+            frameBufferHeight = (int) (height * SCALE_FACTOR);
+            Log.d(TAG, "setFixedSize: " + frameBufferWidth +" : "+frameBufferHeight);
+            mGameView.setFixedSize(frameBufferWidth, frameBufferHeight); //generates new callback
+            mCameraNeedsUpdating = true; //flag so the gamethread knows to resample all bitmaps
         }
     }
 

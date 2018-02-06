@@ -29,11 +29,28 @@ public class Animation {
     private int mElapsedTime = 0;
     private volatile int mCurrentFrame = 0; //read by both the update and render-thread
     private float mPlaybackRate = DEFAULT_PLAYBACK_RATE;
+    private final int mResourceID;
+    private final float mWidthMeters; //original measures, so we can resample if need be
+    private final float mHeightMeters;
 
     public Animation(final GameEngine engine, final int resourceID, final float width, final float height){
         super();
         mEngine = engine;
-        prepareAnimation(resourceID, width, height);
+        mResourceID = resourceID;
+        mWidthMeters = width;
+        mHeightMeters = height;
+        resampleSprites();
+    }
+
+    public void resampleSprites(){
+        int elapsed = mElapsedTime; //save elapsed time before (re)loading the animation
+        destroy(); //clears out everything
+        prepareAnimation(mResourceID, mWidthMeters, mHeightMeters); //(re)builds everything
+        mElapsedTime = elapsed; //restore our current frame
+        if(!mIsOneShot && elapsed == 0) { //but if we were starting from 0, and is a repeating anim
+            mElapsedTime = Random.nextInt(mDuration); //randomize the first start position.
+        }
+        updateCurrentFrame();
     }
 
     public Bitmap getCurrentBitmap(){
@@ -77,17 +94,14 @@ public class Animation {
         updateCurrentFrame();
     }
 
-    private void prepareAnimation(final int resourceID, final float width, final float height){
+    private void prepareAnimation(final int resourceID, final float widthMeters, final float heightMeters){
         final AnimationDrawable anim = (AnimationDrawable) ContextCompat.getDrawable(mEngine.getContext(), resourceID);
         mFrameCount = anim.getNumberOfFrames();
         mDuration = getAnimationLengthMillis(anim);
         mElapsedTime = 0;
         mIsOneShot = anim.isOneShot();
-        if(!mIsOneShot) {
-            mElapsedTime = Random.nextInt(mDuration); //randomize start of animation.
-        }
         final String spriteName = "Anim_"+resourceID+"_";
-        mFrames = prepareAnimation(anim, spriteName, (int) mEngine.worldToScreen(width, Axis.X), (int) mEngine.worldToScreen(height, Axis.Y));
+        mFrames = prepareAnimation(anim, spriteName, (int) mEngine.worldToScreen(widthMeters, Axis.X), (int) mEngine.worldToScreen(heightMeters, Axis.Y));
         mFrameHeights = getAnimationFrameHeights(mFrames);
         mFrameWidths = getAnimationFrameWidths(mFrames);
         mFrameTimesMillis = getAnimationFrameTimes(anim);
@@ -111,14 +125,14 @@ public class Animation {
         return widths;
     }
 
-    public static Bitmap[] prepareAnimation(final AnimationDrawable anim, final String sprite, final int width, final int height){
+    public static Bitmap[] prepareAnimation(final AnimationDrawable anim, final String sprite, final int widthPixels, final int heightPixels){
         final int frameCount = anim.getNumberOfFrames();
         final Bitmap[] frames = new Bitmap[frameCount];
         String key = "";
         for (int i = 0; i< frameCount; i++) {
-            key = BitmapPool.makeKey(sprite+i, width, height);
+            key = BitmapPool.makeKey(sprite+i, widthPixels, heightPixels);
             if(!BitmapPool.contains(key)){
-                BitmapPool.put(key, BitmapUtils.scaleBitmap(((BitmapDrawable) anim.getFrame(i)).getBitmap(), width, height));
+                BitmapPool.put(key, BitmapUtils.scaleBitmap(((BitmapDrawable) anim.getFrame(i)).getBitmap(), widthPixels, heightPixels));
             }
             frames[i] = BitmapPool.getBitmap(key);
         }
@@ -146,7 +160,7 @@ public class Animation {
     public void destroy(){
         if(mFrames != null){
             for (final Bitmap b : mFrames){
-                b.recycle();
+                BitmapPool.remove(b);
             }
         }
         mFrames = null;

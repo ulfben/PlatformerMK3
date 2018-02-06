@@ -13,8 +13,19 @@ public class Spears extends GameObject {
     public Spears(){
         super("");
         mAnim = new Animation(mEngine, R.drawable.spear_anim, DEFAULT_WIDTH, 0f);
-        mBitmap = mAnim.getCurrentBitmap();
         setPosition(x, y);
+        refreshSprite();
+    }
+
+    public void resampleSprite(){
+        if(mAnim != null){
+            mAnim.resampleSprites();
+        }
+        refreshSprite();
+    }
+
+    private void refreshSprite(){
+        mBitmap = mAnim.getCurrentBitmap();
         height = mAnim.getCurrentHeightMeters(); //scaled
         width = mAnim.getCurrentWidthMeters();
     }
@@ -36,6 +47,7 @@ public class Spears extends GameObject {
             mAnim.destroy();
             mAnim = null;
         }
+        mBitmap = null; //cleaned out by mAnim
         super.destroy();
     }
 

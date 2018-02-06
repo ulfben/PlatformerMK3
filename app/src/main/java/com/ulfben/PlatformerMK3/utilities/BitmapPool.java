@@ -46,22 +46,25 @@ public class BitmapPool {
         return mBitmaps.get(key);
     }
     public static String getKey(final Bitmap bmp){
-        for (HashMap.Entry<String, Bitmap> entry : mBitmaps.entrySet()) {
-            if(bmp == entry.getValue()){
-                return entry.getKey();
+        if(bmp != null) {
+            for (HashMap.Entry<String, Bitmap> entry : mBitmaps.entrySet()) {
+                if (bmp == entry.getValue()) {
+                    return entry.getKey();
+                }
             }
         }
         return "";
     }
-    public static void removeBitmap(final String key){
+    public static void remove(final String key){
         Bitmap tmp = mBitmaps.get(key);
         if(tmp != null){
             mBitmaps.remove(key);
             tmp.recycle();
         }
     }
-    public static void removeBitmap(Bitmap bmp){
-        removeBitmap(getKey(bmp));
+    public static void remove(Bitmap bmp){
+        if(bmp == null){return;}
+        remove(getKey(bmp));
     }
     public static void empty(){
         for (final HashMap.Entry<String, Bitmap> entry : mBitmaps.entrySet()) {

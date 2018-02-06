@@ -6,6 +6,7 @@ import android.graphics.Paint;
 import com.ulfben.PlatformerMK3.Animation;
 import com.ulfben.PlatformerMK3.GameEvent;
 import com.ulfben.PlatformerMK3.R;
+import com.ulfben.PlatformerMK3.utilities.BitmapPool;
 // Created by Ulf Benjaminsson (ulfben) on 2017-02-13.
 
 public class Player extends DynamicGameObject {
@@ -33,9 +34,22 @@ public class Player extends DynamicGameObject {
         mAcceleration.y = PLAYER_ACCELERATION_Y;
         mFriction = PLAYER_FRICTION;
         mAnim = new Animation(mEngine, R.drawable.player_anim, width, height);
-        mBitmap = mAnim.getCurrentBitmap();
+        refreshSprite();
     }
 
+    @Override
+    public void resampleSprite(){
+        if(mAnim != null){
+            mAnim.resampleSprites();
+        }
+        refreshSprite();
+    }
+
+    private void refreshSprite(){
+        mBitmap = mAnim.getCurrentBitmap();
+        height = mAnim.getCurrentHeightMeters(); //scaled
+        width = mAnim.getCurrentWidthMeters();
+    }
 
     @Override
     public void render(final Canvas canvas, final Matrix transform, final Paint paint){
@@ -67,11 +81,11 @@ public class Player extends DynamicGameObject {
             mEngine.onGameEvent(GameEvent.PlayerJump, this);
         }
         mAnim.update(dt);
-        mBitmap = mAnim.getCurrentBitmap();
-        height = mAnim.getCurrentHeightMeters(); //scaled
-        width = mAnim.getCurrentWidthMeters();
+        refreshSprite();
         super.update(dt);
     }
+
+
 
     private void updateFacingDirection(final float controlDirection, final float dt){
         mDirectionChangeCooldown -= dt;
@@ -97,6 +111,7 @@ public class Player extends DynamicGameObject {
             mAnim.destroy();
             mAnim = null;
         }
+        mBitmap = null; //cleaned out by the animation
         super.destroy();
     }
 }

@@ -83,6 +83,13 @@ public class LevelManager {
         mPlayer = findPlayerInstance();
     }
 
+    //necessary if the gamecamera or surfaceview changes (= updates the number of pixels-per-meter)
+    public void reloadBitmaps(){
+        for (final GameObject go : mGameObjects){
+            go.resampleSprite();
+        }
+    }
+
     private Player findPlayerInstance(){
         for (final GameObject go : mGameObjects){
             if(Player.class.isInstance(go)){
