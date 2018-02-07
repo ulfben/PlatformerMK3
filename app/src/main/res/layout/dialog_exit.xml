@@ -33,6 +33,7 @@
             android:nextFocusLeft="@+id/btn_exit"
             android:nextFocusForward="@+id/btn_exit"
             android:nextFocusRight="@+id/btn_exit"
+            android:contentDescription="@string/resume"
             android:focusable="true"/>
 
         <ImageView
@@ -42,6 +43,7 @@
             android:nextFocusLeft="@+id/btn_resume"
             android:nextFocusRight="@+id/btn_resume"
             android:src="@drawable/ic_exit_to_app_black_24dp"
+            android:contentDescription="@string/exit"
             android:focusable="true"/>
     </LinearLayout>
     <LinearLayout
@@ -65,7 +67,6 @@
             android:id="@+id/lbl_exit"
             android:layout_width="@dimen/btn_round_size"
             android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
             android:text="@string/exit"
             android:textAlignment="center"
             android:gravity="center"

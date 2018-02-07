@@ -76,8 +76,6 @@ public class VirtualJoystickView extends View {
 
     //TODO: project correctly within radius
     public void touchMove(final float x, final float y, final float horizontalFactor, final float verticalFactor){
-        final float dx = x-mX;
-        final float dy = y-mY;
         final float newX = mX + (mRadius * horizontalFactor);
         final float newY = mY + (mRadius * verticalFactor);
         mNub.reset();

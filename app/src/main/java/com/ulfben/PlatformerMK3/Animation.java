@@ -15,9 +15,9 @@ import com.ulfben.PlatformerMK3.utilities.Utils;
 
 public class Animation {
     private static final String TAG = "Animation";
-    public final float MAX_PLAYBACK_RATE = 2.0f;
-    public final float MIN_PLAYBACK_RATE = 0f;
-    public final float DEFAULT_PLAYBACK_RATE = 1f;
+    private final float MAX_PLAYBACK_RATE = 2.0f;
+    private final float MIN_PLAYBACK_RATE = 0f;
+    private final float DEFAULT_PLAYBACK_RATE = 1f;
     private final GameEngine mEngine;
     private Bitmap[] mFrames = null;
     private float[] mFrameHeights = null; //pixels
@@ -107,7 +107,7 @@ public class Animation {
         mFrameTimesMillis = getAnimationFrameTimes(anim);
     }
 
-    public static float[] getAnimationFrameHeights(final Bitmap[] frames){
+    private static float[] getAnimationFrameHeights(final Bitmap[] frames){
         final int frameCount = frames.length;
         final float[] heights = new float[frameCount];
         for (int i = 0; i < frameCount; i++) {
@@ -116,7 +116,7 @@ public class Animation {
         }
         return heights;
     }
-    public static float[] getAnimationFrameWidths(final Bitmap[] frames){
+    private static float[] getAnimationFrameWidths(final Bitmap[] frames){
         final int frameCount = frames.length;
         final float[] widths = new float[frameCount];
         for (int i = 0; i < frameCount; i++) {
@@ -125,10 +125,10 @@ public class Animation {
         return widths;
     }
 
-    public static Bitmap[] prepareAnimation(final AnimationDrawable anim, final String sprite, final int widthPixels, final int heightPixels){
+    private static Bitmap[] prepareAnimation(final AnimationDrawable anim, final String sprite, final int widthPixels, final int heightPixels){
         final int frameCount = anim.getNumberOfFrames();
         final Bitmap[] frames = new Bitmap[frameCount];
-        String key = "";
+        String key;
         for (int i = 0; i< frameCount; i++) {
             key = BitmapPool.makeKey(sprite+i, widthPixels, heightPixels);
             if(!BitmapPool.contains(key)){
@@ -139,7 +139,7 @@ public class Animation {
         return frames;
     }
 
-    public static int[] getAnimationFrameTimes(final AnimationDrawable anim){
+    private static int[] getAnimationFrameTimes(final AnimationDrawable anim){
         final int count = anim.getNumberOfFrames();
         final int[] frameTimes = new int[count];
         for (int i = 0; i < count; i++) {
@@ -148,7 +148,7 @@ public class Animation {
         return frameTimes;
     }
 
-    public static int getAnimationLengthMillis(final AnimationDrawable anim){
+    private static int getAnimationLengthMillis(final AnimationDrawable anim){
         int length = 0;
         final int count = anim.getNumberOfFrames();
         for (int i = 0; i< count; i++) {

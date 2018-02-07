@@ -2,7 +2,7 @@ package com.ulfben.PlatformerMK3.utilities;
 //Created by Ulf Benjaminsson (ulfben) on 2017-04-02.
 
 public class Random {
-    public final static java.util.Random RNG = new java.util.Random();
+    private final static java.util.Random RNG = new java.util.Random();
     private Random(){super();}
 
     public static boolean coinFlip(){

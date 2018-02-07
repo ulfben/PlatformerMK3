@@ -1,11 +1,6 @@
 package com.ulfben.PlatformerMK3.gameobjects;
-import android.graphics.Bitmap;
 
-import com.ulfben.PlatformerMK3.engine.GameEngine;
 import com.ulfben.PlatformerMK3.levels.LevelData;
-import com.ulfben.PlatformerMK3.utilities.Axis;
-import com.ulfben.PlatformerMK3.utilities.BitmapPool;
-import com.ulfben.PlatformerMK3.utilities.BitmapUtils;
 // Created by Ulf Benjaminsson (ulfben) on 2017-03-29.
 
 public class GameObjectFactory {
@@ -27,8 +22,8 @@ public class GameObjectFactory {
         return o;
     }
 
-    public static GameObject makeObject(final String sprite){
-        GameObject o = null;
+    private static GameObject makeObject(final String sprite){
+        GameObject o;
         if(LevelData.PLAYER.equalsIgnoreCase(sprite)) {
             o = new Player();
         }else if(LevelData.SPEARS.equalsIgnoreCase(sprite)) {

@@ -2,10 +2,10 @@ package com.ulfben.PlatformerMK3.utilities;
 // Created by Ulf Benjaminsson (ulfben) on 2017-02-12.
 
 public class FrameTimer {
-    public static long SECOND_IN_NANOSECONDS = 1000000000;
-    public static long MILLISECOND_IN_NANOSECONDS = 1000000;
-    public static float NANOSECONDS_TO_MILLISECONDS = 1.0f / MILLISECOND_IN_NANOSECONDS;
-    public static float NANOSECONDS_TO_SECONDS = 1.0f / SECOND_IN_NANOSECONDS;
+    public static final long SECOND_IN_NANOSECONDS = 1000000000;
+    public static final long MILLISECOND_IN_NANOSECONDS = 1000000;
+    public static final float NANOSECONDS_TO_MILLISECONDS = 1.0f / MILLISECOND_IN_NANOSECONDS;
+    private static final float NANOSECONDS_TO_SECONDS = 1.0f / SECOND_IN_NANOSECONDS;
 
     private static final long SAMPLE_INTERVAL = (long) (SECOND_IN_NANOSECONDS/2);
     private long mStartFrameTime = 0;
@@ -26,8 +26,8 @@ public class FrameTimer {
         mNanosCount = 0;
     }
 
-    //we call this whenever the gameplay has been paused
-    //to avoid spikes in the deltatime
+    //we call this whenever the game play has been paused
+    //to avoid spikes in the delta time
     public void onResume(){
         mStartFrameTime = System.nanoTime();
     }

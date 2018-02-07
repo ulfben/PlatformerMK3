@@ -5,7 +5,7 @@ import android.util.SparseArray;
 
 public class TestLevel extends LevelData {
     private static final String TAG = "TestLevel";
-    SparseArray<String> mTileIdToSpriteName = new SparseArray<String>();
+    private final SparseArray<String> mTileIdToSpriteName = new SparseArray<>();
     public TestLevel(){
         super();
         mTileIdToSpriteName.put(0, "background");

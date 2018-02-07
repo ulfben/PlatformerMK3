@@ -8,11 +8,11 @@ import com.ulfben.PlatformerMK3.utilities.SysUtils;
 
 public class VirtualJoystick extends GameInput {
     private static final String TAG = "VirtualJoystick";
-    private static final int SIZE_DP = 60; //TODO: make settings.
+    private static final int SIZE_DP = 60; //TODO: make jooystick dimensions a setting
     private View mView;
-    protected float mRadius = 0;
-    protected float mStartingPositionX = 0;
-    protected float mStartingPositionY = 0;
+    private float mRadius = 0;
+    private float mStartingPositionX = 0;
+    private float mStartingPositionY = 0;
 
     public VirtualJoystick(final View view) {
         super();
@@ -24,6 +24,7 @@ public class VirtualJoystick extends GameInput {
     private class ActionButtonTouchListener implements View.OnTouchListener{
         @Override
         public boolean onTouch(final View v, final MotionEvent event){
+            v.performClick();
             final int action = event.getActionMasked();
             if(action == MotionEvent.ACTION_DOWN){
                 mJump = true;
@@ -37,6 +38,7 @@ public class VirtualJoystick extends GameInput {
     private class JoystickTouchListener implements View.OnTouchListener{
         @Override
         public boolean onTouch(final View v, final MotionEvent event){
+            v.performClick();
             final VirtualJoystickView joystickView = (VirtualJoystickView) v;
             final int action = event.getActionMasked();
             final float x = event.getX(0);
@@ -72,26 +74,6 @@ public class VirtualJoystick extends GameInput {
             v = mView.findViewById(R.id.button_region);
             v.setOnTouchListener(null);
         }
-    }
-
-    @Override
-    public void onStart() {
-        super.onStart();
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
     }
 
     @Override

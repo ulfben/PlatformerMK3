@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<lint>
+    <issue id="UnusedResources">
+        <ignore path="src/main/res/drawable-hdpi/ic_pause_circle_outline_black_24dp.png" />
+        <ignore path="src/main/res/drawable-hdpi/pause.png" />
+        <ignore path="src/main/res/drawable-mdpi/ic_pause_circle_outline_black_24dp.png" />
+        <ignore path="src/main/res/drawable-nodpi/blue_front1.png" />
+        <ignore path="src/main/res/drawable-nodpi/blue_front2.png" />
+        <ignore path="src/main/res/drawable-nodpi/blue_front3.png" />
+        <ignore path="src/main/res/drawable-nodpi/coinyellow.png" />
+        <ignore path="src/main/res/drawable-nodpi/coinyellow_shade.png" />
+        <ignore path="src/main/res/drawable-nodpi/enemyblockbrown.png" />
+        <ignore path="src/main/res/drawable-nodpi/enemyblockiron.png" />
+        <ignore path="src/main/res/drawable-nodpi/green_left1.png" />
+        <ignore path="src/main/res/drawable-nodpi/green_left2.png" />
+        <ignore path="src/main/res/drawable-nodpi/green_left3.png" />
+        <ignore path="src/main/res/drawable-nodpi/ground.png" />
+        <ignore path="src/main/res/drawable-nodpi/ground_left.png" />
+        <ignore path="src/main/res/drawable-nodpi/ground_right.png" />
+        <ignore path="src/main/res/drawable-nodpi/ground_round.png" />
+        <ignore path="src/main/res/drawable-nodpi/lifehearth_empty.png" />
+        <ignore path="src/main/res/drawable-nodpi/lifehearth_full.png" />
+        <ignore path="src/main/res/drawable-nodpi/lifehearth_half.png" />
+        <ignore path="src/main/res/drawable-nodpi/menu_bg.png" />
+        <ignore path="src/main/res/drawable-nodpi/mud_left.png" />
+        <ignore path="src/main/res/drawable-nodpi/mud_right.png" />
+        <ignore path="src/main/res/drawable-nodpi/mud_square.png" />
+        <ignore path="src/main/res/drawable-nodpi/nullsprite.png" />
+        <ignore path="src/main/res/drawable-nodpi/player.png" />
+        <ignore path="src/main/res/drawable-nodpi/walker.png" />
+        <ignore path="src/main/res/drawable-xhdpi/ic_pause_circle_outline_black_24dp.png" />
+        <ignore path="src/main/res/drawable-xxhdpi/ic_pause_circle_outline_black_24dp.png" />
+        <ignore path="src/main/res/drawable-xxxhdpi/ic_pause_circle_outline_black_24dp.png" />
+    </issue>
+</lint>

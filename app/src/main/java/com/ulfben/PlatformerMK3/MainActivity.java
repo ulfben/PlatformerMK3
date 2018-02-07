@@ -1,7 +1,6 @@
 package com.ulfben.PlatformerMK3;
 
 import android.content.Context;
-import android.content.pm.ActivityInfo;
 import android.hardware.input.InputManager;
 import android.media.AudioManager;
 import android.os.Build;
@@ -13,7 +12,6 @@ import android.support.v7.widget.Toolbar;
 import android.view.InputDevice;
 import android.view.KeyEvent;
 import android.view.Menu;
-import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Toast;
@@ -52,7 +50,7 @@ public class MainActivity extends AppCompatActivity implements InputManager.Inpu
         }
         Toolbar myToolbar = findViewById(R.id.action_bar);
         setSupportActionBar(myToolbar);
-        hideActionBar();
+      //  hideActionBar();
       //  showActionBar();
     }
 
@@ -112,10 +110,7 @@ public class MainActivity extends AppCompatActivity implements InputManager.Inpu
 
     @Override
     public boolean dispatchGenericMotionEvent(final MotionEvent ev) {
-        if(mGamepadListener != null && mGamepadListener.dispatchGenericMotionEvent(ev)){
-            return true;
-        }
-        return super.dispatchGenericMotionEvent(ev);
+        return mGamepadListener != null && mGamepadListener.dispatchGenericMotionEvent(ev) || super.dispatchGenericMotionEvent(ev);
     }
 
     @Override

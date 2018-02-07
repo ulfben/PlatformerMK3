@@ -5,7 +5,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.ulfben.PlatformerMK3.MainActivity;
 import com.ulfben.PlatformerMK3.R;
 import com.ulfben.PlatformerMK3.gui.ExitDialog;
 
@@ -36,19 +35,13 @@ public class MainMenuFragment extends BaseFragment implements View.OnClickListen
     }
 
     @Override
-    public void onResume() {
-        super.onResume();
-    }
-
-    @Override
     public boolean onBackPressed() {
         boolean consumed = super.onBackPressed();
         if(!consumed){
             final ExitDialog exitDialog = new ExitDialog(getMainActivity(), this);
             showDialog(exitDialog);
-            consumed = true;
         }
-        return consumed;
+        return true;
     }
 
     @Override

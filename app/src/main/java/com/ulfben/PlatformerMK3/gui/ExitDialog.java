@@ -1,13 +1,12 @@
 package com.ulfben.PlatformerMK3.gui;
 //Created by Ulf Benjaminsson (ulfben) on 2017-04-05.
 
-import android.app.Fragment;
 import android.view.View;
 
 import com.ulfben.PlatformerMK3.MainActivity;
 import com.ulfben.PlatformerMK3.R;
 public class ExitDialog extends Dialog implements View.OnClickListener {
-    private ExitDialogListener mListener;
+    private final ExitDialogListener mListener;
 
     public ExitDialog(final MainActivity activity, ExitDialogListener listener) {
         super(activity);

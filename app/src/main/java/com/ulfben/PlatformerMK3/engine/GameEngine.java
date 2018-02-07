@@ -20,7 +20,7 @@ import java.util.ArrayList;
 
 public class GameEngine implements SurfaceHolder.Callback{
     private static final String TAG = "GameEngine";
-    public static final boolean SHOW_STATS = true; //print useful stats to screen during game play
+    static final boolean SHOW_STATS = true; //print useful stats to screen during game play
     private static final float SCALE_FACTOR = 0.5f; // we render to a buffer 0.5x the resolution of the physical screen.
         //and use the GPU to scale it up: https://android-developers.googleblog.com/2013/09/using-hardware-scaler-for-performance.html
     private static final float METERS_TO_SHOW_X = 0f; //set the value you want fixed
@@ -32,9 +32,9 @@ public class GameEngine implements SurfaceHolder.Callback{
     private final GameView mGameView;
     private final ConfigurableGameInput mControls;
     private final Jukebox mJukebox;
-    private GameThread mGameThread = null;
-    private LevelManager mLevel = null;
-    private Viewport mCamera = null;
+    private GameThread mGameThread = null; //created in startGame
+    private LevelManager mLevel = null; //created in loadLevel
+    private Viewport mCamera = null; //created in loadLevel, and re-created whenever sufaceChange happens.
     private int mSurfaceChangeCount = 0; //for debug output.
     private int mFrameBufferWidth = 1280; //just a default while waiting for the surface to get ready
     private int mFrameBufferHeight = 720; //these will change once we get the surfaceChange callbacks
@@ -56,46 +56,16 @@ public class GameEngine implements SurfaceHolder.Callback{
                         new VirtualJoystick(mActivity.findViewById(R.id.virtual_joystick))
                      );
         GameObject.mEngine = this; //NOTE: this reference must be nulled in onDestroy!
-        loadLevel("TestLevel"); //creates mLevel and mCamera
-        startGame(); //creates mGameThread
     }
 
-    public void loadLevel(final String levelName){
-        Log.d(TAG, "Loading Level: " + levelName);
-        if(mLevel != null){
-            mLevel.destroy();
-        }
-        if(mCamera == null || mCameraNeedsUpdating){ //We need Viewport, so LevelManager can load assets with correct pixel density (pixels-per-meter)
-            buildViewport(mFrameBufferWidth, mFrameBufferHeight, METERS_TO_SHOW_X, METERS_TO_SHOW_Y);
-        }
-        mLevel = new LevelManager(levelName);
-        setCameraBoundsAndFollowPlayer(); //tell the camera to track our player, and stay within the game world
-    }
-    //returns true if a new Viewport was in fact constructed. The Viewport provides our density (pixels-per-meter)
-    // the return value lets GameEngine know it should resample all bitmaps to match the new density.
-    private boolean buildViewport(int frameBufferWidth, int frameBufferHeight, float metersToShowX, float metersToShowY){
-        mCameraNeedsUpdating = false; //reset the flag
-        if(mCamera != null && (mCamera.getScreenWidth() == frameBufferWidth && mCamera.getScreenHeight() == frameBufferHeight)){
-            Log.d(TAG, "Viewport already matches the framebuffer. No action taken.");
-            return false;
-        }
-        Log.d(TAG, "Building viewport for: " + frameBufferWidth +" : "+frameBufferHeight);
-        mCamera = new Viewport(frameBufferWidth, frameBufferHeight, metersToShowX, metersToShowY);
-        if(METERS_TO_SHOW_ON_SHORTEST_AXIS > 0){
-            mCamera = new Viewport(frameBufferWidth, frameBufferHeight, METERS_TO_SHOW_ON_SHORTEST_AXIS);
-        }
-        Log.d(TAG, "\t Density (pixels-per-meter): " + mCamera.getPixelsPerMeterX() +" : "+mCamera.getPixelsPerMeterY());
-        if(mLevel != null) {
-            Log.d(TAG, "Reloading all bitmaps.");
-            mLevel.reloadBitmaps();
-        }
-        setCameraBoundsAndFollowPlayer();
-        return true;
-    }
-
+    //called from GameFragment from onStart.
     public void startGame() {
         Log.d(TAG, "startGame");
         killGameThreadIfRunning(); //Belts & Suspenders.
+        if(mLevel == null){
+            Log.d(TAG, "You must call loadLevel before startGame!");
+            return;
+        }
         mControls.onStart();
         mJukebox.resumeBgMusic();
         mGameThread = new GameThread(this);
@@ -107,7 +77,7 @@ public class GameEngine implements SurfaceHolder.Callback{
     // 1. process input
     // 2. update the game state (using time and any inputs from step 1)
     // 3. render - draw the new game state
-    public void tick(final float dt) {
+    void tick(final float dt) {
         input(dt);
         update(dt);
         if(SHOW_STATS){
@@ -204,18 +174,55 @@ public class GameEngine implements SurfaceHolder.Callback{
             Log.d(TAG, "\tIgnoring. Viewport is already at the correct resolution.");
         }
     }
-
     // We literally must not return from surfaceDestroyed until we are sure that nobody
     // will touch the surface again. See: https://goo.gl/VrjXRW
-    // The only thing that can touch our surface is the GameThread, which should already
-    // be dead when this callback happens. BUT, since we're not in control of callbacks
-    // and we might gets it out-of-order, we will follow the law and spin here until the
-    // GameThread has come out of the tick() for sure.
+    // Since we use lockCanvas / unlockAndPost for our rendering this callback isn't
+    // important to us. While GameView holds the lock, the surface is guaranteed.
+    // However, we will follow the law and spin here until the GameThread has come out
+    // of the tick() for sure. It's redunant, but I am in Belt & Suspenders-mode. :P
     @Override
     public void surfaceDestroyed(final SurfaceHolder holder) {
         Log.d(TAG, "surfaceDestroyed");
         pauseGameThreadIfRunning();//If the thread is still running at this point, I'll pause it.
         //Termination is the job of the onStop and onDestroy life cycle callbacks.
+    }
+
+
+    //GameEngine "internal" implementation
+
+    // loadLevel creates a LevelManager, which constructs all GameObjects and load their assets.
+    // It also provides an interface to add / remove / update GameObjects.
+    // Note: loading assets is dependent on the Viewport (for correct density), so loadLevel will
+    //  build a default Viewport if it doesn't exist.
+    public void loadLevel(final String levelName){
+        Log.d(TAG, "Loading Level: " + levelName);
+        if(mLevel != null){
+            mLevel.destroy();
+        }
+        if(mCamera == null || mCameraNeedsUpdating){ //We need Viewport, so LevelManager can load assets with correct pixel density (pixels-per-meter)
+            buildViewport(mFrameBufferWidth, mFrameBufferHeight, METERS_TO_SHOW_X, METERS_TO_SHOW_Y);
+        }
+        mLevel = new LevelManager(levelName);
+        setCameraBoundsAndFollowPlayer(); //tell the camera to track our player, and stay within the game world
+    }
+    //The Viewport provides our density (pixels-per-meter).
+    // If a level exists when the viewport is (re)built, LevelManager will be asked to resample all bitmaps to match the new density.
+    private void buildViewport(int frameBufferWidth, int frameBufferHeight, float metersToShowX, float metersToShowY){
+        mCameraNeedsUpdating = false; //reset the flag
+        if(mCamera != null && (mCamera.getScreenWidth() == frameBufferWidth && mCamera.getScreenHeight() == frameBufferHeight)){
+            Log.d(TAG, "Viewport already matches the framebuffer. No action taken.");
+        }
+        Log.d(TAG, "Building viewport for: " + frameBufferWidth +" : "+frameBufferHeight);
+        mCamera = new Viewport(frameBufferWidth, frameBufferHeight, metersToShowX, metersToShowY);
+        if(METERS_TO_SHOW_ON_SHORTEST_AXIS > 0){
+            mCamera = new Viewport(frameBufferWidth, frameBufferHeight, METERS_TO_SHOW_ON_SHORTEST_AXIS);
+        }
+        Log.d(TAG, "\t Density (pixels-per-meter): " + mCamera.getPixelsPerMeterX() +" : "+mCamera.getPixelsPerMeterY());
+        if(mLevel != null) {
+            Log.d(TAG, "Reloading all bitmaps.");
+            mLevel.reloadBitmaps();
+        }
+        setCameraBoundsAndFollowPlayer();
     }
     private void pauseGameThreadIfRunning(){
         if(mGameThread == null){ return; }

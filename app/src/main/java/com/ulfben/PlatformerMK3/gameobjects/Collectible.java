@@ -1,6 +1,5 @@
 package com.ulfben.PlatformerMK3.gameobjects;
 import com.ulfben.PlatformerMK3.GameEvent;
-import com.ulfben.PlatformerMK3.engine.GameEngine;
 // Created by Ulf Benjaminsson (ulfben) on 2017-03-29.
 
 public class Collectible extends DynamicGameObject {

@@ -11,22 +11,18 @@ import com.ulfben.PlatformerMK3.R;
 //dialogues to draw over
 public class Dialog implements View.OnTouchListener, View.OnFocusChangeListener {
     private static final String TAG = "Dialog";
-    protected final MainActivity mParent;
+    private final MainActivity mParent;
     private ViewGroup mRootLayout; //background common to all dialogues
     private View mRootView; //the dialog itself
     private boolean mIsShowing = false;
 
-    public Dialog(final MainActivity activity) {
+    Dialog(final MainActivity activity) {
         super();
         mParent = activity;
     }
 
-    protected void onViewClicked() {
-        // Ignore clicks on this view
-    }
-
-    protected void setContentView(final int dialogResId) {
-        final ViewGroup activityRoot = (ViewGroup) mParent.findViewById(android.R.id.content);
+    void setContentView(final int dialogResId) {
+        final ViewGroup activityRoot = mParent.findViewById(android.R.id.content);
         mRootView = LayoutInflater.from(mParent).inflate(dialogResId, activityRoot, false);
     }
 
@@ -35,7 +31,7 @@ public class Dialog implements View.OnTouchListener, View.OnFocusChangeListener 
             return;
         }
         mIsShowing = true;
-        final ViewGroup activityRoot = (ViewGroup) mParent.findViewById(android.R.id.content);
+        final ViewGroup activityRoot = mParent.findViewById(android.R.id.content);
         mRootLayout = (ViewGroup) LayoutInflater.from(mParent).inflate(R.layout.dialog_overlay, activityRoot, false);
         activityRoot.addView(mRootLayout);
         mRootLayout.setOnTouchListener(this);
@@ -52,16 +48,17 @@ public class Dialog implements View.OnTouchListener, View.OnFocusChangeListener 
 
     private void hideViews() {
         mRootLayout.removeView(mRootView);
-        final ViewGroup activityRoot = (ViewGroup) mParent.findViewById(android.R.id.content);
+        final ViewGroup activityRoot = mParent.findViewById(android.R.id.content);
         activityRoot.removeView(mRootLayout);
     }
 
-    protected View findViewById(final int id) {
+    View findViewById(final int id) {
         return mRootView.findViewById(id);
     }
 
     @Override
     public boolean onTouch(final View v, final MotionEvent event) {
+        v.performClick();
         return true; //ignore touch
         //call dismiss() if you want to exit dialogues by clicking outside of them
     }

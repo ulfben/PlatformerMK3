@@ -32,8 +32,8 @@ public class Jukebox {
     public static final String SOUNDS_PREF_KEY = "sounds_pref_key";
     public static final String MUSIC_PREF_KEY = "music_pref_key";
     private final SharedPreferences mPrefs;
-    public boolean mSoundEnabled = false;
-    public boolean mMusicEnabled = false;
+    private boolean mSoundEnabled = false;
+    private boolean mMusicEnabled = false;
 
     //https://developer.android.com/guide/topics/media-apps/volume-and-earphones.html
     public Jukebox(final Context context) {
@@ -56,7 +56,7 @@ public class Jukebox {
 
     private void loadSounds(){
         createSoundPool();
-        mSoundsMap = new HashMap<GameEvent, Integer>();
+        mSoundsMap = new HashMap<>();
         loadEventSound(GameEvent.PlayerJump, "sfx/jump.wav"); //TODO: move to settings!
         loadEventSound(GameEvent.PlayerCoinPickup, "sfx/pickup_coin.wav");
     }

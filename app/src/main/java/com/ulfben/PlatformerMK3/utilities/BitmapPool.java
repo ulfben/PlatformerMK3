@@ -7,7 +7,7 @@ import java.util.HashMap;
 // Created by Ulf Benjaminsson (ulfben) on 2017-03-29.
 
 public class BitmapPool {
-    private static HashMap<String, Bitmap> mBitmaps = new HashMap<>();
+    private static final HashMap<String, Bitmap> mBitmaps = new HashMap<>();
     private BitmapPool(){super();}
 
     public static Bitmap createBitmap(final GameEngine engine, final String sprite, float widthMeters, float heightMeters){
@@ -24,9 +24,6 @@ public class BitmapPool {
         return bmp;
     }
 
-    public static String makeKey(final String name, final Bitmap bmp){
-        return name+"_"+bmp.getWidth()+"_"+bmp.getHeight();
-    }
     public static String makeKey(final String name, final float width, final float height){
         return name+"_"+width+"_"+height;
     }
@@ -39,13 +36,11 @@ public class BitmapPool {
     public static boolean contains(final String key){
         return mBitmaps.containsKey(key);
     }
-    public static boolean contains(final Bitmap bmp){
-        return mBitmaps.containsValue(bmp);
-    }
+    public static boolean contains(final Bitmap bmp){ return mBitmaps.containsValue(bmp); }
     public static Bitmap getBitmap(final String key){
         return mBitmaps.get(key);
     }
-    public static String getKey(final Bitmap bmp){
+    private static String getKey(final Bitmap bmp){
         if(bmp != null) {
             for (HashMap.Entry<String, Bitmap> entry : mBitmaps.entrySet()) {
                 if (bmp == entry.getValue()) {
@@ -55,7 +50,7 @@ public class BitmapPool {
         }
         return "";
     }
-    public static void remove(final String key){
+    private static void remove(final String key){
         Bitmap tmp = mBitmaps.get(key);
         if(tmp != null){
             mBitmaps.remove(key);

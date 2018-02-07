@@ -12,7 +12,7 @@ public class Utils {
         return ((int) ((val * precision) + ((val < 0.0) ? -0.5 : 0.5))) / precision;
     }
 
-    public static PointF clamp(final PointF val, final PointF min, final PointF max){
+    public static void clamp(final PointF val, final PointF min, final PointF max){
         if(val.x < min.x){
             val.x = min.x;
         }else if(val.x > max.x){
@@ -23,7 +23,6 @@ public class Utils {
         }else if(val.y > max.y){
             val.y = max.y;
         }
-        return val;
     }
 
     public static float clamp(float val, final float min, final float max){

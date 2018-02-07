@@ -1,7 +1,6 @@
 package com.ulfben.PlatformerMK3.levels;
 import android.util.Log;
 
-import com.ulfben.PlatformerMK3.engine.GameEngine;
 import com.ulfben.PlatformerMK3.gameobjects.GameObject;
 import com.ulfben.PlatformerMK3.gameobjects.GameObjectFactory;
 import com.ulfben.PlatformerMK3.gameobjects.Player;
@@ -17,7 +16,7 @@ import java.util.ArrayList;
 public class LevelManager {
     private static final String TAG = "LevelManager";
 
-    public ArrayList<GameObject> mGameObjects = new ArrayList<>();
+    public final ArrayList<GameObject> mGameObjects = new ArrayList<>();
     private ArrayList<GameObject> mObjectsToAdd = new ArrayList<>();
     private ArrayList<GameObject> mObjectsToRemove = new ArrayList<>();
     public Player mPlayer = null;
@@ -88,7 +87,7 @@ public class LevelManager {
         }
     }
 
-    public void addGameObject(final GameObject object) {
+    private void addGameObject(final GameObject object) {
         if(object != null) { mObjectsToAdd.add(object); }
     }
     public void removeGameObject(final GameObject object) {

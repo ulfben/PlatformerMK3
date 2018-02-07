@@ -52,16 +52,14 @@ public class SysUtils {
         return rating > threshold;
     }
 
-    public static void logDeviceInfo(){
-        final StringBuilder deviceInfo = new StringBuilder();
-        deviceInfo.append("Build.PRODUCT ").append(Build.PRODUCT).append("\n")
-                .append("Build.DEVICE ").append(Build.DEVICE).append("\n")
-                .append("Build.MODEL ").append(Build.MODEL).append("\n")
-                .append("Build.BRAND ").append(Build.BRAND).append("\n")
-                .append("Build.MANUFACTURER ").append(Build.MANUFACTURER).append("\n")
-                .append("Build.FINGERPRINT ").append(Build.FINGERPRINT).append("\n")
-                .append("Build.HARDWARE ").append(Build.HARDWARE).append("\n");
-        final String info = deviceInfo.toString();
+    private static void logDeviceInfo(){
+        final String info = "Build.PRODUCT " + Build.PRODUCT + "\n" +
+                "Build.DEVICE " + Build.DEVICE + "\n" +
+                "Build.MODEL " + Build.MODEL + "\n" +
+                "Build.BRAND " + Build.BRAND + "\n" +
+                "Build.MANUFACTURER " + Build.MANUFACTURER + "\n" +
+                "Build.FINGERPRINT " + Build.FINGERPRINT + "\n" +
+                "Build.HARDWARE " + Build.HARDWARE + "\n";
         Log.i(TAG, "Device Info: " + info);
     }
 }

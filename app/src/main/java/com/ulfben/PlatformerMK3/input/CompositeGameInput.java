@@ -5,10 +5,10 @@ import java.util.Arrays;
 // Created by Ulf Benjaminsson (ulfben) on 2017-03-11.
 
 public class CompositeGameInput extends GameInput {
-    protected final ArrayList<GameInput> mInputs = new ArrayList<>();
+    final ArrayList<GameInput> mInputs = new ArrayList<>();
     private int mCount = 0;
 
-    public CompositeGameInput(final GameInput... inputs) {
+    CompositeGameInput(final GameInput... inputs) {
         super();
         mInputs.addAll(Arrays.asList(inputs));
         refresh();
@@ -22,7 +22,7 @@ public class CompositeGameInput extends GameInput {
         refresh();
     }
 
-    public void addInput(final GameInput im){
+    void addInput(final GameInput im){
         mInputs.add(im);
         refresh();
     }
@@ -31,7 +31,7 @@ public class CompositeGameInput extends GameInput {
     This makes it easy for child-classes to break things by forgetting to update the mCount when needed.
     Ergo: this is not elegant, but it's a compromise I'm willing to make.
     * */
-    protected void refresh(){
+    void refresh(){
         mCount = mInputs.size();
     }
 

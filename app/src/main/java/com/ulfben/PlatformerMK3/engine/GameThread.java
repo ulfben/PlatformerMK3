@@ -1,11 +1,9 @@
 package com.ulfben.PlatformerMK3.engine;
 
-import android.util.Log;
-
 import com.ulfben.PlatformerMK3.utilities.FrameTimer;
 // Created by Ulf Benjaminsson (ulfben) on 2017-03-07.
 
-public class GameThread extends Thread {
+class GameThread extends Thread {
     private static final String TAG = "GameThread";
     private final GameEngine mGameEngine;
     private volatile boolean mIsRunning = true;
@@ -96,8 +94,7 @@ public class GameThread extends Thread {
     public boolean isGamePaused() { //we must check the thread state, and no just the boolean
         if(!mIsPaused){ return false; } //we have not been asked to pause, so this is a no-brainer.
         Thread.State state = getState(); //we *have* been asked to pause, let's see if the thread is still working on a tick
-        final boolean isNotRunning = (state == State.WAITING || state == State.TERMINATED || state == State.TIMED_WAITING);
-        return isNotRunning;
+        return (state == State.WAITING || state == State.TERMINATED || state == State.TIMED_WAITING);
     }
     public boolean isTerminated(){
         return getState() == Thread.State.TERMINATED;

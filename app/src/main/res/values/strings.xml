@@ -1,6 +1,6 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">Platformer Mark 3</string>
-    <string name="pause">Pause</string>
+    <string name="pause" tools:ignore="UnusedResources">Pause</string>
     <string name="resume">Resume</string>
     <string name="start">Start Game!</string>
     <string name="exit">Exit</string>
@@ -10,7 +10,7 @@
     <string name="pause_dialog_title">Press back to resume</string>
     <string name="pause_dialog_message">Toggle motion controls, sound effects and background music.</string>
 
-    <string name="title_activity_main">Platformer Mark 3</string>
+    <string name="title_activity_main" tools:ignore="UnusedResources">Platformer Mark 3</string>
     <string name="game_title">Platformer Mark 3</string>
     <string name="game_subtitle">An exercise in Android- and Java programming</string>
     <string name="gampad_help_title">Gamepad detected!</string>

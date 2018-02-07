@@ -26,7 +26,7 @@ public class Accelerometer extends GameInput {
     private final float[] mLastMagFields = new float[LENGTH];
     private final float[] mLastAccels = new float[LENGTH];
 
-    private SensorEventListener mMagneticListener = new SensorEventListener() {
+    private final SensorEventListener mMagneticListener = new SensorEventListener() {
         @Override
         public void onSensorChanged(final SensorEvent event) {
             System.arraycopy(event.values, 0, mLastMagFields, 0, LENGTH);
@@ -37,7 +37,7 @@ public class Accelerometer extends GameInput {
         }
     };
 
-    private SensorEventListener mAccelerometerListener = new SensorEventListener() {
+    private final SensorEventListener mAccelerometerListener = new SensorEventListener() {
         @Override
         public void onSensorChanged(final SensorEvent event) {
             System.arraycopy(event.values, 0, mLastAccels, 0, LENGTH);
@@ -123,6 +123,7 @@ public class Accelerometer extends GameInput {
         final int rotation = mDisplay.getRotation();
         if (SensorManager.getRotationMatrix(mRotationMatrix, null, mLastAccels, mLastMagFields)) {
             if (rotation == Surface.ROTATION_0 || rotation == Surface.ROTATION_180) { //remap if in either of the portrait modes
+                //noinspection SuspiciousNameCombination
                 SensorManager.remapCoordinateSystem(mRotationMatrix, SensorManager.AXIS_Y, SensorManager.AXIS_MINUS_X, mRotationMatrix);
             }
             SensorManager.getOrientation(mRotationMatrix, mOrientation);

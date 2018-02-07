@@ -12,7 +12,6 @@ public class BitmapUtils {
     private static final boolean FILTER = false;
     private static final BitmapFactory.Options mOptions = new BitmapFactory.Options(); //Q&D pool
     private static final Point mDimensions = new Point(0,0); //Q&D pool
-    public static Resources RES = null;
 
     private BitmapUtils(){super();}
 
@@ -32,7 +31,7 @@ public class BitmapUtils {
     }
 
     //Set either of the dimensions for aspect-correct scaling, or both to force the aspect.
-    public static Bitmap loadScaledBitmap(final Resources res, final int resID, final int targetWidth, final int targetHeight) throws Exception{
+    private static Bitmap loadScaledBitmap(final Resources res, final int resID, final int targetWidth, final int targetHeight) throws Exception{
         getSrcInfo(res, resID, mOptions); //parse the raw file info
         calculateScaling(mDimensions, targetWidth, targetHeight, mOptions.outWidth, mOptions.outHeight);
         try {
@@ -49,13 +48,13 @@ public class BitmapUtils {
         throw new Exception("Failed to load bitmap: " + resID);
     }
 
-    public static Bitmap decodeSampledBitmapFromResource(final Resources res, final int resId, final int reqWidth, final int reqHeight, final BitmapFactory.Options opts) {
+    private static Bitmap decodeSampledBitmapFromResource(final Resources res, final int resId, final int reqWidth, final int reqHeight, final BitmapFactory.Options opts) {
         opts.inSampleSize = calculateInSampleSize(opts, reqWidth, reqHeight);
         opts.inJustDecodeBounds = false;
         return BitmapFactory.decodeResource(res, resId, opts);
     }
 
-    public static Bitmap decodeSampledBitmapFromResource(final Resources res, final int resId, final int reqWidth, final int reqHeight) {
+    private static Bitmap decodeSampledBitmapFromResource(final Resources res, final int resId, final int reqWidth, final int reqHeight) {
         // First decode with inJustDecodeBounds=true to check dimensions
         final BitmapFactory.Options options = new BitmapFactory.Options();
         options.inJustDecodeBounds = true;
@@ -69,7 +68,7 @@ public class BitmapUtils {
         return BitmapFactory.decodeResource(res, resId, options);
     }
 
-    public static int calculateInSampleSize(final BitmapFactory.Options options, final int reqWidth, final int reqHeight) {
+    private static int calculateInSampleSize(final BitmapFactory.Options options, final int reqWidth, final int reqHeight) {
         final int height = options.outHeight;// Raw height and width of image
         final int width = options.outWidth;
         int inSampleSize = 1;
@@ -85,7 +84,7 @@ public class BitmapUtils {
         return inSampleSize;
     }
 
-    public static void getSrcInfo(final Resources res, final int resID, final BitmapFactory.Options opts){
+    private static void getSrcInfo(final Resources res, final int resID, final BitmapFactory.Options opts){
         opts.inJustDecodeBounds = true;
         BitmapFactory.decodeResource(res, resID, opts);
         opts.inJustDecodeBounds = false;
@@ -93,7 +92,7 @@ public class BitmapUtils {
 
     //provide both or either of targetWidth / targetHeight. If one is left at 0, the other is calculated
     //based on source-dimensions. Ergo; should scale and keep aspect ratio.
-    public static void calculateScaling(final Point out, float targetWidth, float targetHeight, final float srcWidth, final float srcHeight){
+    private static void calculateScaling(final Point out, float targetWidth, float targetHeight, final float srcWidth, final float srcHeight){
         if (targetWidth <= 0 && targetHeight <= 0){
             targetWidth = srcWidth;
             targetHeight = srcHeight;

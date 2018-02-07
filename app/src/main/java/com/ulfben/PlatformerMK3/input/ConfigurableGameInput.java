@@ -25,7 +25,7 @@ public class ConfigurableGameInput extends CompositeGameInput {
         }
     }
 
-    public void removeAccelerometer(){
+    private void removeAccelerometer(){
         for(final GameInput im : mInputs){
             if(Accelerometer.class.isInstance(im)){
                 mMotionControl = (Accelerometer) im;
@@ -35,7 +35,7 @@ public class ConfigurableGameInput extends CompositeGameInput {
         }
     }
 
-    public void removeInput(final GameInput im){
+    private void removeInput(final GameInput im){
         synchronized (mInputs) {
             if (mInputs.remove(im)) {
                 im.onPause();

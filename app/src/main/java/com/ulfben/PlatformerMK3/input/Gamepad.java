@@ -143,7 +143,7 @@ public class Gamepad extends GameInput implements GamepadListener {
         return wasConsumed;
     }
 
-    public boolean isJumpKey(final int keyCode){
+    private boolean isJumpKey(final int keyCode){
         return keyCode == KeyEvent.KEYCODE_DPAD_UP
                 || keyCode == KeyEvent.KEYCODE_BUTTON_A
                 || keyCode == KeyEvent.KEYCODE_BUTTON_X

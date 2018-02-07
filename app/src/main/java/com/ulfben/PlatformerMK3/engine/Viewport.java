@@ -10,11 +10,11 @@ import com.ulfben.PlatformerMK3.utilities.Utils;
 import java.util.Locale;
 // Created by Ulf Benjaminsson (ulfben) on 2017-02-13.
 
-public class Viewport {
+class Viewport {
     private static final float EASE_X = 0.125f;//% of tracking distance to close each update
     private static final float EASE_Y = 0.25f; //move faster on the shorter axis, so the player never falls out of view
-    private PointF mMaxPosition = new PointF(Float.MAX_VALUE, Float.MAX_VALUE);
-    private PointF mMinPosition = new PointF(-Float.MIN_VALUE, -Float.MIN_VALUE);
+    private final PointF mMaxPosition = new PointF(Float.MAX_VALUE, Float.MAX_VALUE);
+    private final PointF mMinPosition = new PointF(-Float.MIN_VALUE, -Float.MIN_VALUE);
     private boolean mIsBounded = false;
     private float mWorldWidth = Float.MAX_VALUE;
     private float mWorldHeight = Float.MAX_VALUE;
@@ -57,7 +57,7 @@ public class Viewport {
         mLookAt.y = 0.0f;
     }
 
-    public void setMetersToShowOnShortestAxis(final float metersToShow, final int screenWidth, final int screenHeight){
+    private void setMetersToShowOnShortestAxis(final float metersToShow, final int screenWidth, final int screenHeight){
         if(screenWidth < screenHeight){
             setMetersToShow(metersToShow, 0.0f);
         }else if(screenWidth > screenHeight){

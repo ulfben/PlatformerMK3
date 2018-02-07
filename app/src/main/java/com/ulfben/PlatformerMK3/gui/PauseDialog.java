@@ -12,7 +12,7 @@ import com.ulfben.PlatformerMK3.input.ConfigurableGameInput;
 
 public class PauseDialog extends Dialog implements View.OnClickListener {
     private static final String TAG = "PauseDialog";
-    private PauseDialogListener mListener;
+    private final PauseDialogListener mListener;
     private final SharedPreferences mPrefs;
     private boolean musicEnabled = true;
     private boolean soundEnabled = true;
@@ -51,17 +51,17 @@ public class PauseDialog extends Dialog implements View.OnClickListener {
         final int id = v.getId();
         if (id == R.id.btn_sound) {
             soundEnabled = !soundEnabled;
-            mPrefs.edit().putBoolean(Jukebox.SOUNDS_PREF_KEY, soundEnabled).commit();
+            mPrefs.edit().putBoolean(Jukebox.SOUNDS_PREF_KEY, soundEnabled).apply();
         }
         else if (id == R.id.btn_music) {
             musicEnabled = !musicEnabled;
-            mPrefs.edit().putBoolean(Jukebox.MUSIC_PREF_KEY, musicEnabled).commit();
+            mPrefs.edit().putBoolean(Jukebox.MUSIC_PREF_KEY, musicEnabled).apply();
         }
         else if (id == R.id.btn_resume) {
             dismiss();
         }else if(id == R.id.btn_accelerometer){
             allowMotionControl = !allowMotionControl;
-            mPrefs.edit().putBoolean(ConfigurableGameInput.ACCELEROMETER_PREF_KEY, allowMotionControl).commit();
+            mPrefs.edit().putBoolean(ConfigurableGameInput.ACCELEROMETER_PREF_KEY, allowMotionControl).apply();
         }
         updateButtonStates();
         if (id == R.id.btn_exit) {

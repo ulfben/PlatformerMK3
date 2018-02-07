@@ -1,7 +1,6 @@
 package com.ulfben.PlatformerMK3.gameobjects;
 import android.graphics.PointF;
 
-import com.ulfben.PlatformerMK3.engine.GameEngine;
 import com.ulfben.PlatformerMK3.utilities.Random;
 import com.ulfben.PlatformerMK3.utilities.Utils;
 // Created by Ulf Benjaminsson (ulfben) on 2017-02-24.
@@ -9,13 +8,12 @@ import com.ulfben.PlatformerMK3.utilities.Utils;
 public class DynamicGameObject extends GameObject {
     private static final String TAG = "DynamicGameObject";
     private static final float MAX_DELTA = 0.48f; //maximum change in position over a single frame. keep < smallest object to avoid tunneling (1.0f = 1m)
-    protected static final float GRAVITATIONAL_ACCELERATION = 40f;
-    protected PointF mVelocity = new PointF(0.0f, 0.0f); //current velocity
-    protected PointF mTargetSpeed = new PointF(0.0f, 0.0f); //target velocity
-    protected PointF mAcceleration = new PointF(1.0f, 1.0f); //fake acceleration; how fast we approach targetspeed
-    protected float mGravity = GRAVITATIONAL_ACCELERATION; //non-static member, some objects will not want gravity
-    protected float mFriction = 1.0f; //1 == no friction, 0 == no motion.
-    protected boolean mIsOnGround = false;
+    static final float GRAVITATIONAL_ACCELERATION = 40f;
+    PointF mVelocity = new PointF(0.0f, 0.0f); //current velocity
+    PointF mTargetSpeed = new PointF(0.0f, 0.0f); //target velocity
+    PointF mAcceleration = new PointF(1.0f, 1.0f); //fake acceleration; how fast we approach target speed
+    float mGravity = GRAVITATIONAL_ACCELERATION; //non-static member, some objects will not want gravity
+    boolean mIsOnGround = false;
 
     DynamicGameObject(final String sprite, float width, float height){
         super(sprite, width, height);
@@ -36,7 +34,7 @@ public class DynamicGameObject extends GameObject {
     }
 
     @Override
-    public void update(final float dt){ //deltatime in seconds
+    public void update(final float dt){ //delta time in seconds
         mVelocity.x += (mAcceleration.x * mTargetSpeed.x);
         if(Math.abs(mVelocity.x) > Math.abs(mTargetSpeed.x)){
             mVelocity.x = mTargetSpeed.x; //instantaneous deceleration.

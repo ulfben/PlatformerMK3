@@ -7,7 +7,6 @@ import com.ulfben.PlatformerMK3.Animation;
 import com.ulfben.PlatformerMK3.GameEvent;
 import com.ulfben.PlatformerMK3.R;
 import com.ulfben.PlatformerMK3.input.GameInput;
-import com.ulfben.PlatformerMK3.utilities.BitmapPool;
 // Created by Ulf Benjaminsson (ulfben) on 2017-02-13.
 
 public class Player extends DynamicGameObject {
@@ -15,7 +14,6 @@ public class Player extends DynamicGameObject {
     private static final float PLAYER_HEIGHT = 0f; //calculated from sprite
     private static final float PLAYER_WIDTH = DEFAULT_WIDTH*0.9f; //slighly less than normal tiles.
     private static final float PLAYER_RUN_SPEED = 6.0f; //meters per second
-    private static final float PLAYER_FRICTION = 1.0f;
     private static final float PLAYER_ACCELERATION_X = 1.0f; //add % of targetspeed per frame 0.75
     private static final float PLAYER_ACCELERATION_Y = 1.0f; //add % of targetspeed per frame 0.25
     private static final float JUMP_FORCE = -(GRAVITATIONAL_ACCELERATION/2f);
@@ -29,11 +27,10 @@ public class Player extends DynamicGameObject {
     private float mDirectionChangeCooldown = 0.0f;
     private Animation mAnim = null;
 
-    public Player() {
+    Player() {
         super("", PLAYER_WIDTH, PLAYER_HEIGHT);
         mAcceleration.x = PLAYER_ACCELERATION_X;
         mAcceleration.y = PLAYER_ACCELERATION_Y;
-        mFriction = PLAYER_FRICTION;
         mAnim = new Animation(mEngine, R.drawable.player_anim, width, height);
         refreshSprite();
     }
