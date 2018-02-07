@@ -54,10 +54,4 @@ public class TestLevel extends LevelData {
         }
         return fileName;
     }
-
-    @Override
-    public void unload(){
-        mTileIdToSpriteName.clear();
-        super.unload();
-    }
 }

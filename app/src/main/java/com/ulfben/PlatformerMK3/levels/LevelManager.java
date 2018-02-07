@@ -18,20 +18,15 @@ public class LevelManager {
     private static final String TAG = "LevelManager";
 
     public ArrayList<GameObject> mGameObjects = new ArrayList<>();
-    public Player mPlayer = null;
-
-    private LevelData mData = null;
     private ArrayList<GameObject> mObjectsToAdd = new ArrayList<>();
     private ArrayList<GameObject> mObjectsToRemove = new ArrayList<>();
+    public Player mPlayer = null;
+    private float mLevelWidth = 0f; //meters
+    private float mLevelHeight = 0f;
 
     public LevelManager(final String levelName){
         super();
-        switch(levelName){
-            default:
-                mData = new TestLevel();
-                break;
-        }
-        loadMapAssets(mData);
+        loadMapAssets(new TestLevel());
     }
 
     public void update(final float dt) {
@@ -39,9 +34,43 @@ public class LevelManager {
         for (int i = 0; i < numObjects; i++) {
             mGameObjects.get(i).update(dt);
         }
+        checkCollisions(mGameObjects);
+        addAndRemoveObjects();
     }
 
-    public void addAndRemoveObjects(){
+    //checkCollisions will test all game entities against each other.
+    //Note the offsets in these loops: [0]-[size-1] and [i+1]-[size]
+    //This ensure we never redundantly test a pair.
+    //For details, refer to my slides (10-17): https://goo.gl/po4YkK
+    private static void checkCollisions(final ArrayList<GameObject> gameObjects) {
+        try { // Belts *and* Suspenders!
+            final int count = gameObjects.size();
+            GameObject a, b;
+            for (int i = 0; i < count - 1; i++) {
+                a = gameObjects.get(i);
+                for (int j = i + 1; j < count; j++) {
+                    b = gameObjects.get(j);
+                    if (a.isColliding(b)) {
+                        a.onCollision(b);
+                        b.onCollision(a);
+                    }
+                }
+            }
+        } catch(NullPointerException npe){
+            Log.e(TAG, "NPE in checkCollisions " + npe.toString());
+        }catch(IndexOutOfBoundsException oob){
+            Log.e(TAG, "Out of Bounds in checkCollisions " + oob.toString());
+        }catch(Exception e){
+            Log.e(TAG, "Exception in checkCollisions " + e.toString());
+        }
+        //A user reported NPE and OOB exceptions from checkCollisions under some circumstances.
+        //I was unable to recreate these crashes! After simplifying and cleaning up all the
+        //the suspect code-paths, I also added this try/catch around the collision testing to avoid
+        //uncaught exceptions bubbling out.
+        //The exceptions simply should not happen, but if they do, we log and continue running instead of crashing.
+    }
+
+    private void addAndRemoveObjects(){
         GameObject temp;
         try {
             for (int i = mObjectsToRemove.size() - 1; i >= 0; i--) {
@@ -66,17 +95,19 @@ public class LevelManager {
         if(object != null) { mObjectsToRemove.add(object); }
     }
 
-    public float getWorldWidth(){ return mData.mWidth; }
-    public float getWorldHeight(){ return mData.mHeight; }
+    public float getWorldWidth(){ return mLevelWidth; }
+    public float getWorldHeight(){ return mLevelHeight; }
 
     private void loadMapAssets(final LevelData data){
         cleanup();
-        for(int y = 0; y < data.mHeight; y++){
+        mLevelHeight = data.mHeight;
+        mLevelWidth = data.mWidth;
+        for(int y = 0; y < mLevelHeight; y++){
             final int[] row = data.getRow(y);
             for(int x = 0; x < row.length; x++) {
                 int tileType = row[x];
                 if(tileType == LevelData.NO_TILE){ continue; }  //ignoring "background tiles"
-                addGameObject(GameObjectFactory.makeObject(mData.getSpriteName(tileType), x, y)); //adds to temporary list, filters out any null-values (which should never happen)
+                addGameObject(GameObjectFactory.makeObject(data.getSpriteName(tileType), x, y)); //adds to temporary list, filters out any null-values (which should never happen)
             }
         }
         addAndRemoveObjects(); //commit the temporary list to our "live" list
@@ -104,7 +135,7 @@ public class LevelManager {
             go.destroy();
         }
         mPlayer = null;
-        mGameObjects = new ArrayList<>();
+        mGameObjects.clear();
         BitmapPool.empty();
     }
 
@@ -113,8 +144,6 @@ public class LevelManager {
         mObjectsToAdd.clear();
         mObjectsToRemove.clear();
         mGameObjects.clear();
-        mData.unload();
-        mData = null;
         mPlayer = null;
     }
 }

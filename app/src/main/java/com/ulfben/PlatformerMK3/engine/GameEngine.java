@@ -9,6 +9,7 @@ import com.ulfben.PlatformerMK3.R;
 import com.ulfben.PlatformerMK3.gameobjects.GameObject;
 import com.ulfben.PlatformerMK3.input.Accelerometer;
 import com.ulfben.PlatformerMK3.input.ConfigurableGameInput;
+import com.ulfben.PlatformerMK3.input.GameInput;
 import com.ulfben.PlatformerMK3.input.Gamepad;
 import com.ulfben.PlatformerMK3.input.VirtualJoystick;
 import com.ulfben.PlatformerMK3.levels.LevelManager;
@@ -26,18 +27,19 @@ public class GameEngine implements SurfaceHolder.Callback{
     private static final float METERS_TO_SHOW_Y = 9f;  //the other is calculated at runtime!
     private static final float METERS_TO_SHOW_ON_SHORTEST_AXIS = 9f; //OR use this to always scale along the shorter axis.
 
-    private GameThread mGameThread = null;
-    private MainActivity mActivity;
-    private GameView mGameView;
-    private LevelManager mLevel = null;
-    public ConfigurableGameInput mControls;
-    private ArrayList<GameObject> mVisibleObjects = new ArrayList<>();
+    private final ArrayList<GameObject> mVisibleObjects = new ArrayList<>();
+    private final MainActivity mActivity;
+    private final GameView mGameView;
+    private final ConfigurableGameInput mControls;
     private final Jukebox mJukebox;
-    private Viewport mCamera;
+    private GameThread mGameThread = null;
+    private LevelManager mLevel = null;
+    private Viewport mCamera = null;
     private int mSurfaceChangeCount = 0; //for debug output.
-    private int frameBufferWidth = 1280; //just a default while waiting for the surface to get ready
-    private int frameBufferHeight = 720; //these will change once we get the surfaceChange callbacks
+    private int mFrameBufferWidth = 1280; //just a default while waiting for the surface to get ready
+    private int mFrameBufferHeight = 720; //these will change once we get the surfaceChange callbacks
     private volatile boolean mCameraNeedsUpdating = false; //to let the viewport resize when the surface changes.
+
 
     //TODO: figure out what to do with the app bar
     //TODO: add rotation-toggle to the action-bar
@@ -55,36 +57,38 @@ public class GameEngine implements SurfaceHolder.Callback{
                      );
         GameObject.mEngine = this; //NOTE: this reference must be nulled in onDestroy!
         loadLevel("TestLevel"); //creates mLevel and mCamera
-        startGame();
+        startGame(); //creates mGameThread
     }
 
     public void loadLevel(final String levelName){
         Log.d(TAG, "Loading Level: " + levelName);
         if(mLevel != null){
             mLevel.destroy();
-            mLevel = null;
         }
-        if(mCamera == null || mCameraNeedsUpdating){ //the LevelManager need the viewport to know the correct pixel density (pixels-per-meter)
-            buildViewport(frameBufferWidth, frameBufferHeight, METERS_TO_SHOW_X, METERS_TO_SHOW_Y);
+        if(mCamera == null || mCameraNeedsUpdating){ //We need Viewport, so LevelManager can load assets with correct pixel density (pixels-per-meter)
+            buildViewport(mFrameBufferWidth, mFrameBufferHeight, METERS_TO_SHOW_X, METERS_TO_SHOW_Y);
         }
         mLevel = new LevelManager(levelName);
         setCameraBoundsAndFollowPlayer(); //tell the camera to track our player, and stay within the game world
     }
     //returns true if a new Viewport was in fact constructed. The Viewport provides our density (pixels-per-meter)
-    // so the return value let GameEngine know it's time to resample all bitmaps to match the new density.
+    // the return value lets GameEngine know it should resample all bitmaps to match the new density.
     private boolean buildViewport(int frameBufferWidth, int frameBufferHeight, float metersToShowX, float metersToShowY){
         mCameraNeedsUpdating = false; //reset the flag
         if(mCamera != null && (mCamera.getScreenWidth() == frameBufferWidth && mCamera.getScreenHeight() == frameBufferHeight)){
-            Log.d(TAG, "Viewport is already at the correct resolution. No action taken.");
-            return false;//false alarm - the camera already matches the framebuffer.
+            Log.d(TAG, "Viewport already matches the framebuffer. No action taken.");
+            return false;
         }
         Log.d(TAG, "Building viewport for: " + frameBufferWidth +" : "+frameBufferHeight);
+        mCamera = new Viewport(frameBufferWidth, frameBufferHeight, metersToShowX, metersToShowY);
         if(METERS_TO_SHOW_ON_SHORTEST_AXIS > 0){
             mCamera = new Viewport(frameBufferWidth, frameBufferHeight, METERS_TO_SHOW_ON_SHORTEST_AXIS);
-        }else {
-            mCamera = new Viewport(frameBufferWidth, frameBufferHeight, metersToShowX, metersToShowY);
         }
-        Log.d(TAG, "Px-per-meter: " + mCamera.getPixelsPerMeterX() +" : "+mCamera.getPixelsPerMeterY());
+        Log.d(TAG, "\t Density (pixels-per-meter): " + mCamera.getPixelsPerMeterX() +" : "+mCamera.getPixelsPerMeterY());
+        if(mLevel != null) {
+            Log.d(TAG, "Reloading all bitmaps.");
+            mLevel.reloadBitmaps();
+        }
         setCameraBoundsAndFollowPlayer();
         return true;
     }
@@ -95,7 +99,7 @@ public class GameEngine implements SurfaceHolder.Callback{
         mControls.onStart();
         mJukebox.resumeBgMusic();
         mGameThread = new GameThread(this);
-        mGameThread.start(); //GameThread will call our "tick()" in a tight loop.
+        mGameThread.start(); //GameThread will call "tick()" in a tight loop.
     }
 
     //tick is our core game loop, executed continuously from the GameThread
@@ -115,22 +119,14 @@ public class GameEngine implements SurfaceHolder.Callback{
     private void input(final float dt){
         mControls.update(dt);
         if(mCameraNeedsUpdating){ //"input" from our UI thread (see: the surfaceChanged callback)
-           final boolean didChange = buildViewport(frameBufferWidth, frameBufferHeight, METERS_TO_SHOW_X, METERS_TO_SHOW_Y);
-           if (didChange && mLevel != null) {
-                Log.d(TAG, "Viewport changed. Reloading all bitmaps.");
-                mLevel.reloadBitmaps();
-           }
+           buildViewport(mFrameBufferWidth, mFrameBufferHeight, METERS_TO_SHOW_X, METERS_TO_SHOW_Y);
         }
     }
-
     private void update(final float dt){
         mCamera.update(dt);
-        mLevel.update(dt);
-        checkCollisions(mLevel.mGameObjects);
-        mLevel.addAndRemoveObjects();
+        mLevel.update(dt); //update & check collisions for all living GameObjects.
         buildVisibleSet(mLevel.mGameObjects, mCamera);
     }
-
     private void render(final ArrayList<GameObject> visibleObjects, final Viewport camera) {
         mGameView.render(visibleObjects, camera); //will block and wait for the UI thread
     }
@@ -145,38 +141,6 @@ public class GameEngine implements SurfaceHolder.Callback{
                 mVisibleObjects.add(temp);
             }
         }
-    }
-
-    //checkCollisions will test all game entities against each other.
-    //Note the offsets in these loops: [0]-[size-1] and [i+1]-[size]
-    //This ensure we never redundantly test a pair.
-    //For details, refer to my slides (10-17): https://goo.gl/po4YkK
-    private void checkCollisions(final ArrayList<GameObject> gameObjects) {
-        try { // Belts *and* Suspenders!
-            final int count = gameObjects.size();
-            GameObject a, b;
-            for (int i = 0; i < count - 1; i++) {
-                a = gameObjects.get(i);
-                for (int j = i + 1; j < count; j++) {
-                    b = gameObjects.get(j);
-                    if (a.isColliding(b)) {
-                        a.onCollision(b);
-                        b.onCollision(a);
-                    }
-                }
-            }
-        } catch(NullPointerException npe){
-            Log.e(TAG, "NPE in checkCollisions " + npe.toString());
-        }catch(IndexOutOfBoundsException oob){
-            Log.e(TAG, "Out of Bounds in checkCollisions " + oob.toString());
-        }catch(Exception e){
-            Log.e(TAG, "Exception in checkCollisions " + e.toString());
-        }
-        //A user reported NPE and OOB exceptions from checkCollisions under some circumstances.
-        //I was unable to recreate these crashes! After simplifying and cleaning up all the
-        //the suspect code-paths, I also added this try/catch around the collision testing to avoid
-        //uncaught exceptions bubbling out.
-        //The exceptions simply should not happen, but if they do, we log and continue running instead of crashing.
     }
 
     public void onGameEvent(final GameEvent e, final GameObject source){
@@ -208,15 +172,14 @@ public class GameEngine implements SurfaceHolder.Callback{
         Log.d(TAG, "onDestroy");
         killGameThreadIfRunning();
         mGameThread = null;
-        if (mControls != null){ mControls.onDestroy(); mControls = null; }
+        if (mControls != null){ mControls.onDestroy(); }
         if (mJukebox != null){ mJukebox.destroy(); }
-        if (mLevel != null) { mLevel.destroy(); mLevel = null;}
+        if (mLevel != null) { mLevel.destroy();}
         if (mGameView != null){
             mGameView.getHolder().removeCallback(this);
             mGameView.destroy();
         }
         GameObject.mEngine = null;
-        mActivity = null;
     }
 
     //Keep in mind that these surface-callbacks are running on the UI thread.
@@ -231,11 +194,11 @@ public class GameEngine implements SurfaceHolder.Callback{
     public void surfaceChanged(final SurfaceHolder holder, final int format, final int width, final int height) {
         mSurfaceChangeCount++;
         Log.d(TAG, "surfaceChanged (" + mSurfaceChangeCount + "): " + width +" : "+height);
-        if(width != frameBufferWidth || height != frameBufferHeight){ //avoid infinite callbacks
-            frameBufferWidth = (int) (width * SCALE_FACTOR);
-            frameBufferHeight = (int) (height * SCALE_FACTOR);
-            Log.d(TAG, "\tsetFixedSize: " + frameBufferWidth +" : "+frameBufferHeight);
-            mGameView.setFixedSize(frameBufferWidth, frameBufferHeight); //Will generate a new surfaceChanged-callback
+        if(width != mFrameBufferWidth || height != mFrameBufferHeight){ //avoid infinite callbacks
+            mFrameBufferWidth = (int) (width * SCALE_FACTOR);
+            mFrameBufferHeight = (int) (height * SCALE_FACTOR);
+            Log.d(TAG, "\tsetFixedSize: " + mFrameBufferWidth +" : "+ mFrameBufferHeight);
+            mGameView.setFixedSize(mFrameBufferWidth, mFrameBufferHeight); //Will generate a new surfaceChanged-callback
             mCameraNeedsUpdating = true; //flag so the GameThread knows to resample all bitmaps
         }else{
             Log.d(TAG, "\tIgnoring. Viewport is already at the correct resolution.");
@@ -288,18 +251,17 @@ public class GameEngine implements SurfaceHolder.Callback{
         DebugTextRenderer.CAMERA_INFO = mCamera.toString();
     }
     public Context getContext(){ return mActivity.getApplicationContext(); }
+    public GameInput getControls() { return mControls; }
     public int getPixelsPerMeterY(){
         return mCamera.getPixelsPerMeterY();
     }
     public int getPixelsPerMeterX(){
         return mCamera.getPixelsPerMeterX();
     }
-    public float getWorldWidth(){
-        return mLevel.getWorldWidth();
-    }
-    public float getWorldHeight(){ return mLevel.getWorldHeight(); }
-    public int getResolutionY(){ return mCamera.getScreenHeight(); } //our framebuffer is not tied
-    public int getResolutionX(){ return mCamera.getScreenWidth(); }  //to the screens physical pixel count.
+    public float getWorldWidth(){ return mLevel.getWorldWidth(); } //world is always measured in meters
+    public float getWorldHeight(){ return mLevel.getWorldHeight(); } //world is always measured in meters
+    public int getResolutionY(){ return mCamera.getScreenHeight(); } //our framebuffer is not tied to the screens physical pixel count.
+    public int getResolutionX(){ return mCamera.getScreenWidth(); }
     public boolean isRunning() { return mGameThread != null && mGameThread.isGameRunning(); }
     public boolean isPaused() {
         return mGameThread != null && mGameThread.isGamePaused();
