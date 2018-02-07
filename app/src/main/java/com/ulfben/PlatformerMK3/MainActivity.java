@@ -50,9 +50,10 @@ public class MainActivity extends AppCompatActivity implements InputManager.Inpu
                     .add(R.id.container, new MainMenuFragment(), FRAGMENT_TAG)
                     .commit();
         }
-        Toolbar myToolbar = (Toolbar) findViewById(R.id.action_bar);
+        Toolbar myToolbar = findViewById(R.id.action_bar);
         setSupportActionBar(myToolbar);
-        showActionBar();
+        hideActionBar();
+      //  showActionBar();
     }
 
     @Override
@@ -83,13 +84,6 @@ public class MainActivity extends AppCompatActivity implements InputManager.Inpu
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
-        menu.findItem(R.id.btn_exit).setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
-            @Override
-            public boolean onMenuItemClick(final MenuItem menuItem) {
-                onBackPressed();
-                return false;
-            }
-        });
         return true;
     }
 

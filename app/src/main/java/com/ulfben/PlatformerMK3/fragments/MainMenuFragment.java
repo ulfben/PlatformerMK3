@@ -25,18 +25,14 @@ public class MainMenuFragment extends BaseFragment implements View.OnClickListen
     public void onViewCreated(final View view, final Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         view.findViewById(R.id.btn_start).setOnClickListener(this);
-        view.findViewById(R.id.btn_exit).setOnClickListener(this);
     }
 
     @Override
     public void onClick(final View v) {
         final int id = v.getId();
         if (id == R.id.btn_start){
-            ((MainActivity) getActivity()).startGame();
-        }else if(id == R.id.btn_exit){
-            onBackPressed();
+            getMainActivity().startGame();
         }
-
     }
 
     @Override

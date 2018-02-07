@@ -1,7 +1,11 @@
 package com.ulfben.PlatformerMK3.fragments;
 import android.os.Bundle;
+import android.support.v7.app.ActionBar;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -12,7 +16,7 @@ import com.ulfben.PlatformerMK3.engine.GameView;
 import com.ulfben.PlatformerMK3.gui.PauseDialog;
 //Created by Ulf Benjaminsson (ulfben) on 2017-04-02.
 
-public class GameFragment extends BaseFragment implements View.OnClickListener, PauseDialog.PauseDialogListener {
+public class GameFragment extends BaseFragment implements PauseDialog.PauseDialogListener {
     private static final String TAG = "GameFragment";
     private GameEngine mGameEngine = null;
 
@@ -23,27 +27,54 @@ public class GameFragment extends BaseFragment implements View.OnClickListener, 
     @Override
     public View onCreateView(final LayoutInflater inflater, final ViewGroup container,
                              final Bundle savedInstanceState) {
+        setHasOptionsMenu(true);
         return inflater.inflate(R.layout.fragment_game, container, false);
     }
+
 
     @Override
     public void onViewCreated(final View view, final Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        ActionBar ab = getMainActivity().getSupportActionBar();
+        if(ab != null) {
+            ab.show();
+        }
         final GameView gameView = view.findViewById(R.id.gameView);
         if(mGameEngine != null){
             Log.w(TAG, "Fragment re-created without cleanup!"); //if this ever happens I want to know about it.
             mGameEngine.onDestroy();
         }
         mGameEngine = new GameEngine(getMainActivity(), gameView);
-        view.findViewById(R.id.btn_play_pause).setOnClickListener(this);
     }
 
     @Override
-    public void onClick(final View v) {
-        if (v.getId() == R.id.btn_play_pause && mGameEngine.isRunning()) {
-            pauseGameAndShowPauseDialog();
+    public boolean onOptionsItemSelected(MenuItem item) {
+        Log.d(TAG, "onOptionsItemSelected");
+        switch (item.getItemId()) {
+            case R.id.musicToggle:
+                Log.d(TAG, "tapped musictoggle!");
+                return true;
         }
+        return false;
     }
+    @Override
+    public void onPrepareOptionsMenu(Menu menu) {
+        super.onPrepareOptionsMenu(menu);
+        menu.findItem(R.id.musicToggle).setOnMenuItemClickListener(
+            new MenuItem.OnMenuItemClickListener() {
+                @Override
+                public boolean onMenuItemClick(final MenuItem menuItem) {
+                    onBackPressed();
+                    return false;
+                }
+        });
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater)  {
+        inflater.inflate(R.menu.action_bar, menu);
+    }
+
     @Override
     public void onPause() {
         if (mGameEngine.isRunning()){
@@ -73,26 +104,10 @@ public class GameFragment extends BaseFragment implements View.OnClickListener, 
         mGameEngine.onPause();
         final PauseDialog dialog = new PauseDialog(getMainActivity(), this);
         showDialog(dialog);
-        updatePauseButton();
-    }
-
-    private void updatePauseButton(){
-        final View view = getView();
-        if(view == null){
-            Log.i(TAG, "View not available!");
-            return;
-        }
-        final Button button = view.findViewById(R.id.btn_play_pause);
-        if (mGameEngine.isPaused()) {
-            button.setText(R.string.resume);
-        } else {
-            button.setText(R.string.pause);
-        }
     }
 
     public void resumeGame() {
         mGameEngine.onResume();
-        updatePauseButton();
     }
 
     @Override
