@@ -38,23 +38,39 @@ public class Viewport {
     // based on the aspect ratio of screenWidth and screenHeight.
     public Viewport(final int screenWidth, final int screenHeight, final float metersToShowX, final float metersToShowY){
         super();
-        reset(screenWidth, screenHeight, metersToShowX, metersToShowY);
+        init(screenWidth, screenHeight);
+        setMetersToShow(metersToShowX, metersToShowY);
     }
 
-    public void reset(final int screenWidth, final int screenHeight, final float metersToShowX, final float metersToShowY){
+    public Viewport(final int screenWidth, final int screenHeight, final float minimumMetersToShow){
+        super();
+        init(screenWidth, screenHeight);
+        setMetersToShowOnShortestAxis(minimumMetersToShow, screenWidth, screenHeight);
+    }
+
+    private void init(final int screenWidth, final int screenHeight){
         mScreenWidth = screenWidth;
         mScreenHeight = screenHeight;
         mScreenCenterX = mScreenWidth / 2;
         mScreenCenterY = mScreenHeight / 2;
         mLookAt.x = 0.0f;
         mLookAt.y = 0.0f;
-        setMetersToShow(metersToShowX, metersToShowY);
+    }
+
+    public void setMetersToShowOnShortestAxis(final float metersToShow, final int screenWidth, final int screenHeight){
+        if(screenWidth < screenHeight){
+            setMetersToShow(metersToShow, 0.0f);
+        }else if(screenWidth > screenHeight){
+            setMetersToShow(0.0f, metersToShow);
+        }else{
+            setMetersToShow(metersToShow, metersToShow);
+        }
     }
 
     //setMetersToShow calculates the number of physical pixels per meters
     //so that we can translate our game world (meters) to the screen (pixels)
-    //provide the dimension(s) you want to lock. Eg; provide the number of vertical meters
-    //and the viewport will automatically size the other axis to fill the screen.
+    //provide the dimension(s) you want to lock. The viewport will automatically
+    // size the other axis to fill the screen perfectly.
     private void setMetersToShow(float metersToShowX, float metersToShowY){
         if (metersToShowX <= 0f && metersToShowY <= 0f) throw new IllegalArgumentException("One of the dimensions must be provided!");
         //formula: new height = (original height / original width) x new width

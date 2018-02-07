@@ -6,16 +6,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
-import com.ulfben.PlatformerMK3.MainActivity;
 import com.ulfben.PlatformerMK3.R;
 import com.ulfben.PlatformerMK3.engine.GameEngine;
 import com.ulfben.PlatformerMK3.engine.GameView;
-import com.ulfben.PlatformerMK3.engine.Jukebox;
 import com.ulfben.PlatformerMK3.gui.PauseDialog;
-import com.ulfben.PlatformerMK3.input.Accelerometer;
-import com.ulfben.PlatformerMK3.input.ConfigurableGameInput;
-import com.ulfben.PlatformerMK3.input.Gamepad;
-import com.ulfben.PlatformerMK3.input.VirtualJoystick;
 //Created by Ulf Benjaminsson (ulfben) on 2017-04-02.
 
 public class GameFragment extends BaseFragment implements View.OnClickListener, PauseDialog.PauseDialogListener {
@@ -60,7 +54,6 @@ public class GameFragment extends BaseFragment implements View.OnClickListener, 
 
     @Override
     public void onDestroy() {
-        mGameEngine.stopGame();
         mGameEngine.onDestroy();
         super.onDestroy();
     }
@@ -77,7 +70,7 @@ public class GameFragment extends BaseFragment implements View.OnClickListener, 
         return consumed;
     }
     public void pauseGameAndShowPauseDialog() {
-        mGameEngine.pauseGame();
+        mGameEngine.onPause();
         final PauseDialog dialog = new PauseDialog(getMainActivity(), this);
         showDialog(dialog);
         updatePauseButton();
@@ -89,7 +82,7 @@ public class GameFragment extends BaseFragment implements View.OnClickListener, 
             Log.i(TAG, "View not available!");
             return;
         }
-        final Button button = (Button) view.findViewById(R.id.btn_play_pause);
+        final Button button = view.findViewById(R.id.btn_play_pause);
         if (mGameEngine.isPaused()) {
             button.setText(R.string.resume);
         } else {
@@ -98,14 +91,13 @@ public class GameFragment extends BaseFragment implements View.OnClickListener, 
     }
 
     public void resumeGame() {
-        mGameEngine.reloadPreferences();
-        mGameEngine.resumeGame();
+        mGameEngine.onResume();
         updatePauseButton();
     }
 
     @Override
     public void exitGame() {
-        mGameEngine.stopGame();
+        mGameEngine.onStop();
         getMainActivity().navigateBack();
     }
 }

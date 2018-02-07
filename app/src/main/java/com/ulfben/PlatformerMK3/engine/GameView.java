@@ -7,6 +7,7 @@ import android.graphics.Paint;
 import android.graphics.Point;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.WindowManager;
@@ -24,9 +25,12 @@ public class GameView extends SurfaceView{
     public static final int DEFAULT_HEIGHT = 1280;
     private Canvas mCanvas = null;
     private SurfaceHolder mSurfaceHolder = null;
-    private Paint mPaint = null;
-    private int fixedWidth = 0;
-    private int fixedHeight = 0;
+    private DisplayMetrics mScreenMetrics = new DisplayMetrics(); //used to hold display information.
+    private Paint mPaint = new Paint();
+    private final Point mScreenCord = new Point(); //re-usable object for the render-loop
+    private final Matrix mTransform = new Matrix(); //re-usable object for the render-loop
+    private int mFixedWidth = DEFAULT_WIDTH;
+    private int mFixedHeight = DEFAULT_HEIGHT;
 
     public GameView(final Context context) {
         super(context);
@@ -41,8 +45,15 @@ public class GameView extends SurfaceView{
         init();
     }
     private void init(){
-        mPaint = new Paint();
         mSurfaceHolder = getHolder();
+        readDisplayInfo();
+    }
+
+    private void readDisplayInfo(){
+        final WindowManager wm = (WindowManager) getContext().getSystemService(Context.WINDOW_SERVICE);
+        if(wm != null){
+            wm.getDefaultDisplay().getMetrics(mScreenMetrics);
+        }
     }
 
     //getSafeWidth / getSafeHeight will always return a reasonable number, even if the surface hasn't been created yet.
@@ -52,38 +63,30 @@ public class GameView extends SurfaceView{
     //the engine will switch over to the most up-to-date and correct values.
     public int getSafeWidth(){
         int width = getWidth();
-        if(width > 0){ return width; }
-
-        DisplayMetrics metrics = new DisplayMetrics();
-        WindowManager wm = (WindowManager) getContext().getSystemService(Context.WINDOW_SERVICE);
-        if(wm != null){
-            wm.getDefaultDisplay().getMetrics(metrics);
-        }
-        if(metrics.widthPixels > 0) { return metrics.widthPixels; }
+        if(width > 0){ return width; } //width seems valid
+        if(mFixedWidth != DEFAULT_WIDTH){ return mFixedWidth; } //if our fixed buffer size has been touched, use that value
+        readDisplayInfo(); //no other values available, so lets use the screen width
+        if(mScreenMetrics.widthPixels > 0) { return mScreenMetrics.widthPixels; }
         return DEFAULT_WIDTH;
     }
 
     public int getSafeHeight(){
         int height = getHeight();
-        if(height > 0){ return height;}
-
-        DisplayMetrics metrics = new DisplayMetrics();
-        WindowManager wm = (WindowManager) getContext().getSystemService(Context.WINDOW_SERVICE);
-        if(wm != null){
-            wm.getDefaultDisplay().getMetrics(metrics);
-        }
-        if(metrics.heightPixels > 0){ return metrics.heightPixels; }
+        if(height > 0){ return height;} //the self-reported height seems sane
+        if(mFixedHeight != DEFAULT_HEIGHT){  return mFixedHeight; } //if our fixed buffer size has been touched, use that value
+        readDisplayInfo(); //no other values available, so lets use the screen height
+        if(mScreenMetrics.heightPixels > 0){ return mScreenMetrics.heightPixels; }
         return DEFAULT_HEIGHT;
     }
 
     //Render to a fixed-size buffer and then scale on the GPU
-    // is recommended practice for games on Android:
     //https://android-developers.googleblog.com/2013/09/using-hardware-scaler-for-performance.html
-    public void setFixedSize(int bufferWidth, int bufferHeight){
-        fixedWidth = bufferWidth;
-        fixedHeight = bufferHeight;
-        if(fixedWidth > 0 && fixedHeight > 0) {
-            mSurfaceHolder.setFixedSize(fixedWidth, fixedHeight);
+    public void setFixedSize(int newWidth, int newHeight){
+        if(newWidth < 1 || newHeight < 1){ return; }
+        if(newWidth != mFixedWidth || newHeight != mFixedHeight) { //make sure we're actually applying *new* values
+            mFixedWidth = newWidth;                              //to avoid redundant onSurfaceChanged callbacks!
+            mFixedHeight = newHeight;
+            mSurfaceHolder.setFixedSize(mFixedWidth, mFixedHeight);
         }
     }
 
@@ -95,14 +98,13 @@ public class GameView extends SurfaceView{
             mCanvas.drawColor(BG_COLOR);
             mPaint.setColor(Color.WHITE);
             final int numObjects = visibleGameObjects.size();
-            final Point screenCord = new Point();
-            final Matrix mTransform = new Matrix();
+
             GameObject obj;
             for (int i = 0; i < numObjects; i++) {
                 obj = visibleGameObjects.get(i);
-                camera.worldToScreen(obj, screenCord);
+                camera.worldToScreen(obj, mScreenCord);
                 mTransform.reset();
-                mTransform.postTranslate(screenCord.x, screenCord.y);
+                mTransform.postTranslate(mScreenCord.x, mScreenCord.y);
                 obj.render(mCanvas, mTransform, mPaint);
             }
             if (GameEngine.SHOW_STATS) {

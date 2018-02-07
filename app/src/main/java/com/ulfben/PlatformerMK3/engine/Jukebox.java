@@ -26,7 +26,7 @@ public class Jukebox {
 
     private Context mContext = null;
     private SoundPool mSoundPool = null;
-    private MediaPlayer mBgPlayer = null;
+    private MediaPlayer mMediaPlayer = null;
     private HashMap<GameEvent, Integer> mSoundsMap = null;
 
     public static final String SOUNDS_PREF_KEY = "sounds_pref_key";
@@ -68,15 +68,15 @@ public class Jukebox {
         final String track = bgm[Random.nextInt(bgm.length)];
         Log.d(TAG, "Loading " + track);
         try{
-            mBgPlayer = new MediaPlayer();
+            mMediaPlayer = new MediaPlayer();
             final AssetFileDescriptor afd = mContext.getAssets().openFd(track);
-            mBgPlayer.setDataSource(
+            mMediaPlayer.setDataSource(
                     afd.getFileDescriptor(),
                     afd.getStartOffset(),
                     afd.getLength());
-            mBgPlayer.setLooping(true);
-            mBgPlayer.setVolume(DEFAULT_MUSIC_VOLUME, DEFAULT_MUSIC_VOLUME);
-            mBgPlayer.prepare();
+            mMediaPlayer.setLooping(true);
+            mMediaPlayer.setVolume(DEFAULT_MUSIC_VOLUME, DEFAULT_MUSIC_VOLUME);
+            mMediaPlayer.prepare();
         }catch(final IOException e){
             Log.d(TAG, e.toString());
         }
@@ -102,7 +102,7 @@ public class Jukebox {
             unloadSounds();
         }
         mMusicEnabled = mPrefs.getBoolean(MUSIC_PREF_KEY, true);
-        if(mMusicEnabled && mBgPlayer == null){
+        if(mMusicEnabled && mMediaPlayer == null){
             loadMusic();
         }else if(!mMusicEnabled){
             unloadMusic();
@@ -121,11 +121,11 @@ public class Jukebox {
 
     public void pauseBgMusic(){
         if(!mMusicEnabled){ return; }
-        mBgPlayer.pause();
+        mMediaPlayer.pause();
     }
     public void resumeBgMusic(){
         if(!mMusicEnabled){ return; }
-        mBgPlayer.start();
+        mMediaPlayer.start();
     }
 
     private void loadEventSound(final GameEvent event, final String fileName){
@@ -145,11 +145,11 @@ public class Jukebox {
     }
 
     private void unloadMusic(){
-        if(mBgPlayer == null) { return; }
-        mBgPlayer.stop();
-        mBgPlayer.reset();
-        mBgPlayer.release();
-        mBgPlayer = null;
+        if(mMediaPlayer == null) { return; }
+        mMediaPlayer.stop();
+        mMediaPlayer.reset();
+        mMediaPlayer.release();
+        mMediaPlayer = null;
     }
 
     //the SoundPool API was changed in Lollipop (SDK 21) so I implement both
