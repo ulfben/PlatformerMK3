@@ -4,6 +4,7 @@
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
     <color name="white" tools:ignore="UnusedResources">#FFFFFF</color>
+    <color name="black">#000000</color>
     <color name="dialog_overlay">#aa000000</color>
     <color name="text_color">#FFFFFF</color>
     <color name="btn_selected" tools:ignore="UnusedResources">#39a29c</color>

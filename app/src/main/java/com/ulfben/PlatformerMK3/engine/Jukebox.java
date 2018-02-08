@@ -36,7 +36,7 @@ public class Jukebox {
     private boolean mMusicEnabled = false;
 
     //https://developer.android.com/guide/topics/media-apps/volume-and-earphones.html
-    public Jukebox(final Context context) {
+    Jukebox(final Context context) {
         super();
         mContext = context;
         mPrefs = PreferenceManager.getDefaultSharedPreferences(context);
@@ -81,7 +81,7 @@ public class Jukebox {
             Log.d(TAG, e.toString());
         }
     }
-    public void playSoundForGameEvent(final GameEvent event){
+    void playSoundForGameEvent(final GameEvent event){
         if(!mSoundEnabled || mSoundPool == null){return;}
         final float leftVolume = DEFAULT_SFX_VOLUME;
         final float rightVolume = DEFAULT_SFX_VOLUME;
@@ -94,7 +94,7 @@ public class Jukebox {
         }
     }
 
-    public void reloadAndApplySettings(){
+    void reloadAndApplySettings(){
         mSoundEnabled = mPrefs.getBoolean(SOUNDS_PREF_KEY, true);
         if(mSoundEnabled && mSoundPool == null){
             loadSounds(); //only load again if we have unloaded before.
@@ -109,7 +109,7 @@ public class Jukebox {
         }
     }
 
-    public void destroy(){
+    void destroy(){
         if(mSoundEnabled){
             unloadSounds();
         }
@@ -119,11 +119,11 @@ public class Jukebox {
         mContext = null;
     }
 
-    public void pauseBgMusic(){
+    void pauseBgMusic(){
         if(!mMusicEnabled){ return; }
         mMediaPlayer.pause();
     }
-    public void resumeBgMusic(){
+    void resumeBgMusic(){
         if(!mMusicEnabled){ return; }
         mMediaPlayer.start();
     }

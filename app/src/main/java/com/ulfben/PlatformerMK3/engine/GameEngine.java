@@ -1,5 +1,6 @@
 package com.ulfben.PlatformerMK3.engine;
 import android.content.Context;
+import android.support.annotation.Nullable;
 import android.util.Log;
 import android.view.SurfaceHolder;
 
@@ -32,22 +33,22 @@ public class GameEngine implements SurfaceHolder.Callback{
     private final GameView mGameView;
     private final ConfigurableGameInput mControls;
     private final Jukebox mJukebox;
+    private EngineListener mListener = null; //listener will be notified on engine events. Currently just one: when we're ready to load levels and start the game thread.
     private GameThread mGameThread = null; //created in startGame
     private LevelManager mLevel = null; //created in loadLevel
     private Viewport mCamera = null; //created in loadLevel, and re-created whenever sufaceChange happens.
     private int mSurfaceChangeCount = 0; //for debug output.
-    private int mFrameBufferWidth = 1280; //just a default while waiting for the surface to get ready
-    private int mFrameBufferHeight = 720; //these will change once we get the surfaceChange callbacks
+    private int mFrameBufferWidth = 0; //we have to waiting for the surface to get ready
+    private int mFrameBufferHeight = 0; //these will change once we get the surfaceChange callbacks
     private volatile boolean mCameraNeedsUpdating = false; //to let the viewport resize when the surface changes.
+    private volatile boolean mNeedSettingsReload = false;
 
-
-    //TODO: figure out what to do with the app bar
-    //TODO: add rotation-toggle to the action-bar
-    public GameEngine(final MainActivity a, final GameView gameView) {
+    public GameEngine(final MainActivity a, final GameView gameView, @Nullable  final EngineListener listener) {
         super();
-        Log.d(TAG, "Constructing GameEngine");
+        Log.d(TAG, "Constructing GameEngine. Waiting for SurfaceView");
         mActivity = a;
         mGameView = gameView;
+        setCallback(listener);
         mGameView.getHolder().addCallback(this); //we listen to surface callbacks to adjust our ViewPort when needed.
         mJukebox = new Jukebox(mActivity.getApplicationContext());
         mControls = new ConfigurableGameInput(mActivity.getApplicationContext(),
@@ -88,6 +89,9 @@ public class GameEngine implements SurfaceHolder.Callback{
 
     private void input(final float dt){
         mControls.update(dt);
+        if(mNeedSettingsReload){ //"input" from our UI thread (see: appbar / gamefragment)
+            reloadPreferences();
+        }
         if(mCameraNeedsUpdating){ //"input" from our UI thread (see: the surfaceChanged callback)
            buildViewport(mFrameBufferWidth, mFrameBufferHeight, METERS_TO_SHOW_X, METERS_TO_SHOW_Y);
         }
@@ -149,6 +153,7 @@ public class GameEngine implements SurfaceHolder.Callback{
             mGameView.getHolder().removeCallback(this);
             mGameView.destroy();
         }
+        mListener = null;
         GameObject.mEngine = null;
     }
 
@@ -170,10 +175,14 @@ public class GameEngine implements SurfaceHolder.Callback{
             Log.d(TAG, "\tsetFixedSize: " + mFrameBufferWidth +" : "+ mFrameBufferHeight);
             mGameView.setFixedSize(mFrameBufferWidth, mFrameBufferHeight); //Will generate a new surfaceChanged-callback
             mCameraNeedsUpdating = true; //flag so the GameThread knows to resample all bitmaps
+            if(!isRunning()) { //surface is sized and ready, time to load assets and start the game!
+                broadcastEvent(EngineListener.ON_ENGINE_READY);
+            }
         }else{
             Log.d(TAG, "\tIgnoring. Viewport is already at the correct resolution.");
         }
     }
+
     // We literally must not return from surfaceDestroyed until we are sure that nobody
     // will touch the surface again. See: https://goo.gl/VrjXRW
     // Since we use lockCanvas / unlockAndPost for our rendering this callback isn't
@@ -248,7 +257,9 @@ public class GameEngine implements SurfaceHolder.Callback{
     private void reloadPreferences(){
         if(mJukebox != null){ mJukebox.reloadAndApplySettings(); }
         if(mControls != null){ mControls.reloadAndApplySettings(); }
+        mNeedSettingsReload = false;
     }
+    public void onSharedPreferenceChange(){ mNeedSettingsReload = true; }
     private void refreshStats(){
         DebugTextRenderer.VISIBLE_OBJECTS = mVisibleObjects.size();
         DebugTextRenderer.TOTAL_OBJECT_COUNT = mLevel.mGameObjects.size();
@@ -278,5 +289,24 @@ public class GameEngine implements SurfaceHolder.Callback{
     }
     public float worldToScreen(final float worldDistance, final Axis axis){
         return (axis == Axis.X) ? worldDistance * mCamera.getPixelsPerMeterX() : worldDistance * mCamera.getPixelsPerMeterY();
+    }
+
+    //listeners will be notified on engine events.
+    // Right now, only a single event: when we're ready to load levels and start the game thread.
+    private void broadcastEvent(int eventId){
+        if(mListener == null){ return; }
+        switch(eventId){
+            case EngineListener.ON_ENGINE_READY:
+                mListener.onEngineReady();
+                break;
+            default:
+                break;
+        }
+    }
+    public void setCallback(@Nullable  final EngineListener listener){ mListener = listener; }
+    public void unsetCallback(){ mListener = null; }
+    public interface EngineListener {
+        final static int ON_ENGINE_READY = 1;
+        void onEngineReady();
     }
 }

@@ -16,4 +16,9 @@
     <string name="gampad_help_title">Gamepad detected!</string>
     <string name="gamepad_help_message">Use the joystick to move, any button to jump and B to exit!</string>
     <string name="exit_confirm">Exit Game?</string>
+    <string name="force_landscape">Force landscape</string>
+    <string name="force_portrait">Force portrait</string>
+    <string name="toogle_music">Toogle Music</string>
+    <string name="toogle_sfx">Toogle SFX</string>
+    <string name="toogle_rotation">Toogle Rotation</string>
 </resources>

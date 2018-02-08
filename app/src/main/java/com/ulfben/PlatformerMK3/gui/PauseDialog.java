@@ -43,7 +43,7 @@ public class PauseDialog extends Dialog implements View.OnClickListener {
         final ImageView btnSounds = (ImageView) findViewById(R.id.btn_sound);
         btnSounds.setImageResource((soundEnabled) ? R.drawable.sounds_on_no_bg : R.drawable.sounds_off_no_bg);
         final ImageView motionControls = (ImageView) findViewById(R.id.btn_accelerometer);
-        motionControls.setImageResource((allowMotionControl) ? R.drawable.ic_screen_rotation_black_24dp : R.drawable.ic_screen_lock_rotation_black_24dp);
+        motionControls.setImageResource((allowMotionControl) ? R.drawable.ic_screen_rotation : R.drawable.ic_screen_lock_rotation);
     }
 
     @Override

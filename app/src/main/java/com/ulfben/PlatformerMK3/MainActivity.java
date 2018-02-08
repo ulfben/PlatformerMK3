@@ -1,6 +1,7 @@
 package com.ulfben.PlatformerMK3;
 
 import android.content.Context;
+import android.content.pm.ActivityInfo;
 import android.hardware.input.InputManager;
 import android.media.AudioManager;
 import android.os.Build;
@@ -32,9 +33,7 @@ public class MainActivity extends AppCompatActivity implements InputManager.Inpu
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-      //  setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
         setVolumeControlStream(AudioManager.STREAM_MUSIC);
-       //hideSystemUI();
         setContentView(R.layout.activity_main);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
             final InputManager inputManager = (InputManager) getSystemService(Context.INPUT_SERVICE);
@@ -48,10 +47,10 @@ public class MainActivity extends AppCompatActivity implements InputManager.Inpu
                     .add(R.id.container, new MainMenuFragment(), FRAGMENT_TAG)
                     .commit();
         }
-        Toolbar myToolbar = findViewById(R.id.action_bar);
-        setSupportActionBar(myToolbar);
-      //  hideActionBar();
-      //  showActionBar();
+        Toolbar toolbar = findViewById(R.id.action_bar);
+        setSupportActionBar(toolbar);
+        hideActionBar(); //only show the actionbar during game play
+        hideSystemUI();
     }
 
     @Override
@@ -65,14 +64,14 @@ public class MainActivity extends AppCompatActivity implements InputManager.Inpu
         super.onDestroy();
     }
 
-    private void showActionBar(){
+    public void showActionBar(){
         ActionBar ab = getSupportActionBar();
         if(ab != null) {
             ab.show();
         }
     }
 
-    private void hideActionBar(){
+    public void hideActionBar(){
         ActionBar ab = getSupportActionBar();
         if(ab != null) {
             ab.hide();
@@ -93,7 +92,6 @@ public class MainActivity extends AppCompatActivity implements InputManager.Inpu
 
     public void startGame() {
         navigateToFragment(new GameFragment(), FRAGMENT_TAG);
-        //hideActionBar();
     }
 
     private void navigateToFragment(final BaseFragment dst, final String tag) {
@@ -166,7 +164,7 @@ public class MainActivity extends AppCompatActivity implements InputManager.Inpu
         hideSystemUI();
     }
 
-    private void hideSystemUI() {
+    public void hideSystemUI() {
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT){
             getWindow().getDecorView().setSystemUiVisibility(
                     View.SYSTEM_UI_FLAG_LAYOUT_STABLE |

@@ -37,7 +37,7 @@
         android:layout_alignParentStart="true"
         >
 
-        <ImageView
+        <android.support.v7.widget.AppCompatImageView
             android:id="@+id/btn_resume"
             style="@style/iconButton"
             android:layout_width="@dimen/btn_round_size"
@@ -49,12 +49,12 @@
             android:contentDescription="@string/resume"
             android:nextFocusForward="@+id/btn_exit"
             android:nextFocusLeft="@+id/btn_music"
-            android:src="@drawable/ic_play_circle_outline_black_24dp"
+            android:src="@drawable/ic_play_circle_outline"
             app:layout_constraintEnd_toStartOf="@+id/btn_exit"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toLeftOf="@+id/btn_exit"/>
 
-        <ImageView
+        <android.support.v7.widget.AppCompatImageView
             android:id="@+id/btn_exit"
             style="@style/iconButton"
             android:layout_width="@dimen/btn_round_size"
@@ -63,12 +63,12 @@
             android:layout_marginEnd="8dp"
             android:layout_marginRight="8dp"
             android:focusable="true"
-            android:src="@drawable/ic_exit_to_app_black_24dp"
+            android:src="@drawable/ic_exit_to_app"
             android:contentDescription="@string/exit"
             app:layout_constraintEnd_toStartOf="@+id/btn_accelerometer"
             app:layout_constraintRight_toLeftOf="@+id/btn_accelerometer"/>
 
-        <ImageView
+        <android.support.v7.widget.AppCompatImageView
             android:id="@+id/btn_accelerometer"
             style="@style/iconButton"
             android:layout_width="@dimen/btn_round_size"
@@ -78,11 +78,11 @@
             android:layout_marginRight="8dp"
             android:focusable="true"
             android:contentDescription="@string/motion"
-            android:src="@drawable/ic_screen_rotation_black_24dp"
+            android:src="@drawable/ic_screen_rotation"
             app:layout_constraintEnd_toStartOf="@+id/btn_sound"
             app:layout_constraintRight_toLeftOf="@+id/btn_sound"/>
 
-        <ImageView
+        <android.support.v7.widget.AppCompatImageView
             android:id="@+id/btn_sound"
             style="@style/iconButton"
             android:layout_width="@dimen/btn_round_size"
@@ -96,7 +96,7 @@
             app:layout_constraintEnd_toStartOf="@+id/btn_music"
             app:layout_constraintRight_toLeftOf="@+id/btn_music"/>
 
-        <ImageView
+        <android.support.v7.widget.AppCompatImageView
             android:id="@+id/btn_music"
             style="@style/iconButton"
             android:layout_width="@dimen/btn_round_size"

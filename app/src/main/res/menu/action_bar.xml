@@ -2,23 +2,39 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
       xmlns:app="http://schemas.android.com/apk/res-auto">
 
+    <item
+        android:id="@+id/screenLockLandscape"
+        android:icon="@drawable/ic_screen_lock_landscape"
+        android:iconTint="@color/colorAccent"
+        android:title="@string/force_landscape"
+        app:showAsAction="never|withText"/>
+
+    <item
+        android:id="@+id/screenLockPortrait"
+        android:icon="@drawable/ic_screen_lock_portrait"
+        android:iconTint="@color/colorAccent"
+        android:title="@string/force_portrait"
+        app:showAsAction="never|withText"/>
 
       <item
           android:id="@+id/musicToggle"
           android:icon="@drawable/music_on_no_bg"
-          android:title="Toogle Music"
-          app:showAsAction="ifRoom"/>
+          android:title="@string/toogle_music"
+          android:iconTint="@color/white"
+          app:showAsAction="never|withText"/>
 
       <item
           android:id="@+id/sfxToggle"
-          android:icon="@drawable/music_on_no_bg"
-          android:title="Toogle SFX"
-          app:showAsAction="ifRoom"/>
+          android:icon="@drawable/sounds_on_no_bg"
+          android:title="@string/toogle_sfx"
+          android:iconTint="@color/white"
+          app:showAsAction="never|withText"/>
       <item
           android:id="@+id/rotationToggle"
-          android:icon="@drawable/ic_screen_rotation_black_24dp"
-          android:title="Toogle Rotation"
-          app:showAsAction="ifRoom"/>
+          android:icon="@drawable/ic_screen_rotation"
+          android:title="@string/toogle_rotation"
+          android:iconTint="@color/white"
+          app:showAsAction="never|withText"/>
 
 
 

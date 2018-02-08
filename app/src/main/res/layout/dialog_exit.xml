@@ -25,24 +25,26 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content">
 
-        <ImageView
+        <android.support.v7.widget.AppCompatImageView
             android:id="@+id/btn_resume"
             style="@style/iconButton"
             android:layout_marginRight="@dimen/btn_round_size"
-            android:src="@drawable/ic_play_circle_outline_black_24dp"
+            android:src="@drawable/ic_play_circle_outline"
             android:nextFocusLeft="@+id/btn_exit"
             android:nextFocusForward="@+id/btn_exit"
             android:nextFocusRight="@+id/btn_exit"
+            android:tint="@color/black"
             android:contentDescription="@string/resume"
             android:focusable="true"/>
 
-        <ImageView
+        <android.support.v7.widget.AppCompatImageView
             android:id="@+id/btn_exit"
             style="@style/iconButton"
             android:nextFocusForward="@id/btn_resume"
             android:nextFocusLeft="@+id/btn_resume"
             android:nextFocusRight="@+id/btn_resume"
-            android:src="@drawable/ic_exit_to_app_black_24dp"
+            android:src="@drawable/ic_exit_to_app"
+            android:tint="@color/black"
             android:contentDescription="@string/exit"
             android:focusable="true"/>
     </LinearLayout>
@@ -52,7 +54,7 @@
         android:layout_width="wrap_content"
         android:focusable="false"
         android:layout_height="wrap_content">
-        <TextView
+        <android.support.v7.widget.AppCompatTextView
             android:id="@+id/lbl_resume"
             android:layout_width="@dimen/btn_round_size"
             android:layout_marginRight="@dimen/btn_round_size"
@@ -63,7 +65,7 @@
             android:textStyle="bold"
             android:focusable="false"
             />
-        <TextView
+        <android.support.v7.widget.AppCompatTextView
             android:id="@+id/lbl_exit"
             android:layout_width="@dimen/btn_round_size"
             android:layout_height="wrap_content"
