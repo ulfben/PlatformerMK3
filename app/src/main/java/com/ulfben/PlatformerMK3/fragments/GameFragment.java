@@ -84,7 +84,6 @@ public class GameFragment extends BaseFragment implements PauseDialog.PauseDialo
     //TODO: add settings to app bar,
     // including forced orientation!
     // TODO: music doesn't restart
-    // TODO: orientation doesn't stick
     // TODO: and maybe option to hide app bar?
     @Override
     public void onPrepareOptionsMenu(Menu menu) {

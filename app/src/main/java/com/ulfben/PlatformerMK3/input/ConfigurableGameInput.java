@@ -22,6 +22,7 @@ public class ConfigurableGameInput extends CompositeGameInput {
             removeAccelerometer();
         }else if(mMotionControl != null){
             super.addInput(mMotionControl);
+            mMotionControl.onResume();
         }
     }
 
