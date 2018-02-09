@@ -10,6 +10,7 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.InputDevice;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -81,12 +82,14 @@ public class MainActivity extends AppCompatActivity implements InputManager.Inpu
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
+        Log.d(TAG, "onPrepareOptionsMenu");
         return true;
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.action_bar, menu);
+        //getMenuInflater().inflate(R.menu.action_bar, menu);
+        Log.d(TAG, "onCreateOptionsMenu");
         return true;
     }
 

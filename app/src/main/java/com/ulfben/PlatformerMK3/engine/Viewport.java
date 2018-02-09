@@ -91,7 +91,7 @@ class Viewport {
         DBG_VIEWPORT = String.format(Locale.getDefault(),"Viewport [%dpx, %dpx / %.1fm, %.1fm]", mScreenWidth, mScreenHeight, mMetersToShowX, mMetersToShowY);
     }
 
-    public void setBounds(final float width, final float height){
+    void setBounds(final float width, final float height){
         mIsBounded = true;
         mWorldWidth = width;
         mWorldHeight = height;
@@ -104,8 +104,8 @@ class Viewport {
         }
         mMinPosition.x = (mMetersToShowX*0.5f);
         mMinPosition.y = (mMetersToShowY*0.5f);
-        mMaxPosition.x = mWorldWidth-(mMetersToShowX*0.5f);
-        mMaxPosition.y = mWorldHeight-(mMetersToShowY*0.5f);
+        mMaxPosition.x = Math.max(mMinPosition.x, mWorldWidth-(mMetersToShowX*0.5f));
+        mMaxPosition.y = Math.max(mMinPosition.y, mWorldHeight-(mMetersToShowY*0.5f));
     }
 
     public void follow(final GameObject go){

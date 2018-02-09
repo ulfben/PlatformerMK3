@@ -31,7 +31,7 @@ class DebugTextRenderer {
     }
 
     public static void render(final Canvas canvas, final Viewport camera, final Paint paint){
-        final int textSize = camera.getPixelsPerMeterY() / 3;
+        final int textSize = 15; //let text have 5% off screen height
         final int margin = 10;
         int y = camera.getScreenHeight()-margin;
         paint.setTextSize(textSize);

@@ -40,18 +40,7 @@ public class Jukebox {
         super();
         mContext = context;
         mPrefs = PreferenceManager.getDefaultSharedPreferences(context);
-        mSoundEnabled = mPrefs.getBoolean(SOUNDS_PREF_KEY, true);
-        mMusicEnabled = mPrefs.getBoolean(MUSIC_PREF_KEY, true);
-        loadIfNeeded();
-    }
-
-    private void loadIfNeeded(){
-        if(mSoundEnabled){
-            loadSounds();
-        }
-        if(mMusicEnabled){
-            loadMusic();
-        }
+        reloadAndApplySettings();
     }
 
     private void loadSounds(){
@@ -95,6 +84,7 @@ public class Jukebox {
     }
 
     void reloadAndApplySettings(){
+        Log.d(TAG, "reloading settings...");
         mSoundEnabled = mPrefs.getBoolean(SOUNDS_PREF_KEY, true);
         if(mSoundEnabled && mSoundPool == null){
             loadSounds(); //only load again if we have unloaded before.
@@ -103,8 +93,11 @@ public class Jukebox {
         }
         mMusicEnabled = mPrefs.getBoolean(MUSIC_PREF_KEY, true);
         if(mMusicEnabled && mMediaPlayer == null){
+            Log.d(TAG, "loading music");
             loadMusic();
+            resumeBgMusic();
         }else if(!mMusicEnabled){
+            Log.d(TAG, "unloading music");
             unloadMusic();
         }
     }

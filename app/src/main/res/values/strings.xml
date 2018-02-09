@@ -21,4 +21,6 @@
     <string name="toogle_music">Toogle Music</string>
     <string name="toogle_sfx">Toogle SFX</string>
     <string name="toogle_rotation">Toogle accelerometer</string>
+    <string name="zoom_in">Zoom in</string>
+    <string name="zoom_out">Zoom out</string>
 </resources>

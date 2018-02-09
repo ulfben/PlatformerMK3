@@ -1,5 +1,6 @@
 package com.ulfben.PlatformerMK3.engine;
 import android.content.Context;
+import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.util.Log;
 import android.view.SurfaceHolder;
@@ -22,11 +23,13 @@ import java.util.ArrayList;
 public class GameEngine implements SurfaceHolder.Callback{
     private static final String TAG = "GameEngine";
     static final boolean SHOW_STATS = true; //print useful stats to screen during game play
+    public static final String METERS_TO_SHOW_PREF_KEY = "meters_to_show";
     private static final float SCALE_FACTOR = 0.5f; // we render to a buffer 0.5x the resolution of the physical screen.
         //and use the GPU to scale it up: https://android-developers.googleblog.com/2013/09/using-hardware-scaler-for-performance.html
     private static final float METERS_TO_SHOW_X = 0f; //set the value you want fixed
     private static final float METERS_TO_SHOW_Y = 9f;  //the other is calculated at runtime!
-    private static final float METERS_TO_SHOW_ON_SHORTEST_AXIS = 9f; //OR use this to always scale along the shorter axis.
+
+    private float mMetersToShow = 9; //OR use this to always scale along the shorter axis.
 
     private final ArrayList<GameObject> mVisibleObjects = new ArrayList<>();
     private final MainActivity mActivity;
@@ -41,7 +44,7 @@ public class GameEngine implements SurfaceHolder.Callback{
     private int mFrameBufferWidth = 0; //we have to waiting for the surface to get ready
     private int mFrameBufferHeight = 0; //these will change once we get the surfaceChange callbacks
     private volatile boolean mCameraNeedsUpdating = false; //to let the viewport resize when the surface changes.
-    private volatile boolean mNeedSettingsReload = false;
+    private volatile boolean mNeedSettingsReload = true;
 
     public GameEngine(final MainActivity a, final GameView gameView, @Nullable  final EngineListener listener) {
         super();
@@ -59,7 +62,6 @@ public class GameEngine implements SurfaceHolder.Callback{
         GameObject.mEngine = this; //NOTE: this reference must be nulled in onDestroy!
     }
 
-    //called from GameFragment from onStart.
     public void startGame() {
         Log.d(TAG, "startGame");
         killGameThreadIfRunning(); //Belts & Suspenders.
@@ -93,7 +95,7 @@ public class GameEngine implements SurfaceHolder.Callback{
             reloadPreferences();
         }
         if(mCameraNeedsUpdating){ //"input" from our UI thread (see: the surfaceChanged callback)
-           buildViewport(mFrameBufferWidth, mFrameBufferHeight, METERS_TO_SHOW_X, METERS_TO_SHOW_Y);
+           buildViewport(mFrameBufferWidth, mFrameBufferHeight, mMetersToShow);
         }
     }
     private void update(final float dt){
@@ -179,7 +181,7 @@ public class GameEngine implements SurfaceHolder.Callback{
                 broadcastEvent(EngineListener.ON_ENGINE_READY);
             }
         }else{
-            Log.d(TAG, "\tIgnoring. Viewport is already at the correct resolution.");
+            Log.d(TAG, "\tIgnoring. Viewport is already matches the framebuffer.");
         }
     }
 
@@ -209,23 +211,19 @@ public class GameEngine implements SurfaceHolder.Callback{
             mLevel.destroy();
         }
         if(mCamera == null || mCameraNeedsUpdating){ //We need Viewport, so LevelManager can load assets with correct pixel density (pixels-per-meter)
-            buildViewport(mFrameBufferWidth, mFrameBufferHeight, METERS_TO_SHOW_X, METERS_TO_SHOW_Y);
+            buildViewport(mFrameBufferWidth, mFrameBufferHeight, mMetersToShow);
         }
         mLevel = new LevelManager(levelName);
         setCameraBoundsAndFollowPlayer(); //tell the camera to track our player, and stay within the game world
     }
     //The Viewport provides our density (pixels-per-meter).
     // If a level exists when the viewport is (re)built, LevelManager will be asked to resample all bitmaps to match the new density.
-    private void buildViewport(int frameBufferWidth, int frameBufferHeight, float metersToShowX, float metersToShowY){
+    private void buildViewport(int frameBufferWidth, int frameBufferHeight, float metersToShow){
         mCameraNeedsUpdating = false; //reset the flag
-        if(mCamera != null && (mCamera.getScreenWidth() == frameBufferWidth && mCamera.getScreenHeight() == frameBufferHeight)){
-            Log.d(TAG, "Viewport already matches the framebuffer. No action taken.");
-        }
-        Log.d(TAG, "Building viewport for: " + frameBufferWidth +" : "+frameBufferHeight);
-        mCamera = new Viewport(frameBufferWidth, frameBufferHeight, metersToShowX, metersToShowY);
-        if(METERS_TO_SHOW_ON_SHORTEST_AXIS > 0){
-            mCamera = new Viewport(frameBufferWidth, frameBufferHeight, METERS_TO_SHOW_ON_SHORTEST_AXIS);
-        }
+        //final boolean needResampling = metersToShow != mCamera.;
+
+        Log.d(TAG, "Building viewport for: " + frameBufferWidth +" : "+frameBufferHeight+ " (showing: "+mMetersToShow+"m)");
+        mCamera = new Viewport(frameBufferWidth, frameBufferHeight, mMetersToShow);
         Log.d(TAG, "\t Density (pixels-per-meter): " + mCamera.getPixelsPerMeterX() +" : "+mCamera.getPixelsPerMeterY());
         if(mLevel != null) {
             Log.d(TAG, "Reloading all bitmaps.");
@@ -257,6 +255,11 @@ public class GameEngine implements SurfaceHolder.Callback{
     private void reloadPreferences(){
         if(mJukebox != null){ mJukebox.reloadAndApplySettings(); }
         if(mControls != null){ mControls.reloadAndApplySettings(); }
+        final float newFOV = PreferenceManager.getDefaultSharedPreferences(getContext()).getFloat(METERS_TO_SHOW_PREF_KEY, METERS_TO_SHOW_Y);
+        if(newFOV != mMetersToShow) {
+            mMetersToShow = newFOV;
+            mCameraNeedsUpdating = true;
+        }
         mNeedSettingsReload = false;
     }
     public void onSharedPreferenceChange(){ mNeedSettingsReload = true; }

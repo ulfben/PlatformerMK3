@@ -1,4 +1,5 @@
 package com.ulfben.PlatformerMK3.fragments;
+import android.annotation.SuppressLint;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
@@ -7,6 +8,7 @@ import android.support.annotation.Nullable;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,6 +21,7 @@ import com.ulfben.PlatformerMK3.engine.GameView;
 import com.ulfben.PlatformerMK3.engine.Jukebox;
 import com.ulfben.PlatformerMK3.gui.PauseDialog;
 import com.ulfben.PlatformerMK3.input.ConfigurableGameInput;
+import com.ulfben.PlatformerMK3.utilities.Utils;
 //Created by Ulf Benjaminsson (ulfben) on 2017-04-02.
 
 public class GameFragment extends BaseFragment implements PauseDialog.PauseDialogListener, GameEngine.EngineListener {
@@ -28,6 +31,9 @@ public class GameFragment extends BaseFragment implements PauseDialog.PauseDialo
     private boolean musicEnabled = true;
     private boolean soundEnabled = true;
     private boolean allowMotionControl = true;
+    private float metersToShow = 9;
+    private Toast mCurrentToast = null;
+
     public GameFragment() {
         super();
     }
@@ -70,21 +76,29 @@ public class GameFragment extends BaseFragment implements PauseDialog.PauseDialo
 
     //I keep these around to populate the app bar with
     private void loadPreferences(){
-        musicEnabled =  mPrefs.getBoolean(Jukebox.MUSIC_PREF_KEY, true);
+        metersToShow = mPrefs.getFloat(GameEngine.METERS_TO_SHOW_PREF_KEY, 9.0f);
+        musicEnabled = mPrefs.getBoolean(Jukebox.MUSIC_PREF_KEY, true);
         soundEnabled = mPrefs.getBoolean(Jukebox.SOUNDS_PREF_KEY, true);
         allowMotionControl = mPrefs.getBoolean(ConfigurableGameInput.ACCELEROMETER_PREF_KEY, true);
     }
     private void updatePreferences(){
-        mPrefs.edit().putBoolean(Jukebox.SOUNDS_PREF_KEY, soundEnabled).apply();
-        mPrefs.edit().putBoolean(Jukebox.MUSIC_PREF_KEY, musicEnabled).apply();
-        mPrefs.edit().putBoolean(ConfigurableGameInput.ACCELEROMETER_PREF_KEY, allowMotionControl).apply();
+        metersToShow = Utils.clamp(metersToShow, 1f, 255f);
+        mPrefs.edit().putFloat(GameEngine.METERS_TO_SHOW_PREF_KEY, metersToShow)
+                .putBoolean(Jukebox.SOUNDS_PREF_KEY, soundEnabled)
+                .putBoolean(Jukebox.MUSIC_PREF_KEY, musicEnabled)
+                .putBoolean(ConfigurableGameInput.ACCELEROMETER_PREF_KEY, allowMotionControl).apply();
         mGameEngine.onSharedPreferenceChange();
     }
 
-    //TODO: add settings to app bar,
-    // including forced orientation!
-    // TODO: music doesn't restart
-    // TODO: and maybe option to hide app bar?
+    @Override
+    public void onCreateOptionsMenu(final Menu menu, final MenuInflater inflater) {
+        Log.d(TAG, "onCreateOptionsMenu");
+        super.onCreateOptionsMenu(menu, inflater);
+        inflater.inflate(R.menu.action_bar, menu);
+    }
+
+    //TODO: color icons on app bar (iconTint, tint something something)
+    // TODO: check appbar when going between startmenu / fragment
     @Override
     public void onPrepareOptionsMenu(Menu menu) {
         Log.d(TAG, "onPrepareOptionsMenu");
@@ -105,29 +119,50 @@ public class GameFragment extends BaseFragment implements PauseDialog.PauseDialo
         switch (item.getItemId()) {
             case R.id.musicToggle:
                 musicEnabled = !musicEnabled;
-                Toast.makeText(a, "Music: " + musicEnabled, Toast.LENGTH_SHORT).show();
+                showToast("Music: " + musicEnabled, Toast.LENGTH_SHORT);
                 updatePreferences();
                 return true;
             case R.id.sfxToggle:
                 soundEnabled = !soundEnabled;
-                Toast.makeText(a, "SFX: "+soundEnabled, Toast.LENGTH_SHORT).show();
+                showToast("SFX: "+soundEnabled, Toast.LENGTH_SHORT);
                 updatePreferences();
                 return true;
             case R.id.rotationToggle:
                 allowMotionControl = !allowMotionControl;
-                Toast.makeText(a, "Motion controls: "+allowMotionControl, Toast.LENGTH_SHORT).show();
+                showToast("Motion controls: "+allowMotionControl, Toast.LENGTH_SHORT);
+                updatePreferences();
+                return true;
+            case R.id.zoomIn:
+                if(metersToShow > 1){ metersToShow--; }
+                showToast("Showing: "+metersToShow+" meters", Toast.LENGTH_SHORT);
+                updatePreferences();
+                return true;
+            case R.id.zoomOut:
+                if(metersToShow < 20){ metersToShow++; }
+                showToast("Showing: "+metersToShow+" meters", Toast.LENGTH_SHORT);
                 updatePreferences();
                 return true;
             case R.id.screenLockLandscape:
-                Toast.makeText(a, "Lock landscape!", Toast.LENGTH_SHORT).show();
+                showToast("Lock landscape!", Toast.LENGTH_SHORT);
                 if(a != null) { a.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE); }
                 return true;
             case R.id.screenLockPortrait:
-                Toast.makeText(a, "Lock portrait!", Toast.LENGTH_SHORT).show();
+                showToast("Lock portrait!", Toast.LENGTH_SHORT);
                 if(a != null) { a.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT); }
                 return true;
         }
         return false;
+    }
+
+    @SuppressLint("ShowToast")
+    private void showToast(final String text, final int duration){
+        if(mCurrentToast == null){
+            mCurrentToast = Toast.makeText(getMainActivity(), text, duration);
+        }else {
+            mCurrentToast.setText(text);
+        }
+        mCurrentToast.setDuration(duration);
+        mCurrentToast.show();
     }
 
     @Override

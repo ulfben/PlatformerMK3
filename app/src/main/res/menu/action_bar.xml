@@ -3,6 +3,19 @@
       xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
+        android:id="@+id/zoomIn"
+        android:icon="@drawable/ic_zoom_in"
+        android:iconTint="@color/colorAccent"
+        android:title="@string/zoom_in"
+        app:showAsAction="always"/>
+    <item
+        android:id="@+id/zoomOut"
+        android:icon="@drawable/ic_zoom_out"
+        android:iconTint="@color/colorAccent"
+        android:title="@string/zoom_out"
+        app:showAsAction="always"/>
+
+    <item
         android:id="@+id/screenLockLandscape"
         android:icon="@drawable/ic_screen_lock_landscape"
         android:iconTint="@color/colorAccent"

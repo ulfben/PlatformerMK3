@@ -24,6 +24,7 @@ public class BitmapPool {
         return bmp;
     }
 
+    public static int size(){ return mBitmaps.size(); }
     public static String makeKey(final String name, final float width, final float height){
         return name+"_"+width+"_"+height;
     }
