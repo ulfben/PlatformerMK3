@@ -2,6 +2,9 @@ package com.ulfben.PlatformerMK3.fragments;
 import android.annotation.SuppressLint;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffColorFilter;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
@@ -93,25 +96,24 @@ public class GameFragment extends BaseFragment implements PauseDialog.PauseDialo
     @Override
     public void onCreateOptionsMenu(final Menu menu, final MenuInflater inflater) {
         Log.d(TAG, "onCreateOptionsMenu");
+        inflater.inflate(R.menu.developer_menu, menu);
         super.onCreateOptionsMenu(menu, inflater);
-        inflater.inflate(R.menu.action_bar, menu);
     }
 
-    //TODO: color icons on app bar (iconTint, tint something something)
-    // TODO: check appbar when going between startmenu / fragment
     @Override
     public void onPrepareOptionsMenu(Menu menu) {
         Log.d(TAG, "onPrepareOptionsMenu");
+        for (int i = menu.size()-1; i >= 0; i--) {
+            final MenuItem item = menu.getItem(i);
+            final Drawable icon = menu.getItem(i).getIcon();
+            if (icon == null) { continue; }
+            icon.mutate(); //mutate so we don't color every copy of this icon.
+            icon.setColorFilter(new PorterDuffColorFilter(getResources().getColor(R.color.white), PorterDuff.Mode.SRC_IN));
+            item.setIcon(icon);
+        }
         super.onPrepareOptionsMenu(menu);
-        //menu.findItem().getIcon().setColorFilter()
-        /*menu.findItem(R.id.musicToggle).setOnMenuItemClickListener(
-            new MenuItem.OnMenuItemClickListener() {
-                @Override
-                public boolean onMenuItemClick(final MenuItem menuItem) {
-                    return false;
-                }
-        });*/
     }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         Log.d(TAG, "onOptionsItemSelected");

@@ -130,15 +130,12 @@ public class LevelManager {
     }
 
     private void cleanup(){
-        Log.d(TAG, "Cleaning the BitmapPool: "+BitmapPool.size());
         for (final GameObject go : mGameObjects){
             go.destroy();
         }
-        Log.d(TAG, "\tDone: "+BitmapPool.size());
-        mPlayer = null;
         mGameObjects.clear();
+        mPlayer = null;
         BitmapPool.empty();
-        Log.d(TAG, "\tDouble check: "+BitmapPool.size());
     }
 
     public void destroy(){

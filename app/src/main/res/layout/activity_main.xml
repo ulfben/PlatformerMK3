@@ -5,7 +5,7 @@
              tools:context="com.ulfben.PlatformerMK3.MainActivity" tools:ignore="MergeRootFrame">
 
     <android.support.v7.widget.Toolbar
-        android:id="@+id/action_bar"
+        android:id="@+id/developer_menu"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
         android:background="?attr/colorPrimary"

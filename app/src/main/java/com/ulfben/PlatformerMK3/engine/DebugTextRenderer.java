@@ -30,8 +30,8 @@ class DebugTextRenderer {
         DBG_STRINGS[3] = String.format(LOCALE, DBG_UPS, FRAMERATE);
     }
 
-    public static void render(final Canvas canvas, final Viewport camera, final Paint paint){
-        final int textSize = 15; //let text have 5% off screen height
+    static void render(final Canvas canvas, final Viewport camera, final Paint paint){
+        final int textSize = 20;
         final int margin = 10;
         int y = camera.getScreenHeight()-margin;
         paint.setTextSize(textSize);

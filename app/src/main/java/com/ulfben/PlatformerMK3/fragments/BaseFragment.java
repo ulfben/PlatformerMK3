@@ -1,12 +1,11 @@
 package com.ulfben.PlatformerMK3.fragments;
-import android.support.v4.app.Fragment;
 
 import com.ulfben.PlatformerMK3.MainActivity;
 import com.ulfben.PlatformerMK3.gui.Dialog;
 
 //Created by Ulf Benjaminsson (ulfben) on 2017-04-02.
 
-public class BaseFragment extends Fragment {
+public class BaseFragment extends android.support.v4.app.Fragment {
     private Dialog mCurrentDialog = null;
 
     void showDialog(final Dialog newDialog) {

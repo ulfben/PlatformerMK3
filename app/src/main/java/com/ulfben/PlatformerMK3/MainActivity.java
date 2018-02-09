@@ -1,7 +1,6 @@
 package com.ulfben.PlatformerMK3;
 
 import android.content.Context;
-import android.content.pm.ActivityInfo;
 import android.hardware.input.InputManager;
 import android.media.AudioManager;
 import android.os.Build;
@@ -48,9 +47,9 @@ public class MainActivity extends AppCompatActivity implements InputManager.Inpu
                     .add(R.id.container, new MainMenuFragment(), FRAGMENT_TAG)
                     .commit();
         }
-        Toolbar toolbar = findViewById(R.id.action_bar);
+        Toolbar toolbar = findViewById(R.id.developer_menu);
         setSupportActionBar(toolbar);
-        hideActionBar(); //only show the actionbar during game play
+        //hideActionBar(); //only show the actionbar during game play
         hideSystemUI();
     }
 
@@ -88,8 +87,9 @@ public class MainActivity extends AppCompatActivity implements InputManager.Inpu
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        //getMenuInflater().inflate(R.menu.action_bar, menu);
         Log.d(TAG, "onCreateOptionsMenu");
+        //we're not inflating the menu until we're in the gamefragment
+        //getMenuInflater().inflate(R.menu.developer_menu, menu);
         return true;
     }
 
